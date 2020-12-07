@@ -1,4 +1,0 @@
-C:\Important_Data
-C:\Important_Data_2
-D:\Another_Folder
-D:\Yet_Another_Folder
