@@ -1,3 +1,4 @@
+@echo off
 REM Version and Github_upload date: 1.0 (05-12-2020)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
@@ -8,8 +9,6 @@ REM Documentation: Checkout the file: Howto_Description.pdf
 REM Test_Disclaimer: This script has been tested on: Microsoft Windows 10 64bit home (Danish).
 REM                  Feel free to use this script/software at your own risk.
 REM File Encoding: utf-8
-
-@echo off
 
 set varGeneralSettingsFile=..\Settings.ini
 CALL ..\utility_functions :readBackupSettingsFile "%varGeneralSettingsFile%"
