@@ -1,6 +1,7 @@
+@echo off
 REM Version and Github_upload date: 1.0 (05-12-2020)
 REM Author/Developer: Søren Madsen
-REM Github url: https://github.com/MrSmadsen/Development/Microsoft_Batch/SimpleBackup
+REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
 REM             provided by standard archiving programs such as 7zip.
 REM             It has been developed for my personal setup and my own use case.
@@ -9,7 +10,6 @@ REM Test_Disclaimer: This script has been tested on: Microsoft Windows 10 64bit 
 REM                  Feel free to use this script/software at your own risk.
 REM File Encoding: utf-8
 
-@echo off
 REM This file was added to be able to start the backup script as administrator without adding a "cd" command to the original script.
 REM The "move folder" command doesn't work on my setup as a regular user and requires admin priviliges. Hence this change.
 REM By adding this extra "startup batchfile" we can start the backup script as admin's without changing the original script.

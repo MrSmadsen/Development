@@ -1,6 +1,7 @@
+@echo off
 REM Version and Github_upload date: 1.0 (05-12-2020)
 REM Author/Developer: Søren Madsen
-REM Github url: https://github.com/MrSmadsen/Development/Microsoft_Batch/SimpleBackup
+REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
 REM             provided by standard archiving programs such as 7zip.
 REM             It has been developed for my personal setup and my own use case.
