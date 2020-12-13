@@ -151,11 +151,13 @@ CALL ..\logging :Append_NewLine_To_LogFile "%~1" "%~3" "%~4"
 PAUSE
 EXIT
 
-REM If the scipt fails this function will deletes Files and folders created.
+REM If the script fails this function will deletes Files and folders created.
 :Cleanup
 IF EXIST "%varTargetBackupfolder%" (
   CALL ..\logging :Append_NewLine
-  rmdir /Q /S "%varTargetBackupfolder%"
-  ECHO Deleted folder: %varTargetBackupfolder%
+  IF "%varMode%"=="a" (
+    rmdir /Q /S "%varTargetBackupfolder%"
+    ECHO Deleted folder: %varTargetBackupfolder%
+  )
 )
 EXIT /B 0

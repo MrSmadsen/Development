@@ -75,6 +75,11 @@ SET varMode=x
 SET "varApplicationFunctionText=Extract archive with full paths"
 SET /a varCount += 1
 )
+IF %varAppFunctionVerifyChecksum%==YES (
+SET varMode=v
+SET "varApplicationFunctionText=Verify the SHA512 checksum"
+SET /a varCount += 1
+)
 
 IF %varMode%==NO_APPLICATION_FUNCTION_DEFINED (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Error in Application function configuration. Please check Application Function options in varSettingsFile. Exit" "OUTPUT_TO_STDOUT" ""
@@ -106,6 +111,9 @@ IF %varAppFunctionExtractFilestoFolder%==YES (
 )
 IF %varAppFunctionExtractFilesWithFullFilePath%==YES (
   CALL :PerformExtractFilesPreconditionalChecks
+)
+IF %varAppFunctionVerifyChecksum%==YES (
+  CALL :PerformVerifyChecksumPreconditionalChecks
 )
 EXIT /B 0
 
@@ -247,7 +255,7 @@ IF !varCheck!==YES (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
 )
 
-IF NOT EXIST %varExistingArchivePath%\%varExistingArchiveFileName% (
+IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchiveFileName does not exist. Exit." "OUTPUT_TO_STDOUT" ""
 )
 setlocal disabledelayedexpansion
@@ -281,8 +289,33 @@ IF !varCheck!==YES (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
 )
 
-IF NOT EXIST %varExistingArchivePath%\%varExistingArchiveFileName% (
+IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchiveFileName does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+)
+setlocal disabledelayedexpansion
+EXIT /B 0
+
+:PerformVerifyChecksumPreconditionalChecks
+setlocal enabledelayedexpansion
+set varCheck=EMPTY
+CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
+IF !varCheck!==NO (
+  IF EXIST "%varExistingArchivePath%" (
+  ECHO.
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+  )
+)
+IF !varCheck!==YES (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
+)
+
+IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchiveFileName does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+IF NOT EXIST "%varExistingChecksumFile%" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingChecksumFile does not exist. Exit." "OUTPUT_TO_STDOUT" ""
 )
 setlocal disabledelayedexpansion
 EXIT /B 0
@@ -309,6 +342,10 @@ IF %varMode%==x (
   CALL :UseExistingFolderWithDate
   CALL :SetupExistingArchiveFiles
   CALL :PrepareExtraction
+)
+IF %varMode%==v (
+  CALL :UseExistingFolderWithDate
+  CALL :SetupExistingArchiveFiles
 )
 EXIT /B 0
 
@@ -353,8 +390,10 @@ IF %varMode%==u (
   SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-ExtractFullPath-logfile.txt"
 ) ELSE IF %varMode%==t (
   SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-IntegrityTest-logfile.txt"
+) ELSE IF %varMode%==v (
+  SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-VerifyChecksum-logfile.txt"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "Error in varMode. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Error in varMode. Exit" "OUTPUT_TO_STDOUT" ""
 )
 CALL ..\logging :createLogFile "%varTargetLogFile%" "V"
 EXIT /B 0
@@ -393,8 +432,10 @@ IF %varMode%==a (
   CALL :ExtractBackupArchive
 ) ELSE IF %varMode%==x (
   CALL :ExtractBackupArchive
+) ELSE IF %varMode%==v (
+  CALL :VerifyChecksum
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "Error in varMode. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Error in varMode. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
@@ -459,7 +500,6 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:              
 
 CALL :DoUpdateArchive
 CALL :End
-REM CALL :CalculateCrc_SHA512 - VERIFY SHA_512?
 EXIT /B 0
 
 :TestBackupArchiveIntegrity
@@ -475,7 +515,6 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:              
 
 CALL :DoIntegrityTest
 CALL :End
-REM CALL :CalculateCrc_SHA512 - VERIFY SHA_512?
 EXIT /B 0
 
 :ExtractBackupArchive
@@ -492,6 +531,22 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Extract to:            
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
 CALL :DoExtractFiles
+CALL :End
+EXIT /B 0
+
+:VerifyChecksum
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Starting to verify the checksum/checksums of the archive: Time of checksum verification %varDate%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                    %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                       %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+
+
+CALL :CalculateCrc_SHA512
 CALL :End
 EXIT /B 0
 
@@ -736,6 +791,10 @@ for /f "delims=" %%F in ('dir "%varDir%" /b /a-d') do (
 cd /d "%originalDir%"
 setlocal disabledelayedexpansion
 REM endlocal
+EXIT /B 0
+
+:Verify_SHA512
+ECHO IMPLEMENT THE FUNCTION TO VERIFY SHA512 CHECKSUM!
 EXIT /B 0
 
 REM Param_1: Errorlevel provided. The errorlevel is saved just after 7zip execution. to avoid other functions overwriting errorlevel.
