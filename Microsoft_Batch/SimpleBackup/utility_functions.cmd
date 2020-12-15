@@ -151,13 +151,19 @@ CALL ..\logging :Append_NewLine_To_LogFile "%~1" "%~3" "%~4"
 PAUSE
 EXIT
 
-REM If the script fails this function will deletes Files and folders created.
+REM If this function is enabled with SET varCleanupEnabled=CLEANUP_ENABLED or SET varCleanupEnabled=CLEANUP_ASK
+REM the folder defined in variable varTargetBackupfolder is deleted.
 :Cleanup
 IF EXIST "%varTargetBackupfolder%" (
   CALL ..\logging :Append_NewLine
-  IF "%varMode%"=="a" (
+
+  IF "%varCleanupEnabled%"=="CLEANUP_ENABLED" (
     rmdir /Q /S "%varTargetBackupfolder%"
-    ECHO Deleted folder: %varTargetBackupfolder%
+    ECHO CLEANUP_ENABLED: Deleted folder %varTargetBackupfolder%
+  )
+  IF "%varCleanupEnabled%"=="CLEANUP_ASK" (
+    rmdir /S "%varTargetBackupfolder%"
+    ECHO CLEANUP_ASK: Deleted folder %varTargetBackupfolder%
   )
 )
 EXIT /B 0

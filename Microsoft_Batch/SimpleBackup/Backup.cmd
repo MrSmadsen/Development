@@ -52,6 +52,9 @@ SET varMode=NO_APPLICATION_FUNCTION_DEFINED
 SET varApplicationFunctionText=NO_APPLICATION_FUNCTION_DEFINED
 IF %varAppFunctionBackupFiles%==YES (
 SET varMode=a
+REM Enable the cleanup function in function utility_functions.cmd->Cleanup
+SET varCleanupEnabled=CLEANUP_ENABLED
+REM SET varCleanupEnabled=CLEANUP_ASK
 SET "varApplicationFunctionText=Archive files"
 SET /a varCount += 1
 )
@@ -121,12 +124,6 @@ EXIT /B 0
 SET "varExecutable=%varArchiverPath%\%varArchiveProgram%"
 IF NOT EXIST "%varExecutable%" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The archive program not found. %varExecutable%" "OUTPUT_TO_STDOUT" ""
-)
-IF EXIST ".\%varFileList%" (
-  ECHO.
-  REM CHECK ACCESS CALL ..\fileSystem :CheckFileReadAccess
-) ELSE (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The file %varFileList% not found." "OUTPUT_TO_STDOUT" ""
 )
 
 SET varCheck=FALSE
@@ -234,6 +231,18 @@ IF %varExportSvn%==YES (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Repository path is an url, the repository path should be a local file path, Part - varRepositoryDumpLocation" "OUTPUT_TO_STDOUT" ""
   )
 )
+
+REM Verify the paths in varFileList
+IF EXIST ".\%varFileList%" (
+  REM Verify the paths in varFileList
+  FOR /f "usebackq delims=" %%x in ("%varFileList%") do (
+    IF NOT EXIST "%%x" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The path %%x from %varFileList% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+    )
+  )
+) ELSE (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The file %varFileList% not found." "OUTPUT_TO_STDOUT" ""
+)
 setlocal disabledelayedexpansion
 EXIT /B 0
 
@@ -257,6 +266,18 @@ IF !varCheck!==YES (
 
 IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchiveFileName does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%varMode%"=="u" (
+  IF NOT EXIST ".\%varFileList%" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The file %varFileList% not found." "OUTPUT_TO_STDOUT" ""
+  )
+  REM Verify the paths in varFileList
+  FOR /f "usebackq delims=" %%x in ("%varFileList%") do (
+    IF NOT EXIST "%%x" (
+      CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The path %%x from %varFileList% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+    )
+  )
 )
 setlocal disabledelayedexpansion
 EXIT /B 0
@@ -364,6 +385,7 @@ IF EXIST "%varTargetBackupfolder%" (
 )
 EXIT /B 0
 
+REM Do not change the texts used to generate files names etc. It will most certainly break the functionality in other functions.
 :CreateNewArchiveFiles
 ECHO Creating new archive files.
 SET "varTargetBackupSet=%varTargetBackupfolder%%varDate%-backup.%varFormat%"
@@ -546,7 +568,7 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:           
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
 
-CALL :CalculateCrc_SHA512
+CALL :Verify_SHA512
 CALL :End
 EXIT /B 0
 
@@ -697,6 +719,7 @@ IF %varPassword%==YES (
   "%varArchiverPath%\%varArchiveProgram%" %varSplitFlag% %varMode% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
 )
 SET varAppErrorCode=%ERRORLEVEL%
+REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
 EXIT /B 0
 
@@ -706,6 +729,9 @@ IF %varFormat%%==7z (
 ) ELSE (
   "%varArchiverPath%\%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varUtcFlag%
 )
+SET varAppErrorCode=%ERRORLEVEL%
+REM The evaluation function does not work properly when called from within SETLOCAL
+CALL :Evaluation %varAppErrorCode%
 EXIT /B 0
 
 :DoIntegrityTest
@@ -735,6 +761,7 @@ IF %varCheckForSplitFile%==YES (
 ECHO Testing file: "%varTargetBackupfolder%\!varSearchString!"
 "%varArchiverPath%\%varArchiveProgram%" t "%varTargetBackupfolder%\!varSearchString!" * -r
 SET varAppErrorCode=!ERRORLEVEL!
+REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation !varAppErrorCode!
 setlocal disabledelayedexpansion
 EXIT /B 0
@@ -743,6 +770,7 @@ EXIT /B 0
 SET varAppErrorCode=0
 "%varArchiverPath%\%varArchiveProgram%" %varMode% "%varTargetBackupSet%" -o%varExtractionLocation% * -r %varOverWriteFilesFlag%
 SET varAppErrorCode=%ERRORLEVEL%
+REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
 EXIT /B 0
 
@@ -750,23 +778,30 @@ REM This function uses certutil to calculate the checksum.
 REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 file.extension.
 :CalculateCrc_SHA512
 setlocal enabledelayedexpansion
-SET "varDir=%varTargetBackupfolder%"
-SET varSearchString=!varTargetFileName!
-SET varAppErrorCode=0
+
+for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
+  SET varSearchString=%%F.%%G
+)
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "SHA_512 checksums will be calculated for archive files in the backup destination folder." "OUTPUT_TO_STDOUT" ""
 
-SET varTargetChecksumFile=%varTargetBackupfolder%%varDate%-SHA512.txt
+SET varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-SHA512.txt
 CALL ..\logging :createLogFile "%varTargetChecksumFile%" "V"
 
+SET /a varProcessedFileCount=0
+SET /a varFailedFileCount=0
 SET /a varFileCount=0
-REM Shows only files in the directory %varDir% in simple output format.
-for /f "delims=" %%F in ('dir "%varDir%" /b /a-d') do (
+REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
+for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
   echo %%F|findstr /i /b "!varSearchString!">nul
   IF !ERRORLEVEL!==0 (
     SET /a varFileCount +=1
   )
+)
+
+IF %varFileCount% EQU 0 (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Calculating SHA_512 crc failed. No archive files found. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
@@ -775,33 +810,164 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 
 set originalDir=%cd%
 cd /d "%varTargetBackupfolder%"
+REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
+for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
+  cd /d "%originalDir%"
+  echo %%A|findstr /i /b "!varSearchString!">nul
+  IF !ERRORLEVEL!==0 (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating SHA_512 crc for file: %%A" "OUTPUT_TO_STDOUT" ""
+    cd /d "%varTargetBackupfolder%"
+    
+    SET/a count=0
+    REM Certutil will return 3 lines. We skip the first. We then have to process 2 lines. Hence the usage of count.
+    REM Line 1: The SHA512 checksum
+    REM Line 2: did certutil process succeed or fail.
+    for /f "skip=1 tokens=*" %%F in ('certutil -hashfile "%%A" SHA512') do (
+      cd /d "%originalDir%"
+      IF NOT !ERRORLEVEL!==0 (
+        CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Calculating SHA_512 crc for file: %%A Failed. ErorLevel: !ERROR_LEVEL!. Exit." "OUTPUT_TO_STDOUT" ""
+      )
+      SET/a count=!count!+1
+      REM Put checksum into variable
+      IF !count! EQU 1 (
+        SET varSHA512ChecksumValue=%%F
+      )
+      IF !count! EQU 2 (
+        SET varCertutilResultStr=%%F
+        CALL ..\logging :Append_To_LogFile "%varTargetChecksumFile%" "%%A=!varSHA512ChecksumValue!" "OUTPUT_TO_STDOUT" ""
+        CALL ..\logging :Append_To_LogFile "%varTargetChecksumFile%" "!varCertutilResultStr!" "OUTPUT_TO_STDOUT" ""
+        CALL ..\logging :Append_NewLine_To_LogFile "%varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+        SET/a count=0
+      )
+      cd /d "%varTargetBackupfolder%"
+    )
+    cd /d "%originalDir%"
+    SET /a varProcessedFileCount=!varProcessedFileCount!+1
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating SHA_512 crc for file: %%A performed with success." "" ""
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    cd /d "%varTargetBackupfolder%"
+  )
+)
 
-REM Shows only files in the directory %varDir% in simple output format.
-for /f "delims=" %%F in ('dir "%varDir%" /b /a-d') do (
+cd /d "%originalDir%"
+SET /a varFailedFileCount=(!varFileCount!-!varProcessedFileCount!)
+IF !varProcessedFileCount! EQU !varFileCount! (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating SHA_512 crc for !varProcessedFileCount! of !varFileCount! file/files. Checksum generation succeeded." "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating SHA_512 crc for !varFailedFileCount! of !varFileCount! file/files." "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checksum calculation failed." "OUTPUT_TO_STDOUT" ""
+  setlocal disabledelayedexpansion
+  EXIT /B 1
+)
+setlocal disabledelayedexpansion
+EXIT /B 0
+
+REM This function uses certutil to calculate the checksum.
+REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 file.extension.
+:Verify_SHA512
+setlocal enabledelayedexpansion
+REM SET varIsSplitFile=NO
+
+for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
+  SET varSearchString=%%F.%%G
+)
+
+REM Retrieve the dataTime part of the TargetFilename. We use it to find the SHA512 checksum file.
+for /f "tokens=1-4 delims=-" %%F in ("!varSearchString!") do (
+  SET varTmpStr=%%F-%%G-%%H-%%I
+)
+
+SET varTargetChecksumFile=%varTargetBackupfolder%\!varTmpStr!-SHA512.txt
+IF NOT EXIST "%varTargetChecksumFile%" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Checksumfile %varTargetChecksumFile% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+SET /a varProcessedFileCount=0
+SET /a varFailedFileCount=0
+SET /a varFileCount=0
+REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
+for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
   echo %%F|findstr /i /b "!varSearchString!">nul
   IF !ERRORLEVEL!==0 (
-    cd /d "%originalDir%"
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating SHA_512 crc for file: %%F" "OUTPUT_TO_STDOUT" ""
+    SET /a varFileCount +=1
+  )
+)
+
+IF %varFileCount% EQU 0 (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Calculating SHA_512 crc failed. No archive files found. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "No. of files to process: !varFileCount!" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+
+set originalDir=%cd%
+cd /d "%varTargetBackupfolder%"
+REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
+for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
+  cd /d "%originalDir%"
+  echo %%A|findstr /i /b "!varSearchString!">nul
+  IF !ERRORLEVEL!==0 (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating SHA_512 crc for file: %%A" "OUTPUT_TO_STDOUT" ""
     cd /d "%varTargetBackupfolder%"
-    (certutil -hashfile %%F SHA512) >> "%varTargetChecksumFile%"
-    cd /d "%originalDir%"
-    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetChecksumFile%" "" ""
+    
+    SET/a count=0
+    REM Certutil will return 3 lines. We skip the first. We then have to process 2 lines. Hence the usage of count.
+    REM Line 1: The SHA512 checksum
+    REM Line 2: did certutil process succeed or fail.
+    for /f "skip=1 tokens=*" %%F in ('certutil -hashfile "%%A" SHA512') do (
+      cd /d "%originalDir%"
+      IF NOT !ERRORLEVEL!==0 (
+        CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Calculating SHA_512 crc for file: %%A Failed. ErorLevel: !ERROR_LEVEL!. Exit." "OUTPUT_TO_STDOUT" ""
+      )
+      SET/a count=!count!+1
+      REM Put checksum into variable
+      IF !count! EQU 1 (
+        SET varSHA512ChecksumValue=%%F
+      )
+      IF !count! EQU 2 (
+        SET varCertutilResultStr=%%F
+        CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculated: !varSHA512ChecksumValue!" "OUTPUT_TO_STDOUT" ""
+        CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "!varCertutilResultStr!" "OUTPUT_TO_STDOUT" ""
+        CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+        
+        FOR /f "usebackq tokens=* delims==" %%x in ("%varTargetChecksumFile%") do (
+          echo %%x|findstr /i /b "%%A">nul
+          IF !ERRORLEVEL!==0 (
+            FOR /f "tokens=2 delims==" %%y in ("%%x") do (
+              SET varSHA512ChecksumFromFile=%%y
+              CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "From file:  !varSHA512ChecksumFromFile!" "OUTPUT_TO_STDOUT" ""
+            )
+            IF !varSHA512ChecksumValue! EQU !varSHA512ChecksumFromFile! (
+              SET /a varProcessedFileCount=!varProcessedFileCount!+1
+            )
+          )
+        )
+        CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+        SET/a count=0
+      )
+      cd /d "%varTargetBackupfolder%"
+    )
   )
 )
 cd /d "%originalDir%"
+SET /a varFailedFileCount=(!varFileCount!-!varProcessedFileCount!)
+IF !varProcessedFileCount! EQU !varFileCount! (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating SHA_512 crc for !varProcessedFileCount! of !varFileCount! file/files. Checksum verification succeeded." "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Reading SHA512 checksum from %varTargetChecksumFile% failed for !varFailedFileCount! of !varFileCount! file/files." "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checksum verification failed." "OUTPUT_TO_STDOUT" ""
+  setlocal disabledelayedexpansion
+  EXIT /B 1
+)
 setlocal disabledelayedexpansion
-REM endlocal
-EXIT /B 0
-
-:Verify_SHA512
-ECHO IMPLEMENT THE FUNCTION TO VERIFY SHA512 CHECKSUM!
 EXIT /B 0
 
 REM Param_1: Errorlevel provided. The errorlevel is saved just after 7zip execution. to avoid other functions overwriting errorlevel.
 :Evaluation
 if %1==0 (
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: %1" "OUTPUT_TO_STDOUT" ""
-   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: No error - Backup ok" "OUTPUT_TO_STDOUT" ""
+   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: No error - Processing ok" "OUTPUT_TO_STDOUT" ""
 ) else if %1==1 (
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: %1" "OUTPUT_TO_STDOUT" ""
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: Warning-Non fatal error. But something went wrong" "OUTPUT_TO_STDOUT" ""

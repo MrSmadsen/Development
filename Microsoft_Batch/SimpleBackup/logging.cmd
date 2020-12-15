@@ -158,6 +158,6 @@ IF %varLogToSTDOUTOK%==NOT_DEFINED IF ["%~3"]==["OUTPUT_TO_STDOUT"] (
 
 REM if %1 has double quotes around it, %~1 will strip the quote signs.
 REM "%~1" ensures we always echo to a quoted filePath.
-IF %varLogToSTDOUTOK%==YES  ( ECHO %~2 )
-IF %varLogToFileOK%==YES    ( ECHO %~2 >> "%~1" )
+IF %varLogToSTDOUTOK%==YES ECHO %~2
+IF %varLogToFileOK%==YES   ECHO %~2>>"%~1"
 Exit /B 0
