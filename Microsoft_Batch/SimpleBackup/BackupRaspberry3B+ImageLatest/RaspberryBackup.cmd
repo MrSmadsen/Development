@@ -30,6 +30,12 @@ EXIT /B 0
 
 REM Copy the SHA file to repo and do a commit.
 :PostBackupProcedures
+
+REM Only perform PostBackupProcedures if varmode == a.
+IF NOT "%varMode%"=="a" (
+  EXIT /B 0
+)
+
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "------------ Performing PostBackup user functions ------------" "OUTPUT_TO_STDOUT" ""
 
