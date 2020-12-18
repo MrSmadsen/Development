@@ -10,6 +10,12 @@ REM Test_Disclaimer: This script has been tested on: Microsoft Windows 10 64bit 
 REM                  Feel free to use this script/software at your own risk.
 REM File Encoding: utf-8
 
+REM Todo: Test and potentially use the function: fileSystem->getDataFromPath to cleanup paths.
+REM Todo: Add white space trimming support to the SHA512 functions to avoid accidentally adding
+      REM whitespace to a calculated checksum value. - Maybe add my own endChar to the string. filter
+      REM it away when verification is performed.
+      REM This has been solved by using svn icon overlay on the files so a change will result in a red exclamation mark on the file.
+
 REM Set code page to unicode - Requires that the batfile is saved in unicode utf-8 format.
 chcp %varCodePage% > nul
 
@@ -478,25 +484,26 @@ FOR /f "usebackq delims=" %%x in ("%varFileList%") do (
 )
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Format:                            %varFormat%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "CompressionLevel:                  %varCompressionLvl%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                    %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Split archive into volumes:        %varSplitArchiveFile%, VolumeSizeSwitch: %varSplitVolumesize%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Password protect the archive file: %varPassword%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:    %varIntegrityTest%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders:                      %varMoveFolders%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders back:                 %varMoveFoldersBack%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Export SVN repository:             %varExportSvn%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                       %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:                 %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                                 %varMode%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Format:                               %varFormat%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "CompressionLevel:                     %varCompressionLvl%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                       %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Split archive into volumes:           %varSplitArchiveFile%, VolumeSizeSwitch: %varSplitVolumesize%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Password protect the archive file:    %varPassword%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:       %varIntegrityTestDuringBackup%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include SHA512 checksum verification: %varChecksumVerificationDuringBackup%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders:                         %varMoveFolders%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders back:                    %varMoveFoldersBack%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Export SVN repository:                %varExportSvn%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                          %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                             %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
 CALL :SetSplitFlag
 CALL :SetupCompressionFlags
 CALL :DoCompressfiles
 
-IF %varIntegrityTest%==YES (
+IF %varIntegrityTestDuringBackup%==YES (
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "Performing Integrity test of file: %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
   CALL :DoIntegrityTest
@@ -504,6 +511,14 @@ IF %varIntegrityTest%==YES (
 )
 
 CALL :CalculateCrc_SHA512
+
+IF %varChecksumVerificationDuringBackup%==YES (
+  CALL ..\logging :Append_To_LogFile "Performing SHA512 checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  CALL :Verify_SHA512
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+)
+
 CALL :MoveMultipleFoldersBack
 CALL :End
 EXIT /B 0
