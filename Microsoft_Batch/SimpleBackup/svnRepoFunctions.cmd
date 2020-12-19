@@ -17,11 +17,13 @@ REM Param_1: Function_To_Be_Called
 REM Param_2: Function_Param_1
 REM Param_3: Function_Param_2
 REM Param_4: Function_Param_3
-CALL %1 %2 %3 %4
+REM Param_5: Function_Param_4
+REM Param_6: Function_Param_5
+REM Param_7: Function_Param_6
+CALL %1 %2 %3 %4 %5 %6 %7
 EXIT /B 0
 
 REM Param_1: Svn repository check out to update
-REM Param_2: Optional flags to pass to svn.exe.
 :svnUpdate
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
@@ -38,27 +40,17 @@ IF !varCheck!==YES (
 )
 setlocal disabledelayedexpansion
 set execPath="%varSvnPath%"
-set "varFlags=%~2"
 
 REM Oberservation:
 REM It seems that if spaces in folder names occure in the path before reaching
 REM the repository root folder makes svn.exe commands fail on windows 10.
 REM Spaces in folder names "inside the repository"-part of the path is not a problem.
-
-REM SET "varReturnDir=%CD%"
-REM cd /d "%~1"
-REM %execPath% update %varFlags% "."
-REM %execPath% update %varFlags% "%~1"
-
-%execPath% update %varFlags% %~1
-
-
+%execPath% update "%~1"
 IF %ERRORLEVEL% NEQ 0 (
   REM cd /d "%varReturnDir%"
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "svnUpdate failed. Errorlevel: %ERRORLEVEL%." "OUTPUT_TO_STDOUT" ""
   EXIT /B 1
 )
-REM cd /d "%varReturnDir%"
 EXIT /B 0
 
 REM Param_1: Path to svn repository on server.
@@ -94,7 +86,67 @@ IF %ERRORLEVEL% NEQ 0 (
 EXIT /B 0
 
 REM Param_1: Svn repository check out to get status from
-REM Param_2: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files in the folder.
+REM Param_2: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
+REM Param_3: Update before calling status.   (YES | NO)
+REM Param_4: Throw exception if out of date. (YES | NO)
+REM Param_5: Throw exception if changes are found. (YES | NO)
+REM Param_6: Number of acceptable changes.
+:CheckWorkingCopyForChanges
+SET /a varNoOfAcceptableChanges=%6
+REM this file contains the result of the SvnStatus call.
+IF EXIST .\__VerifyFileStateBeforeCriticalFunction_test.txt (
+  CALL ..\fileSystem :deleteFile ".\__VerifyFileStateBeforeCriticalFunction_test.txt" "" ""
+)
+
+IF "%~3"=="YES" (
+  CALL ..\svnRepoFunctions :svnUpdate "%~1"
+)
+
+REM createFile is not really required in batch. But I have the function :-) and in other languages it would probably be relevant.
+CALL ..\fileSystem :createFile ".\__VerifyFileStateBeforeCriticalFunction_test.txt" "OVERWRITE_EXISTING_FILE" "V"
+CALL ..\svnRepoFunctions :svnStatus "%~1" "%~2" "%~4" > .\__VerifyFileStateBeforeCriticalFunction_test.txt
+
+REM First edition of this function exits with exception if any change is found.
+SET /a varLineCnt=0
+FOR /f "usebackq delims=" %%x in (".\__VerifyFileStateBeforeCriticalFunction_test.txt") do (
+  SET /a varLineCnt+=1
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Following changes are found the working copy:" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%%x" "OUTPUT_TO_STDOUT" ""
+)
+
+IF %varLineCnt% EQU %varNoOfAcceptableChanges% (
+  IF %varLineCnt% EQU 0 (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%~1 matches the version stored in the svn repository. No changes found." "OUTPUT_TO_STDOUT" ""
+  )
+  IF %varLineCnt% GTR 0 (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%varLineCnt% changes found. %varNoOfAcceptableChanges% are acceptable. Workingcopy OK." "OUTPUT_TO_STDOUT" ""
+  )
+)
+
+IF %varLineCnt% GTR %varNoOfAcceptableChanges% (
+  IF "%~5"=="YES" (
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "%~1 does not match the version in the repository. %varLineCnt% changes found. Only %varNoOfAcceptableChanges% acceptable. Exit." "OUTPUT_TO_STDOUT" ""
+  )
+  IF NOT "%~5"=="YES" (
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%~1 does not match the version in the repository." "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%varLineCnt% changes found. Only %varNoOfAcceptableChanges% acceptable." "OUTPUT_TO_STDOUT" ""
+  )
+  EXIT /B 1
+)
+
+REM Keeping the file for now. The user will be able to see the changes in the file.
+REM IF EXIST .\__VerifyFileStateBeforeCriticalFunction_test.txt (
+REM   CALL ..\fileSystem :deleteFile ".\__VerifyFileStateBeforeCriticalFunction_test.txt" "" ""
+REM )
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+
+EXIT /B 0
+
+REM Param_1: Svn repository check out to get status from
+REM Param_2: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
+REM Param_3: Throw exception if out of date. (YES | NO)
 :svnStatus
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
@@ -130,20 +182,21 @@ REM HEAD is the latest revision in the repository.
 REM BASE is the last revision you have obtained from the repository.
 REM They are the same after a successful commit or update.
 REM When you make changes, your files differ from the BASE copies
-REM echo ON
 for /F "tokens=1,2" %%I in ('%execPath% info -r HEAD %~1') do if "%%I"=="Revision:" set vHEAD=%%J
 for /F "tokens=1,2" %%I in ('%execPath% info -r BASE %~1') do if "%%I"=="Revision:" set vBASE=%%J
-REM echo OFF
 
 IF NOT "%vBASE%"=="%vHEAD%" (
-  ECHO vBASE NOT UPDATED
+  IF "%~3"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
 )
-REM cd /d "%varReturnDir%"
 EXIT /B 0
 
 REM Param_1: Path to destination folder in the repo.
 REM Param_2: Path to file to add.
-REM Param_3: Optional flags to pass to svn.exe.
+REM Param_3: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
 :svnAdd
 setlocal enabledelayedexpansion
 set varCheck=EMPTY

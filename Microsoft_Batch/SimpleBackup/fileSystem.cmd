@@ -23,26 +23,94 @@ EXIT /B 0
 REM Param_1: Path
 REM Param_2: Check variable used to verify url-type.
 :CheckIfParamIsUrl
-set %~2=NOT_VERIFIED
-set varParam_1=%~1
-set varParam_1=%varParam_1:~0,7%
-REM ECHO varParam_1: %varParam_1%
-IF [%varParam_1%]==[http://] (
+set varIsUrl="NOT_VERIFIED"
+set varParam1=%~1
+set varParam1=%varParam1:~0,7%
+set varParam1_2=%~1
+set varParam1_2=%varParam1_2:~0,8%
+
+REM ECHO varParam1: %varParam_1%
+IF [%varParam1%]==[http://] (
   REM ECHO SET TO YES
   set "%~2=YES"
-) ELSE IF [%varParam_1%]==[HTTP://] (
+) ELSE IF [%varParam1%]==[HTTP://] (
   REM ECHO SET TO YES
   set "%~2=YES"
-) ELSE IF [%varParam_1%]==[https://] (
+) ELSE IF [%varParam1_2%]==[https://] (
 REM ECHO SET TO YES
 set "%~2=YES"
-) ELSE IF [%varParam_1%]==[HTTPS://] (
+) ELSE IF [%varParam1_2%]==[HTTPS://] (
   REM ECHO SET TO YES
   set "%~2=YES"
 ) ELSE (
   REM ECHO SET TO NO
   set "%~2=NO"
 )
+REM Idea: Implement a regular expression to test all elements of the supplied parameter.
+REM       This will also be a good solution for svn, ftp or other path protocols.
+EXIT /B 0
+
+REM Param_1: Path
+REM Param_2: Allow url. (YES | NO). If the path is an url and allow == NO the function will call Exception_End.
+:CheckIfParamIsUrl_2
+set varIsUrl="NOT_VERIFIED"
+set varParam1=%~1
+set varParam1=%varParam1:~0,7%
+set varParam1_2=%~1
+set varParam1_2=%varParam1_2:~0,8%
+
+REM ECHO varParam_1: %varParam_1%
+IF [%varParam1%]==[http://] (
+  REM ECHO SET TO YES
+  set varIsUrl="YES"
+) ELSE IF [%varParam1%]==[HTTP://] (
+  REM ECHO SET TO YES
+  set varIsUrl="YES"
+) ELSE IF [%varParam1_2%]==[https://] (
+  REM ECHO SET TO YES
+  set varIsUrl="YES"
+) ELSE IF [%varParam1_2%]==[HTTPS://] (
+  REM ECHO SET TO YES
+  set varIsUrl="YES"
+) ELSE (
+  REM ECHO SET TO NO
+  set varIsUrl="NO"
+)
+
+IF "varIsUrl"=="NOT_VERIFIED" (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl - Error-1 in the function implementation. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+REM If allow url:
+IF "%~2"=="NO" (
+  IF %varIsUrl%=="YES" (
+    REM Do not accept url - Default behaviour.
+    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "%~1 is an URL. Urls are not accepted as paths. Exit" "OUTPUT_TO_STDOUT" ""
+  )
+  IF %varIsUrl%=="NO" (
+    ECHO.
+    REM PASSTHROUGH - Allow all paths that are not urls.
+  )
+  IF %varIsUrl%=="NOT_VERIFIED" (
+    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl - Error-2 in the function implementation. Exit" "OUTPUT_TO_STDOUT" ""
+  )
+) ELSE IF "%~2"=="YES" (
+
+  IF %varIsUrl%=="YES" (
+    ECHO.
+    REM PASSTHROUGH - Allow urls.
+  )
+  IF %varIsUrl%=="NO" (
+    ECHO.
+    REM PASSTHROUGH - Allow urls.
+  )
+  IF %varIsUrl%=="NOT_VERIFIED" (
+    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl - Error-3 in the function implementation. Exit" "OUTPUT_TO_STDOUT" ""
+  )
+) ELSE (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "Param_2 is incorrect. Use either value "YES" or value "NO". Exit" "OUTPUT_TO_STDOUT" ""
+)
+
 REM Idea: Implement a regular expression to test all elements of the supplied parameter.
 REM       This will also be a good solution for svn, ftp or other path protocols.
 EXIT /B 0
@@ -102,6 +170,9 @@ REM Param_1: Path and fileName to the file to create on the filesystem.
 REM Param_2: If file exists. "USE_EXISTING_FILE" OR "OVERWRITE_EXISTING_FILE"
 REM Param_3: Verbose_Mode - "V"
 :createFile
+REM The function :CheckIfParamIsUrl exits if path is an url
+CALL :CheckIfParamIsUrl_2 "%~1" "NO"
+
 REM Use existing file
 IF EXIST "%~1" (
   IF "%~2"=="USE_EXISTING_FILE" (
@@ -112,14 +183,14 @@ IF EXIST "%~1" (
     CALL :deleteFile "%~1" "" "%~3"
     REM Proceed through the code to reach fil creation.
   ) ELSE (
-    CALL  ..\utility_functions :Exception_End "" "createFile: Please specify Param_2: REM Param_2: "USE_EXISTING_FILE" OR "OVERWRITE_EXISTING_FILE. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "createFile: Please specify Param_2: REM Param_2: "USE_EXISTING_FILE" OR "OVERWRITE_EXISTING_FILE. Exit" "OUTPUT_TO_STDOUT" ""
   )
 )
 IF NOT EXIST "%~1" (
   REM Create empty file.
   TYPE NUL > "%~1"
   IF %ERRORLEVEL% NEQ 0 (
-    CALL  ..\utility_functions :Exception_End "" "createFile: Could not create file. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "createFile: Could not create file. Exit" "OUTPUT_TO_STDOUT" ""
   )
   IF "%~3"=="V" ( ECHO Created File:  %~1. )
 )
@@ -130,13 +201,15 @@ REM Param_2: RegularMode "" or QuietMode: "USE_QUIET_MODE".
 REM Param_3: Verbose_Mode - "V"
 :deleteFile
 IF "%~2"=="USE_QUIET_MODE" (
-  SET "varDeleteMode=/Q"
+  SET varDeleteMode=/Q
 )
-del "%~1" %varDeleteMode%
+del %varDeleteMode% "%~1"
 IF %ERRORLEVEL% NEQ 0 (
-  CALL  ..\utility_functions :Exception_End "" "deleteFile: Could not delete file. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "deleteFile: Could not delete file. Exit" "OUTPUT_TO_STDOUT" ""
 )
-IF "%~3"=="V" ( ECHO Deleted file "%~1". )
+IF "%~3"=="V" (
+  CALL  ..\logging :Append_To_Screen "Deleted file %1." "OUTPUT_TO_STDOUT" ""
+)
 EXIT /B 0
 
 REM deleteFolder param1:Path to folder

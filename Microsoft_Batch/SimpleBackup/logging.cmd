@@ -41,7 +41,7 @@ IF %varEnableFileLogging%==NO (
    CALL ..\fileSystem :createFile "%~1" "USE_EXISTING_FILE" "%~2"
   )
 ) ELSE (
-  CALL  ..\utility_functions :Exception_End "" "createLogfile: Unexpected error. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "createLogfile: Unexpected error. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
@@ -66,7 +66,9 @@ IF %varLogToSTDOUTOK%==NOT_DEFINED IF ["%~2"]==["OUTPUT_TO_STDOUT"] (
 
 REM if %1 has double quotes around it, %~1 will strip the quote signs.
 REM "%~1" ensures we always echo to a quoted filePath.
-IF %varLogToSTDOUTOK%==YES  ( ECHO %~1 )
+IF %varLogToSTDOUTOK%==YES  (
+  ECHO %~1
+)
 Exit /B 0
 
 REM Param_1: FileHandle
@@ -78,6 +80,8 @@ IF [%1]==[] (
   SET varLogToFileOK=NO
   IF ["%~3"]==["OUTPUT_DEBUG"] ECHO LogFile has not been defined yet.
 )
+REM Empty parameters in the parameter lists are bad. Batch seems to shift the parameters if an empty slot is found.
+REM Instead use a dummy parameter that do not exist if logToFile is not wanted.
 IF [%1]==[""] (
   SET varLogToFileOK=NO
   IF ["%~3"]==["OUTPUT_DEBUG"] ECHO LogFile has not been defined yet.
@@ -104,8 +108,8 @@ IF %varLogToFileOK%==NOT_DEFINED (
 
 REM if %1 has double quotes around it, %~1 will strip the quote signs.
 REM "%~1" ensures we always echo to a quoted filePath.
-IF %varLogToSTDOUTOK%==YES ( ECHO. )
-IF %varLogToFileOK%==YES   ( ECHO. >> "%~1" )
+IF %varLogToSTDOUTOK%==YES ECHO.
+IF %varLogToFileOK%==YES   ECHO.>>"%~1"
 Exit /B 0
 
 REM Messages for logfile Should be suppplied in "Message 1" brackets.
@@ -123,6 +127,8 @@ IF [%1]==[] (
   IF ["%~4"]==["OUTPUT_DEBUG"] ECHO LogFile has not been defined yet. Message not logged to file.
   SET varLogToFileOK=NO
 )
+REM Empty parameters in the parameter lists are bad. Batch seems to shift the parameters if an empty slot is found.
+REM Instead use a dummy parameter that do not exist if logToFile is not wanted.
 IF [%1]==[""] (
   IF ["%~4"]==["OUTPUT_DEBUG"] ECHO LogFile has not been defined yet. Message not logged to file.
   SET varLogToFileOK=NO

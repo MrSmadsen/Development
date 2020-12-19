@@ -109,7 +109,7 @@ IF EXIST .\test.txt (
   del .\test.txt
 )
 CALL ..\svnRepoFunctions :svnUpdate "%varToSvnUpdate%"
-CALL ..\svnRepoFunctions :svnStatus "%varToSvnUpdate%" "--no-ignore" > .\test.txt
+CALL ..\svnRepoFunctions :svnStatus "%varToSvnUpdate%" "--no-ignore" "NO" > .\test.txt
 
 SET /a varLineCnt=0
 FOR /f "usebackq delims=" %%x in (".\test.txt") do (

@@ -127,6 +127,15 @@ IF %varAppFunctionVerifyChecksum%==YES (
 EXIT /B 0
 
 :PerformGenericPreconditionalChecks
+REM Param_1: Svn repository check out to get status from
+REM Param_2: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
+REM Param_3: Update before calling status.   (YES | NO)
+REM Param_4: Throw exception if out of date. (YES | NO)
+REM Param_5: Throw exception if changes are found. (YES | NO)
+REM Param_6: Number of acceptable changes.
+IF "%varCheckWorkingCopyChanges%"=="YES" (
+  CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%" "--quiet" "YES" "YES" "YES" 0
+)
 SET "varExecutable=%varArchiverPath%\%varArchiveProgram%"
 IF NOT EXIST "%varExecutable%" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The archive program not found. %varExecutable%" "OUTPUT_TO_STDOUT" ""
@@ -143,6 +152,9 @@ IF %varCheck%==TRUE (
   setlocal enabledelayedexpansion
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder01%" "varCheck"
+  IF !varCheck!==YES (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varSrcPathFolder01 is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )
   IF !varCheck!==NO (
     IF EXIST "%varSrcPathFolder01%" (
       CALL ..\fileSystem :CheckFolderReadAccess
@@ -153,6 +165,9 @@ IF %varCheck%==TRUE (
   
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder02%" "varCheck"
+  IF !varCheck!==YES (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varSrcPathFolder02 is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )
   IF !varCheck!==NO (
     IF EXIST "%varSrcPathFolder02%" (
       CALL ..\fileSystem :CheckFolderReadAccess
@@ -163,6 +178,9 @@ IF %varCheck%==TRUE (
   
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder01%" "varCheck"
+  IF !varCheck!==YES (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varDstPathFolder01 is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )
   IF !varCheck!==NO (
     IF EXIST "%varDstPathFolder01%" (
       CALL ..\fileSystem :CheckFolderReadAccess
@@ -173,6 +191,9 @@ IF %varCheck%==TRUE (
   
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
+  IF !varCheck!==YES (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varDstPathFolder02 is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )
   IF !varCheck!==NO (
     IF EXIST "%varDstPathFolder02%" (
       CALL ..\fileSystem :CheckFolderReadAccess
@@ -185,11 +206,11 @@ IF %varCheck%==TRUE (
 
 REM Informational
 IF NOT EXIST "%varSvnadminPath%" (
-  CALL ..\utility_functions :Append_To_LogFile "%varTargetLogFile%" "SvnAdmin.exe not found. %varSvnadminPath%" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "SvnAdmin.exe not found. %varSvnadminPath%" "OUTPUT_TO_STDOUT" ""
 )
 REM Informational
 IF NOT EXIST "%varSvnPath%" (
-CALL ..\utility_functions :Append_To_LogFile "%varTargetLogFile%" "Svn.exe not found. %varSvnPath%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Svn.exe not found. %varSvnPath%" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
@@ -197,7 +218,10 @@ EXIT /B 0
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varBackupLocation%" "varCheck"
-IF !varCheck!==NO (  
+IF !varCheck!==YES (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varBackupLocation is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF !varCheck!==NO (
   IF EXIST "%varBackupLocation%" (
   ECHO.
   ) ELSE (
@@ -226,6 +250,9 @@ IF %varExportSvn%==YES (
   )
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"
+  IF !varCheck!==YES (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varRepositoryDumpLocation is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )
   IF !varCheck!==NO (
     IF EXIST "%varRepositoryDumpLocation%" (
       CALL ..\fileSystem :CheckFolderReadAccess
@@ -259,6 +286,9 @@ REM The script just continues from the line it has reached.
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
+IF !varCheck!==YES (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+)
 IF !varCheck!==NO (
   IF EXIST "%varExistingArchivePath%" (
   ECHO.
@@ -292,6 +322,9 @@ EXIT /B 0
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
+IF !varCheck!==YES (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+)
 IF !varCheck!==NO (
   IF EXIST "%varExistingArchivePath%" (
   ECHO.
@@ -305,6 +338,9 @@ IF !varCheck!==YES (
 
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
+IF !varCheck!==YES (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExtractionLocation is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+)
 IF !varCheck!==NO (
   IF EXIST "%varExtractionLocation%" (
   ECHO.
@@ -326,6 +362,9 @@ EXIT /B 0
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
+IF !varCheck!==YES (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+)
 IF !varCheck!==NO (
   IF EXIST "%varExistingArchivePath%" (
   ECHO.
@@ -433,6 +472,9 @@ IF "%varExtractionLocation%"=="DEFAULT_LOCATION" (
 ) ELSE (
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
+  IF !varCheck!==YES (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExtractionLocation is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )
   IF !varCheck!==NO (
     IF EXIST "%varExtractionLocation%" (
     ECHO.
