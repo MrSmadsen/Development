@@ -110,7 +110,7 @@ REM First edition of this function exits with exception if any change is found.
 SET /a varLineCnt=0
 FOR /f "usebackq delims=" %%x in (".\__VerifyFileStateBeforeCriticalFunction_test.txt") do (
   SET /a varLineCnt+=1
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Following changes are found the working copy:" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Following changes are found in the working copy:" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%%x" "OUTPUT_TO_STDOUT" ""
 )
 

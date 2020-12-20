@@ -134,7 +134,7 @@ REM Param_4: Throw exception if out of date. (YES | NO)
 REM Param_5: Throw exception if changes are found. (YES | NO)
 REM Param_6: Number of acceptable changes.
 IF "%varCheckWorkingCopyChanges%"=="YES" (
-  CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%" "--quiet" "YES" "YES" "YES" 0
+  CALL :CheckImportantApplicationFiles
 )
 SET "varExecutable=%varArchiverPath%\%varArchiveProgram%"
 IF NOT EXIST "%varExecutable%" (
@@ -384,6 +384,39 @@ IF NOT EXIST "%varExistingChecksumFile%" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingChecksumFile does not exist. Exit." "OUTPUT_TO_STDOUT" ""
 )
 setlocal disabledelayedexpansion
+EXIT /B 0
+
+REM If it is important to be able to read the file with file changes after the backup a solution could be
+REM to add a fileHandle with unique file name for each function call to CheckWorkingCopyForChanges. If no fileHandle is provided the default file name is used.
+REM This is not implemented.
+:CheckImportantApplicationFiles
+REM These files cannot have changes in them!
+SET varFileSystemCmd=fileSystem.cmd
+SET varBackupCmd=Backup.cmd
+SET varLoggingCmd=logging.cmd
+SET varSettingsIni=Settings.ini
+SET varSvnRepoFunctionsCmd=svnRepoFunctions.cmd
+SET varUtilityFunctionsCmd=utility_functions.cmd
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varFileSystemCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varBackupCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varLoggingCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSettingsIni%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSvnRepoFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varUtilityFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
+
+REM To count the number of changes inside the file use svn diff. Should be able to do just that.
+REM That way we can have a higher certainty that only our accepted changes are what we will find in the file.
+REM This is not implemented.
+REM This file can have changes to enable/disable raspberry pi image backup.
+SET varMultipleBackupsCmd=Multiple_Backups.cmd
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varMultipleBackupsCmd%" "--quiet" "YES" "YES" "YES" 1
+EXIT /B 0
+
+:CheckFileLoggingCmdForChanges
+IF "%varCheckWorkingCopyChanges%"=="YES" (
+  SET varLoggingCmd=logging.cmd
+  CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varLoggingCmd%" "--quiet" "YES" "YES" "YES" 0
+)
 EXIT /B 0
 
 :CreateBackupDestinationFolderAndFiles
@@ -890,6 +923,9 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
         SET varSHA512ChecksumValue=%%F
       )
       IF !count! EQU 2 (
+        REM If enabled (ini-file option: varCheckWorkingCopyChanges) the file logging.cmd is checked for changes.
+        REM This is to avoid writing trailing white space after the checksum.
+        CALL :CheckFileLoggingCmdForChanges
         SET varCertutilResultStr=%%F
         CALL ..\logging :Append_To_LogFile "%varTargetChecksumFile%" "%%A=!varSHA512ChecksumValue!" "OUTPUT_TO_STDOUT" ""
         CALL ..\logging :Append_To_LogFile "%varTargetChecksumFile%" "!varCertutilResultStr!" "OUTPUT_TO_STDOUT" ""
@@ -983,6 +1019,9 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
         SET varSHA512ChecksumValue=%%F
       )
       IF !count! EQU 2 (
+        REM If enabled (ini-file option: varCheckWorkingCopyChanges) the file logging.cmd is checked for changes.
+        REM This is to avoid writing trailing white space after the checksum.
+        CALL :CheckFileLoggingCmdForChanges
         SET varCertutilResultStr=%%F
         CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculated: !varSHA512ChecksumValue!" "OUTPUT_TO_STDOUT" ""
         CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "!varCertutilResultStr!" "OUTPUT_TO_STDOUT" ""
