@@ -20,6 +20,25 @@ REM Param_4: Function_Param_3
 CALL %1 %2 %3 %4
 EXIT /B 0
 
+REM Param_1: FilePath to normalize 
+REM Param_2: returnValue
+:NormalizeFilePath
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":NormalizeFilePath - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":NormalizeFilePath - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":NormalizeFilePath - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":NormalizeFilePath - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+set "%~2=%~f1"
+EXIT /B 0
+
 REM Param_1: Path
 REM Param_2: Check variable used to verify url-type.
 :CheckIfParamIsUrl

@@ -312,7 +312,7 @@ REM Important Locations (Directories)...
 set "REPOSITORIES_BASE=%varRepositoryLocation%"
 set "DUMP_PATH=%varRepositoryDumpLocation%"
 
-SET "varTmpPath=%DUMP_PATH%\"
+SET "varTmpPath=%DUMP_PATH%"
 SET "varTmpFileName=Svn_export_%TIME_STAMP%-logfile.txt"
 set "varTargetLogFile1=%varTmpPath%%varTmpFileName%"
 ECHO.
@@ -357,10 +357,15 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDO
 REM Remove old svn export files
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Removing old svn export files" "OUTPUT_TO_STDOUT"
 
-REM forfiles [/P pathname] [/M searchmask] [/S] [/C command] [/D [+ | -] [{<date> | <days>}]]
-REM forfiles /P "d:\brugere\smadsen\Repository_Backup\Svn_Dump" /M *.full /D -1 /C "cmd /c del @PATH"
-forfiles /P "%DUMP_PATH%" /M *.full /D -1 /C "cmd /c del @PATH"
-forfiles /P "%DUMP_PATH%" /M *.txt /D -1 /C "cmd /c del @PATH"
+REM The normalization function can clean paths with AND without trailing slashes if they end on a slash and a dot.
+REM ECHO "%DUMP_PATH%\."
+SET returnValue=""
+CALL ..\fileSystem :NormalizeFilePath "%DUMP_PATH%\." returnValue
+REM ECHO returnValue - %returnValue%
+
+forfiles /P "%returnValue%" /M *.full /D -1 /C "cmd /c del @PATH"
+forfiles /P "%returnValue%" /M *.txt /D -1 /C "cmd /c del @PATH"
+
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Svn export done." "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
