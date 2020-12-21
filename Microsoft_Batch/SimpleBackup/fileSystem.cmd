@@ -196,9 +196,11 @@ REM Use existing file
 IF EXIST "%~1" (
   IF "%~2"=="USE_EXISTING_FILE" (
     IF "%~3"=="V" ( ECHO Using existing file: %~1. )
+	IF "%~3"=="v" ( ECHO Using existing file: %~1. )
     EXIT /B 0
   ) ELSE IF "%~2"=="OVERWRITE_EXISTING_FILE" (
     IF "%~3"=="V" ( ECHO OVER_WRITE_FILE: deleting file: %~1. )
+	IF "%~3"=="v" ( ECHO OVER_WRITE_FILE: deleting file: %~1. )
     CALL :deleteFile "%~1" "" "%~3"
     REM Proceed through the code to reach fil creation.
   ) ELSE (
@@ -212,6 +214,7 @@ IF NOT EXIST "%~1" (
     CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "createFile: Could not create file. Exit" "OUTPUT_TO_STDOUT" ""
   )
   IF "%~3"=="V" ( ECHO Created File:  %~1. )
+  IF "%~3"=="v" ( ECHO Created File:  %~1. )
 )
 EXIT /B 0
 
@@ -226,9 +229,8 @@ del %varDeleteMode% "%~1"
 IF %ERRORLEVEL% NEQ 0 (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "deleteFile: Could not delete file. Exit" "OUTPUT_TO_STDOUT" ""
 )
-IF "%~3"=="V" (
-  CALL  ..\logging :Append_To_Screen "Deleted file %1." "OUTPUT_TO_STDOUT" ""
-)
+IF "%~3"=="V" ( CALL  ..\logging :Append_To_Screen "Deleted file %1." "OUTPUT_TO_STDOUT" "" )
+IF "%~3"=="v" ( CALL  ..\logging :Append_To_Screen "Deleted file %1." "OUTPUT_TO_STDOUT" "" )
 EXIT /B 0
 
 REM deleteFolder param1:Path to folder
@@ -320,48 +322,58 @@ REM Param_2: VALUE_DEFINE - the result is stored in variable: varGetDataFromPath
   REM POSSIBLE VALUES: "REMOVE_QUOTE_SIGNS", "FULLY_QUALIFIED_PATH","DRIVE_LETTER_ONLY"
   REM POSSIBLE VALUES: "PATH_ONLY","FILE_NAME_ONLY","FILE_EXTENSION_ONLY","SHORT_NAME_ONLY"
   REM POSSIBLE VALUES: "FILE_ATTRIBUTES","DATE-TIME_OF_FILE","SIZE_OF_FILE"
-REM Param_3: Verbose_Mode - "V"
+REM Param_3: Verbose_Mode - "v"
 :getDataFromPath
 SET "varGetDataFromPathResult="
 IF "%~2"=="REMOVE_QUOTE_SIGNS" (
   SET varGetDataFromPathResult=%~1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="FULLY_QUALIFIED_PATH" (
   SET varGetDataFromPathResult=%~f1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="DRIVE_LETTER_ONLY" (
   SET varGetDataFromPathResult=%~d1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="PATH_ONLY" (
   SET varGetDataFromPathResult=%~p1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="FILE_NAME_ONLY" (
   SET varGetDataFromPathResult=%~n1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="FILE_EXTENSION_ONLY" (
   SET varGetDataFromPathResult=%~x1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="SHORT_NAME_ONLY" (
   SET varGetDataFromPathResult=%~s1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="FILE_ATTRIBUTES" (
   SET varGetDataFromPathResult=%~a1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="DATE-TIME_OF_FILE" (
   SET varGetDataFromPathResult=%~t1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="SIZE_OF_FILE" (
   SET varGetDataFromPathResult=%~z1
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
+  IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 REM IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
 REM Documentation

@@ -469,7 +469,7 @@ ECHO Creating new archive files.
 SET "varTargetBackupSet=%varTargetBackupfolder%%varDate%-backup.%varFormat%"
 SET "varTargetFileName=%varDate%-backup.%varFormat%"
 SET "varTargetLogFile=%varTargetBackupfolder%%varDate%-logfile.txt"
-CALL ..\logging :createLogFile "%varTargetLogFile%" "V"
+CALL ..\logging :createLogFile "%varTargetLogFile%" ""
 EXIT /B 0
 
 :UseExistingFolderWithDate
@@ -495,7 +495,7 @@ IF %varMode%==u (
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Error in varMode. Exit" "OUTPUT_TO_STDOUT" ""
 )
-CALL ..\logging :createLogFile "%varTargetLogFile%" "V"
+CALL ..\logging :createLogFile "%varTargetLogFile%" ""
 EXIT /B 0
 
 :PrepareExtraction
@@ -877,7 +877,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "SHA_512 checksums will be calculated for archive files in the backup destination folder." "OUTPUT_TO_STDOUT" ""
 
 SET varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-SHA512.txt
-CALL ..\logging :createLogFile "%varTargetChecksumFile%" "V"
+CALL ..\logging :createLogFile "%varTargetChecksumFile%" ""
 
 SET /a varProcessedFileCount=0
 SET /a varFailedFileCount=0

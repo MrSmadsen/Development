@@ -103,7 +103,7 @@ IF "%~3"=="YES" (
 )
 
 REM createFile is not really required in batch. But I have the function :-) and in other languages it would probably be relevant.
-CALL ..\fileSystem :createFile ".\__VerifyFileStateBeforeCriticalFunction_test.txt" "OVERWRITE_EXISTING_FILE" "V"
+CALL ..\fileSystem :createFile ".\__VerifyFileStateBeforeCriticalFunction_test.txt" "OVERWRITE_EXISTING_FILE" ""
 CALL ..\svnRepoFunctions :svnStatus "%~1" "%~2" "%~4" > .\__VerifyFileStateBeforeCriticalFunction_test.txt
 
 REM First edition of this function exits with exception if any change is found.
@@ -316,7 +316,7 @@ SET "varTmpPath=%DUMP_PATH%"
 SET "varTmpFileName=Svn_export_%TIME_STAMP%-logfile.txt"
 set "varTargetLogFile1=%varTmpPath%%varTmpFileName%"
 ECHO.
-CALL ..\logging :createLogFile "%varTargetLogFile1%" "V"
+CALL ..\logging :createLogFile "%varTargetLogFile1%" ""
 
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Exporting svn repositories to a svn dump file: Time of backup %TIME_STAMP%" "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "SvnExportLog-file: %varTargetLogFile1%" "OUTPUT_TO_STDOUT"
@@ -329,7 +329,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDO
 set "varTargetRepo1=%REPOSITORIES_BASE%\%REPO01%"
 set "varTargetFile1=%DUMP_PATH%\%REPO01_DUMP_NAME%"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
-CALL ..\fileSystem :createFile "%varTargetFile1%" "OVERWRITE_EXISTING_FILE" "V"
+CALL ..\fileSystem :createFile "%varTargetFile1%" "OVERWRITE_EXISTING_FILE" ""
 
 "%execPath%" dump "%varTargetRepo1%" >> "%varTargetFile1%"
 
@@ -345,7 +345,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDO
 set "varTargetRepo2=%REPOSITORIES_BASE%\%REPO02%"
 set "varTargetFile2=%DUMP_PATH%\%REPO02_DUMP_NAME%"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
-CALL ..\fileSystem :createFile "%varTargetFile2%" "OVERWRITE_EXISTING_FILE" "V"
+CALL ..\fileSystem :createFile "%varTargetFile2%" "OVERWRITE_EXISTING_FILE" ""
 
 "%execPath%" dump "%varTargetRepo2%" >> "%varTargetFile2%"
 

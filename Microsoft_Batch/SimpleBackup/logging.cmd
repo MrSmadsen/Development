@@ -27,9 +27,11 @@ REM Param_2: Verbose_Mode - "V"
 REM Create empty file.
 IF %varEnableFileLogging%==NO (
   IF "%~2"=="V" ( ECHO Skipping file creation: varEnableFileLogging - %varEnableFileLogging%. )
+  IF "%~2"=="v" ( ECHO Skipping file creation: varEnableFileLogging - %varEnableFileLogging%. )
 ) ELSE IF %varEnableFileLogging%==YES (
   IF EXIST "%~1" (
     IF "%~2"=="V" ( ECHO Using existing logfile: %~1. )
+	IF "%~2"=="v" ( ECHO Using existing logfile: %~1. )
     CALL :Append_NewLine_To_LogFile "%~1" "" ""
     CALL :Append_NewLine_To_LogFile "%~1" "" ""
     CALL :Append_To_LogFile "%~1" "##########################################" "" ""
