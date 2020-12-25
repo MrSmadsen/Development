@@ -162,6 +162,9 @@ IF %varCheck%==TRUE (
       CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% varSrcPathFolder01 does not exist." "OUTPUT_TO_STDOUT" ""
     )
   )
+  IF !varCheck!==EMPTY (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformGenericPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+  )
   
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder02%" "varCheck"
@@ -174,6 +177,9 @@ IF %varCheck%==TRUE (
     ) ELSE (
       CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% varSrcPathFolder02 does not exist." "OUTPUT_TO_STDOUT" ""
     )  
+  )
+  IF !varCheck!==EMPTY (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformGenericPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
   )
   
   set varCheck=EMPTY
@@ -188,6 +194,9 @@ IF %varCheck%==TRUE (
         CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% varDstPathFolder01 does not exist." "OUTPUT_TO_STDOUT" ""
     )
   )
+  IF !varCheck!==EMPTY (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformGenericPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+  )
   
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
@@ -200,6 +209,9 @@ IF %varCheck%==TRUE (
     ) ELSE (
       CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% varDstPathFolder02 does not exist." "OUTPUT_TO_STDOUT" ""
     )
+  )
+  IF !varCheck!==EMPTY (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformGenericPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
   )
   setlocal disabledelayedexpansion
 )
@@ -228,8 +240,8 @@ IF !varCheck!==NO (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varBackupLocation does not exist. Exit." "OUTPUT_TO_STDOUT" ""
   )
 )
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
+IF !varCheck!==EMPTY (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformBackupPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF %varExportSvn%==YES (
@@ -238,6 +250,9 @@ IF %varExportSvn%==YES (
   )
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryLocation%" "varCheck"
+  IF !varCheck!==YES (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Repository path is an url, the repository path should be a local file path, Part - varRepositoryLocation" "OUTPUT_TO_STDOUT" ""
+  )
   IF !varCheck!==NO (
     IF EXIST "%varRepositoryLocation%" (
       CALL ..\fileSystem :CheckFolderReadAccess
@@ -245,8 +260,8 @@ IF %varExportSvn%==YES (
       CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varRepositoryLocation does not exist." "OUTPUT_TO_STDOUT" ""
     )  
   )
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Repository path is an url, the repository path should be a local file path, Part - varRepositoryLocation" "OUTPUT_TO_STDOUT" ""
+  IF !varCheck!==EMPTY (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformBackupPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
   )
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"
@@ -260,8 +275,8 @@ IF %varExportSvn%==YES (
       CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varRepositoryDumpLocation does not exist." "OUTPUT_TO_STDOUT" ""
     )  
   )
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Repository path is an url, the repository path should be a local file path, Part - varRepositoryDumpLocation" "OUTPUT_TO_STDOUT" ""
+  IF !varCheck!==EMPTY (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformBackupPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
   )
 )
 
@@ -296,8 +311,8 @@ IF !varCheck!==NO (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath does not exist. Exit." "OUTPUT_TO_STDOUT" ""
   )
 )
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
+IF !varCheck!==EMPTY (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformUpdate-IntegrityCheckPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
@@ -332,8 +347,8 @@ IF !varCheck!==NO (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath does not exist. Exit." "OUTPUT_TO_STDOUT" ""
   )
 )
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
+IF !varCheck!==EMPTY (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformExtractFilesPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 set varCheck=EMPTY
@@ -348,8 +363,8 @@ IF !varCheck!==NO (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExtractionLocation does not exist. Exit." "OUTPUT_TO_STDOUT" ""
   )
 )
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
+IF !varCheck!==EMPTY (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformExtractFilesPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
@@ -372,8 +387,8 @@ IF !varCheck!==NO (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath does not exist. Exit." "OUTPUT_TO_STDOUT" ""
   )
 )
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
+IF !varCheck!==EMPTY (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformVerifyChecksumPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
@@ -521,7 +536,7 @@ IF "%varExtractionLocation%"=="DEFAULT_LOCATION" (
       CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExtractionLocation does not exist. Exit." "OUTPUT_TO_STDOUT" ""    
     )
   )
-  IF NOT !varCheck!==NO (
+  IF !varCheck!==EMPTY (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url or incorrectly defined, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
   )
 )
