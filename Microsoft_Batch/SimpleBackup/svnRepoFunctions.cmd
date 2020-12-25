@@ -125,7 +125,6 @@ IF %varLineCnt% EQU %varNoOfAcceptableChanges% (
 
 IF %varLineCnt% GTR %varNoOfAcceptableChanges% (
   IF "%~5"=="YES" (
-    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "%~1 does not match the version in the repository. %varLineCnt% changes found. Only %varNoOfAcceptableChanges% acceptable. Exit." "OUTPUT_TO_STDOUT" ""
   )
   IF NOT "%~5"=="YES" (
@@ -140,8 +139,6 @@ REM Keeping the file for now. The user will be able to see the changes in the fi
 REM IF EXIST .\__VerifyFileStateBeforeCriticalFunction_test.txt (
 REM   CALL ..\fileSystem :deleteFile ".\__VerifyFileStateBeforeCriticalFunction_test.txt" "" ""
 REM )
-CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-
 EXIT /B 0
 
 REM Param_1: Svn repository check out to get status from
@@ -297,7 +294,6 @@ EXIT /B 0
 :generateSvnRepositoryDump
 REM MM-DD-YYYY
 set TIME_STAMP=%date:~3,2%-%date:~0,2%-%date:~6,4%
-
 set "execPath=%varSvnadminPath%"
 
 REM Repositories...
@@ -305,18 +301,44 @@ set REPO01=%varSvnRepo1%
 set REPO02=%varSvnRepo2%
 
 REM Repositories Dump Names...
-set REPO01_DUMP_NAME="%REPO01%_%TIME_STAMP%.full"
-set REPO02_DUMP_NAME="%REPO02%_%TIME_STAMP%.full"
+set "REPO01_DUMP_NAME=%REPO01%_%TIME_STAMP%.full"
+set "REPO02_DUMP_NAME=%REPO02%_%TIME_STAMP%.full"
 
 REM Important Locations (Directories)...
-set "REPOSITORIES_BASE=%varRepositoryLocation%"
 set "DUMP_PATH=%varRepositoryDumpLocation%"
+set "REPOSITORIES_BASE=%varRepositoryLocation%"
 
-SET "varTmpPath=%DUMP_PATH%"
+REM "\." is added to non-file paths to normalize the paths correctly.
+CALL ..\fileSystem :NormalizeFilePath "%DUMP_PATH%\." DUMP_PATH
+CALL ..\fileSystem :NormalizeFilePath "%REPOSITORIES_BASE%\." REPOSITORIES_BASE
+
 SET "varTmpFileName=Svn_export_%TIME_STAMP%-logfile.txt"
-set "varTargetLogFile1=%varTmpPath%%varTmpFileName%"
-ECHO.
-CALL ..\logging :createLogFile "%varTargetLogFile1%" ""
+set "varTargetLogFile1=%DUMP_PATH%\%varTmpFileName%"
+
+set "varTargetRepo1=%REPOSITORIES_BASE%\%REPO01%"
+set "varTargetFile1=%DUMP_PATH%\%REPO01_DUMP_NAME%"
+
+set "varTargetRepo2=%REPOSITORIES_BASE%\%REPO02%"
+set "varTargetFile2=%DUMP_PATH%\%REPO02_DUMP_NAME%"
+
+CALL ..\fileSystem :NormalizeFilePath "%varTargetLogFile1%" varTargetLogFile1
+CALL ..\fileSystem :NormalizeFilePath "%varTargetFile1%" varTargetFile1
+CALL ..\fileSystem :NormalizeFilePath "%varTargetFile2%" varTargetFile2
+
+REM "\." is added to non-file paths to normalize the paths correctly.
+CALL ..\fileSystem :NormalizeFilePath "%varTargetRepo1%\." varTargetRepo1
+CALL ..\fileSystem :NormalizeFilePath "%varTargetRepo2%\." varTargetRepo2
+
+REM ECHO varTargetLogFile1 - %varTargetLogFile1%
+REM ECHO varTargetFile1 - %varTargetFile1%
+REM ECHO varTargetFile2 - %varTargetFile2%
+REM ECHO varTargetRepo1 - %varTargetRepo1%
+REM ECHO varTargetRepo2 - %varTargetRepo2%
+
+CALL ..\logging    :createLogFile "%varTargetLogFile1%" ""
+CALL ..\fileSystem :createFile "%varTargetFile1%" "OVERWRITE_EXISTING_FILE" ""
+CALL ..\fileSystem :createFile "%varTargetFile2%" "OVERWRITE_EXISTING_FILE" ""
+CALL ..\logging    :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
 
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Exporting svn repositories to a svn dump file: Time of backup %TIME_STAMP%" "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "SvnExportLog-file: %varTargetLogFile1%" "OUTPUT_TO_STDOUT"
@@ -326,26 +348,17 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Svn-Repository: %REPOS
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "SvnDump-File: %DUMP_PATH%\%REPO01_DUMP_NAME%" "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
 
-set "varTargetRepo1=%REPOSITORIES_BASE%\%REPO01%"
-set "varTargetFile1=%DUMP_PATH%\%REPO01_DUMP_NAME%"
-CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
-CALL ..\fileSystem :createFile "%varTargetFile1%" "OVERWRITE_EXISTING_FILE" ""
-
 "%execPath%" dump "%varTargetRepo1%" >> "%varTargetFile1%"
 
 REM MM-DD-YYYY
 set TIME_STAMP=%date:~3,2%-%date:~0,2%-%date:~6,4%
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Done exporting to file %REPO01_DUMP_NAME% - Time: %TIME_STAMP%" "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
+
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Performing repository export of %REPO02% Repository." "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Svn-Repository: %REPOSITORIES_BASE%\%REPO02%" "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "SvnDump-File: %DUMP_PATH%\%REPO02_DUMP_NAME%" "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
-
-set "varTargetRepo2=%REPOSITORIES_BASE%\%REPO02%"
-set "varTargetFile2=%DUMP_PATH%\%REPO02_DUMP_NAME%"
-CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
-CALL ..\fileSystem :createFile "%varTargetFile2%" "OVERWRITE_EXISTING_FILE" ""
 
 "%execPath%" dump "%varTargetRepo2%" >> "%varTargetFile2%"
 
@@ -357,14 +370,8 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDO
 REM Remove old svn export files
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Removing old svn export files" "OUTPUT_TO_STDOUT"
 
-REM The normalization function can clean paths with AND without trailing slashes if they end on a slash and a dot.
-REM ECHO "%DUMP_PATH%\."
-SET returnValue=""
-CALL ..\fileSystem :NormalizeFilePath "%DUMP_PATH%\." returnValue
-REM ECHO returnValue - %returnValue%
-
-forfiles /P "%returnValue%" /M *.full /D -1 /C "cmd /c del @PATH"
-forfiles /P "%returnValue%" /M *.txt /D -1 /C "cmd /c del @PATH"
+forfiles /P "%DUMP_PATH%" /M *.full /D -1 /C "cmd /c del @PATH"
+forfiles /P "%DUMP_PATH%" /M *.txt /D -1 /C "cmd /c del @PATH"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Svn export done." "OUTPUT_TO_STDOUT"

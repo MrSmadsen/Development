@@ -397,6 +397,9 @@ SET varLoggingCmd=logging.cmd
 SET varSettingsIni=Settings.ini
 SET varSvnRepoFunctionsCmd=svnRepoFunctions.cmd
 SET varUtilityFunctionsCmd=utility_functions.cmd
+
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checking SimpleBackup working copy files for changes:" "OUTPUT_TO_STDOUT" ""
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varFileSystemCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varBackupCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varLoggingCmd%" "--quiet" "YES" "YES" "YES" 0
@@ -410,6 +413,7 @@ REM This is not implemented.
 REM This file can have changes to enable/disable raspberry pi image backup.
 SET varMultipleBackupsCmd=Multiple_Backups.cmd
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varMultipleBackupsCmd%" "--quiet" "YES" "YES" "YES" 1
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 EXIT /B 0
 
 :CheckFileLoggingCmdForChanges
