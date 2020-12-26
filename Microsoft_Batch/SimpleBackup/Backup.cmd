@@ -152,67 +152,39 @@ IF %varCheck%==TRUE (
   setlocal enabledelayedexpansion
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder01%" "varCheck"
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varSrcPathFolder01 is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-  )
   IF !varCheck!==NO (
-    IF EXIST "%varSrcPathFolder01%" (
-      CALL ..\fileSystem :CheckFolderReadAccess
-    ) ELSE (
-      CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% varSrcPathFolder01 does not exist." "OUTPUT_TO_STDOUT" ""
-    )
-  )
-  IF !varCheck!==EMPTY (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformGenericPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+    set varResult=EMPTY
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSrcPathFolder01%" "varSrcPathFolder01" "varResult" "YES"    
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder02%" "varCheck"
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varSrcPathFolder02 is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-  )
   IF !varCheck!==NO (
-    IF EXIST "%varSrcPathFolder02%" (
-      CALL ..\fileSystem :CheckFolderReadAccess
-    ) ELSE (
-      CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% varSrcPathFolder02 does not exist." "OUTPUT_TO_STDOUT" ""
-    )  
-  )
-  IF !varCheck!==EMPTY (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformGenericPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+    set varResult=EMPTY
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSrcPathFolder02%" "varSrcPathFolder02" "varResult" "YES"    
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder01%" "varCheck"
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varDstPathFolder01 is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-  )
   IF !varCheck!==NO (
-    IF EXIST "%varDstPathFolder01%" (
-      CALL ..\fileSystem :CheckFolderReadAccess
-    ) ELSE (
-        CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% varDstPathFolder01 does not exist." "OUTPUT_TO_STDOUT" ""
-    )
-  )
-  IF !varCheck!==EMPTY (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformGenericPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+    set varResult=EMPTY
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder01%" "varDstPathFolder01" "varResult" "YES"    
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varDstPathFolder02 is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-  )
   IF !varCheck!==NO (
-    IF EXIST "%varDstPathFolder02%" (
-      CALL ..\fileSystem :CheckFolderReadAccess
-    ) ELSE (
-      CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% varDstPathFolder02 does not exist." "OUTPUT_TO_STDOUT" ""
-    )
-  )
-  IF !varCheck!==EMPTY (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformGenericPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
-  )
+    set varResult=EMPTY
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder02%" "varDstPathFolder02" "varResult" "YES"    
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )  
   setlocal disabledelayedexpansion
 )
 
@@ -230,18 +202,11 @@ EXIT /B 0
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varBackupLocation%" "varCheck"
-IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varBackupLocation is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-)
 IF !varCheck!==NO (
-  IF EXIST "%varBackupLocation%" (
-  ECHO.
-  ) ELSE (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varBackupLocation does not exist. Exit." "OUTPUT_TO_STDOUT" ""
-  )
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformBackupPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varBackupLocation%" "varBackupLocation" "varResult" "YES"    
+) ELSE (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF %varExportSvn%==YES (
@@ -250,33 +215,20 @@ IF %varExportSvn%==YES (
   )
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryLocation%" "varCheck"
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Repository path is an url, the repository path should be a local file path, Part - varRepositoryLocation" "OUTPUT_TO_STDOUT" ""
-  )
   IF !varCheck!==NO (
-    IF EXIST "%varRepositoryLocation%" (
-      CALL ..\fileSystem :CheckFolderReadAccess
-    ) ELSE (
-      CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varRepositoryLocation does not exist." "OUTPUT_TO_STDOUT" ""
-    )  
+    set varResult=EMPTY
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varRepositoryLocation%" "varRepositoryLocation" "varResult" "YES"    
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
-  IF !varCheck!==EMPTY (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformBackupPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
-  )
+  
   set varCheck=EMPTY
-  CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varRepositoryDumpLocation is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-  )
+  CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"  
   IF !varCheck!==NO (
-    IF EXIST "%varRepositoryDumpLocation%" (
-      CALL ..\fileSystem :CheckFolderReadAccess
-    ) ELSE (
-      CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varRepositoryDumpLocation does not exist." "OUTPUT_TO_STDOUT" ""
-    )  
-  )
-  IF !varCheck!==EMPTY (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformBackupPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+    set varResult=EMPTY
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varRepositoryDumpLocation%" "varRepositoryDumpLocation" "varResult" "YES"    
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
 )
 
@@ -301,18 +253,11 @@ REM The script just continues from the line it has reached.
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-)
 IF !varCheck!==NO (
-  IF EXIST "%varExistingArchivePath%" (
-  ECHO.
-  ) ELSE (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath does not exist. Exit." "OUTPUT_TO_STDOUT" ""
-  )
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformUpdate-IntegrityCheckPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
+) ELSE (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
@@ -337,34 +282,20 @@ EXIT /B 0
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-)
 IF !varCheck!==NO (
-  IF EXIST "%varExistingArchivePath%" (
-  ECHO.
-  ) ELSE (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath does not exist. Exit." "OUTPUT_TO_STDOUT" ""
-  )
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformExtractFilesPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
+) ELSE (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExtractionLocation is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-)
 IF !varCheck!==NO (
-  IF EXIST "%varExtractionLocation%" (
-  ECHO.
-  ) ELSE (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExtractionLocation does not exist. Exit." "OUTPUT_TO_STDOUT" ""
-  )
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformExtractFilesPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExtractionLocation%" "varExtractionLocation" "varResult" "YES"
+) ELSE (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
@@ -377,18 +308,11 @@ EXIT /B 0
 setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
-IF !varCheck!==YES (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-)
 IF !varCheck!==NO (
-  IF EXIST "%varExistingArchivePath%" (
-  ECHO.
-  ) ELSE (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath does not exist. Exit." "OUTPUT_TO_STDOUT" ""
-  )
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "PerformVerifyChecksumPreconditionalChecks - Implementation error. Exit" "OUTPUT_TO_STDOUT" ""
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
+) ELSE (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF NOT EXIST "%varExistingArchivePath%"\"%varExistingArchiveFileName%" (
@@ -524,20 +448,11 @@ IF "%varExtractionLocation%"=="DEFAULT_LOCATION" (
 ) ELSE (
   set varCheck=EMPTY
   CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
-  IF !varCheck!==YES (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExtractionLocation is an URL. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
-  )
   IF !varCheck!==NO (
-    IF EXIST "%varExtractionLocation%" (
-    ECHO.
-    )
-    IF NOT EXIST "%varExtractionLocation%" (
-      REM Maybe mkdir here!
-      CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExtractionLocation does not exist. Exit." "OUTPUT_TO_STDOUT" ""    
-    )
-  )
-  IF !varCheck!==EMPTY (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% is an url or incorrectly defined, should be a file path. Part - varBackupLocation" "OUTPUT_TO_STDOUT" ""
+    set varResult=EMPTY
+	CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExtractionLocation%" "varExtractionLocation" "varResult" "YES"
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
 )
 setlocal disabledelayedexpansion

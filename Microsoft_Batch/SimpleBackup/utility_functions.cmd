@@ -21,6 +21,20 @@ REM Param_5: Function_Param_4
 CALL %1 %2 %3 %4 %5
 EXIT /B 0
 
+REM Just a dummy function that does nothing.
+:do_nothing
+REM start at 1, steps by 1, until 2.
+for /l %x (1,1,2) do (
+  break
+  echo User should never see this on the console.
+)
+
+REM Alternetively
+REM IF 0==1 (
+REM   echo do everything!
+REM )
+EXIT /B 0
+
 :reset_errorlevel
 REM Echoes the windows version to device nul. This should work without error and without output hence setting errorlevel to 0.
 REM STDERR is still being sent to stderr output to know is something weird with ver happens.

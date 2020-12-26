@@ -29,19 +29,15 @@ setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-    IF NOT EXIST "%~1" (
-	CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 does not exist. Return." "OUTPUT_TO_STDOUT" ""
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  IF !varResult!==NO (
     EXIT /B 1
   )
-)
-IF !varCheck!==YES (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path is an url. Return." "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
   EXIT /B 1
 )
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "svnUpdate - Implementation error. Exit." "OUTPUT_TO_STDOUT" ""
-)
-
 setlocal disabledelayedexpansion
 set execPath="%varSvnPath%"
 
@@ -65,24 +61,27 @@ setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-    IF NOT EXIST "%~1" (
-    echo Path in param 1 does not exist.Return.
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  IF !varResult!==NO (
     EXIT /B 1
   )
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
 )
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "svnCheckout - Implementation error. Exit." "OUTPUT_TO_STDOUT" ""
-)
+
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%~2" "varCheck"
 IF !varCheck!==NO (
-    IF NOT EXIST "%~2" (
-    echo Path in param 1 does not exist.Return.
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~2" "varResult" "NO"
+  IF !varResult!==NO (
     EXIT /B 1
   )
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "svnCheckout - Implementation error. Exit." "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 2 is an url. Return." "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
 )
 setlocal disabledelayedexpansion
 set execPath="%varSvnPath%"
@@ -159,17 +158,14 @@ setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-    IF NOT EXIST "%~1" (
-    echo Path in param 1 does not exist.Return.
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  IF !varResult!==NO (
     EXIT /B 1
   )
-)
-IF !varCheck!==YES (
-  echo Path is an url. Return.
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
   EXIT /B 1
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "svnStatus - Implementation error. Exit." "OUTPUT_TO_STDOUT" ""
 )
 setlocal disabledelayedexpansion
 
@@ -212,17 +208,14 @@ setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-    IF NOT EXIST "%~1" (
-    echo Path in param 1 does not exist.Return.
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  IF !varResult!==NO (
     EXIT /B 1
   )
-)
-IF !varCheck!==YES (
-  echo Path is an url. Return.
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
   EXIT /B 1
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "svnAdd - Implementation error. Exit." "OUTPUT_TO_STDOUT" ""
 )
 setlocal disabledelayedexpansion
 
@@ -249,17 +242,14 @@ setlocal enabledelayedexpansion
 set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-    IF NOT EXIST "%~1" (
-    echo Path in param 1 does not exist.Return.
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  IF !varResult!==NO (
     EXIT /B 1
   )
-)
-IF !varCheck!==YES (
-  echo Path is an url. Return.
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
   EXIT /B 1
-)
-IF !varCheck!==EMPTY (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "svnCommitAlreadyAddedContent - Implementation error. Exit." "OUTPUT_TO_STDOUT" ""
 )
 setlocal disabledelayedexpansion
 

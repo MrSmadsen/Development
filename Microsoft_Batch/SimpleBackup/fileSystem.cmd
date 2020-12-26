@@ -17,7 +17,89 @@ REM Param_1: Function_To_Be_Called
 REM Param_2: Function_Param_1
 REM Param_3: Function_Param_2
 REM Param_4: Function_Param_3
-CALL %1 %2 %3 %4
+REM Param_5: Function_Param_4
+CALL %1 %2 %3 %4 %5
+EXIT /B 0
+
+REM If EXIST fileName will check for existence of a folder or a file.
+REM Param_1: Path
+REM Param_2: returnValue. (YES | NO)
+REM Param_3: Exception on error. (YES | NO)
+:checkIfFileOrFolderExist
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF EXIST "%~1" (
+  set "%~2=YES"
+) ELSE (
+  set "%~2=NO"
+  IF "%~3"=="NO" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path %~1 does not exist." "OUTPUT_TO_STDOUT" ""
+  )
+  IF "%~3"=="YES" (
+    CALL  ..\utility_functions :Exception_End "varTargetLogFile" "Path %~1 does not exist. Exit" "OUTPUT_TO_STDOUT" ""
+  ) 
+)
+EXIT /B 0
+
+REM If EXIST fileName will check for existence of a folder or a file.
+REM Param_1: Path
+REM Param_2: Ini-file option name.
+REM Param_3: returnValue. (YES | NO)
+REM Param_4: Exception on error. (YES | NO)
+:checkIfFileOrFolderExist_IniFileOptionSupported
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 4 missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 4 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF EXIST "%~1" (
+  set "%~3=YES"
+) ELSE (
+  set "%~3=NO"
+  IF "%~4"=="NO" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% %~2 does not exist." "OUTPUT_TO_STDOUT" ""
+  )
+  IF "%~4"=="YES" (
+    CALL  ..\utility_functions :Exception_End "varTargetLogFile" "Path defined in %varSettingsFile% %~2 does not exist. Exit" "OUTPUT_TO_STDOUT" ""
+  ) 
+)
 EXIT /B 0
 
 REM Param_1: FilePath to normalize 
@@ -42,23 +124,22 @@ EXIT /B 0
 REM Param_1: Path
 REM Param_2: Check variable used to verify url-type.
 :CheckIfParamIsUrl
-set varIsUrl="NOT_VERIFIED"
-set varParam1=%~1
-set varParam1=%varParam1:~0,7%
-set varParam1_2=%~1
-set varParam1_2=%varParam1_2:~0,8%
+set "varParam1=%~1"
+set "varParam1=%varParam1:~0,7%"
+set "varParam1_2=%~1"
+set "varParam1_2=%varParam1_2:~0,8%"
 
 REM ECHO varParam1: %varParam_1%
-IF [%varParam1%]==[http://] (
+IF "%varParam1%"=="http://" (
   REM ECHO SET TO YES
   set "%~2=YES"
-) ELSE IF [%varParam1%]==[HTTP://] (
+) ELSE IF "%varParam1%"=="HTTP://" (
   REM ECHO SET TO YES
   set "%~2=YES"
-) ELSE IF [%varParam1_2%]==[https://] (
+) ELSE IF "%varParam1_2%"=="https://" (
 REM ECHO SET TO YES
 set "%~2=YES"
-) ELSE IF [%varParam1_2%]==[HTTPS://] (
+) ELSE IF "%varParam1_2%"=="HTTPS://" (
   REM ECHO SET TO YES
   set "%~2=YES"
 ) ELSE (
@@ -73,22 +154,22 @@ REM Param_1: Path
 REM Param_2: Allow url. (YES | NO). If the path is an url and allow == NO the function will call Exception_End.
 :CheckIfParamIsUrl_2
 set varIsUrl="NOT_VERIFIED"
-set varParam1=%~1
-set varParam1=%varParam1:~0,7%
-set varParam1_2=%~1
-set varParam1_2=%varParam1_2:~0,8%
+set "varParam1=%~1"
+set "varParam1=%varParam1:~0,7%"
+set "varParam1_2=%~1"
+set "varParam1_2=%varParam1_2:~0,8%"
 
 REM ECHO varParam_1: %varParam_1%
-IF [%varParam1%]==[http://] (
+IF "%varParam1%"=="http://" (
   REM ECHO SET TO YES
   set varIsUrl="YES"
-) ELSE IF [%varParam1%]==[HTTP://] (
+) ELSE IF "%varParam1%"=="HTTP://" (
   REM ECHO SET TO YES
   set varIsUrl="YES"
-) ELSE IF [%varParam1_2%]==[https://] (
+) ELSE IF "%varParam1_2%"=="https://" (
   REM ECHO SET TO YES
   set varIsUrl="YES"
-) ELSE IF [%varParam1_2%]==[HTTPS://] (
+) ELSE IF "%varParam1_2%"=="HTTPS://" (
   REM ECHO SET TO YES
   set varIsUrl="YES"
 ) ELSE (
