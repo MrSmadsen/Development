@@ -132,6 +132,8 @@ REM Param_4: Throw exception if out of date. (YES | NO)
 REM Param_5: Throw exception if changes are found. (YES | NO)
 REM Param_6: Number of acceptable changes.
 IF "%varCheckWorkingCopyChanges%"=="YES" (
+  set varResult=EMPTY
+  CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSimpleBackupCheckoutPath%" "varSimpleBackupCheckoutPath" "varResult" "YES"
   CALL :CheckImportantApplicationFiles
 )
 SET "varExecutable=%varArchiverPath%\%varArchiveProgram%"
@@ -152,7 +154,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder01%" "varCheck"
   IF !varCheck!==NO (
     set varResult=EMPTY
-    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSrcPathFolder01%" "varSrcPathFolder01" "varResult" "YES"    
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSrcPathFolder01%" "varSrcPathFolder01" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -161,7 +163,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder02%" "varCheck"
   IF !varCheck!==NO (
     set varResult=EMPTY
-    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSrcPathFolder02%" "varSrcPathFolder02" "varResult" "YES"    
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSrcPathFolder02%" "varSrcPathFolder02" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -170,7 +172,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder01%" "varCheck"
   IF !varCheck!==NO (
     set varResult=EMPTY
-    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder01%" "varDstPathFolder01" "varResult" "YES"    
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder01%" "varDstPathFolder01" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -179,7 +181,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
   IF !varCheck!==NO (
     set varResult=EMPTY
-    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder02%" "varDstPathFolder02" "varResult" "YES"    
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder02%" "varDstPathFolder02" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )  
@@ -204,7 +206,7 @@ set varCheck=EMPTY
 CALL ..\filesystem :CheckIfParamIsUrl "%varBackupLocation%" "varCheck"
 IF !varCheck!==NO (
   set varResult=EMPTY
-  CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varBackupLocation%" "varBackupLocation" "varResult" "YES"    
+  CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varBackupLocation%" "varBackupLocation" "varResult" "YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
@@ -217,7 +219,7 @@ IF %varExportSvn%==YES (
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryLocation%" "varCheck"
   IF !varCheck!==NO (
     set varResult=EMPTY
-    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varRepositoryLocation%" "varRepositoryLocation" "varResult" "YES"    
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varRepositoryLocation%" "varRepositoryLocation" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -226,7 +228,7 @@ IF %varExportSvn%==YES (
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"  
   IF !varCheck!==NO (
     set varResult=EMPTY
-    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varRepositoryDumpLocation%" "varRepositoryDumpLocation" "varResult" "YES"    
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varRepositoryDumpLocation%" "varRepositoryDumpLocation" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -316,7 +318,7 @@ IF !varCheck!==NO (
 )
 
 IF NOT EXIST "%varExistingArchivePath%\%varExistingArchiveFileName%" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchiveFileName does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path defined in %varSettingsFile% varExistingArchivePath\varExistingArchiveFileName does not exist. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 REM Disabled this check. It is performed in the function: VerifyChecksum and if the file does not exist the function
