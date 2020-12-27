@@ -24,8 +24,9 @@ EXIT /B 0
 REM Just a dummy function that does nothing.
 :do_nothing
 REM start at 1, steps by 1, until 2.
-for /l %x (1,1,2) do (
-  break
+for /l %%x IN (1,1,2) do (
+  REM Jump back to Callee.
+  EXIT /B 0
   echo User should never see this on the console.
 )
 
@@ -159,25 +160,30 @@ CALL ..\logging :Append_To_LogFile "%~1" "Exception caught." "OUTPUT_TO_STDOUT" 
 CALL ..\logging :Append_To_LogFile "%~1" "%~2" "%~3" "%~4"
 CALL ..\logging :Append_NewLine_To_LogFile "%~1" "%~3" "%~4"
 
-CALL :Cleanup
+CALL :Cleanup "CLEANUP_ENABLED"
 CALL ..\logging :Append_To_LogFile "%~1" "Exitting." "OUTPUT_TO_STDOUT" "%~4"
 CALL ..\logging :Append_NewLine_To_LogFile "%~1" "%~3" "%~4"
 PAUSE
 EXIT
 
-REM If this function is enabled with SET varCleanupEnabled=CLEANUP_ENABLED or SET varCleanupEnabled=CLEANUP_ASK
-REM the folder defined in variable varTargetBackupfolder is deleted.
+REM PARAM_1 Enable the cleanup function. Values: "CLEANUP_ENABLED" or "CLEANUP_ASK"
 :Cleanup
 IF EXIST "%varTargetBackupfolder%" (
   CALL ..\logging :Append_NewLine
 
-  IF "%varCleanupEnabled%"=="CLEANUP_ENABLED" (
+  IF "%~1"=="CLEANUP_ENABLED" (
     rmdir /Q /S "%varTargetBackupfolder%"
-    ECHO CLEANUP_ENABLED: Deleted folder %varTargetBackupfolder%
-  )
-  IF "%varCleanupEnabled%"=="CLEANUP_ASK" (
-    rmdir /S "%varTargetBackupfolder%"
-    ECHO CLEANUP_ASK: Deleted folder %varTargetBackupfolder%
+	IF %ERRORLEVEL%==0 (
+	  ECHO CLEANUP_ENABLED: Deleted folder %varTargetBackupfolder%
+    )
+  ) ELSE IF "%~1%"=="CLEANUP_ASK" (
+    CALL ..\logging :Append_To_Screen "Delete folder %varTargetBackupfolder%?" "OUTPUT_TO_STDOUT" ""
+	rmdir /S "%varTargetBackupfolder%"
+	IF %ERRORLEVEL%==0 (
+	  ECHO CLEANUP_ASK: Cleanup done on folder %varTargetBackupfolder%.
+    )
+  ) ELSE (
+    ECHO CLEANUP: No cleanup done.
   )
 )
 EXIT /B 0

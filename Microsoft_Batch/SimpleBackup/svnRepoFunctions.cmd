@@ -123,12 +123,15 @@ FOR /f "usebackq delims=" %%x in (".\__VerifyFileStateBeforeCriticalFunction_tes
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%%x" "OUTPUT_TO_STDOUT" ""
 )
 
-IF %varLineCnt% EQU %varNoOfAcceptableChanges% (
+IF %varLineCnt% LEQ %varNoOfAcceptableChanges% (
   IF %varLineCnt% EQU 0 (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%~1 matches the version stored in the svn repository. No changes found." "OUTPUT_TO_STDOUT" ""
   )
   IF %varLineCnt% GTR 0 (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%varLineCnt% changes found. %varNoOfAcceptableChanges% are acceptable. Workingcopy OK." "OUTPUT_TO_STDOUT" ""
+  )
+  IF %varLineCnt% LSS 0 (    
+	CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CheckWorkingCopyForChanges - Function implementation error. Integer varLineCnt below 0. Exit." "OUTPUT_TO_STDOUT" ""
   )
 )
 
