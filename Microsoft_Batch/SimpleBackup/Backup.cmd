@@ -426,7 +426,9 @@ EXIT /B 0
 
 :CreateNewFolderWithDate
 ECHO.
-SET "varTargetBackupfolder=%varBackupLocation%\%varDate%\"
+SET "varTargetBackupfolder=%varBackupLocation%\%varDate%"
+CALL ..\fileSystem :NormalizeFilePath "%varTargetBackupfolder%\." varTargetBackupfolder
+
 REM This creates the backup folder with date.
 IF EXIST "%varTargetBackupfolder%" (
   ECHO New backupfolder created at: %varTargetBackupfolder%.
@@ -442,15 +444,16 @@ EXIT /B 0
 REM Do not change the texts used to generate files names etc. It will most certainly break the functionality in other functions.
 :CreateNewArchiveFiles
 ECHO Creating new archive files.
-SET "varTargetBackupSet=%varTargetBackupfolder%%varDate%-backup.%varFormat%"
+SET "varTargetBackupSet=%varTargetBackupfolder%\%varDate%-backup.%varFormat%"
 SET "varTargetFileName=%varDate%-backup.%varFormat%"
-SET "varTargetLogFile=%varTargetBackupfolder%%varDate%-logfile.txt"
+SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-logfile.txt"
 CALL ..\logging :createLogFile "%varTargetLogFile%" ""
 EXIT /B 0
 
 :UseExistingFolderWithDate
 ECHO Use existing archive files.
 SET "varTargetBackupfolder=%varExistingArchivePath%"
+CALL ..\fileSystem :NormalizeFilePath "%varTargetBackupfolder%\." varTargetBackupfolder
 ECHO Using Existing folder at: %varTargetBackupfolder%.
 EXIT /B 0
 
@@ -622,9 +625,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                    %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                       %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-
 
 CALL :VerifyFileChecksum
 CALL :End
@@ -938,16 +939,16 @@ for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
   SET varSearchString=%%F.%%G
 )
 
-IF NOT EXIST "%varExistingArchivePath%\%varExistingChecksumFile%" (
+IF NOT EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
   REM Retrieve the dataTime part of the TargetFilename. We use it to find the checksum file.
   for /f "tokens=1-4 delims=-" %%F in ("!varSearchString!") do (
     SET "varTmpStr=%%F-%%G-%%H-%%I-Checksum-*"
   )
   REM Shows only files in the directory %varDir% in simple output format.
-  for /f "delims=" %%F in ('dir "%varExistingArchivePath%" /b /a-d') do (
+  for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
     echo %%F|findstr /i /b "!varTmpStr!">nul
     IF !ERRORLEVEL!==0 (
-      SET "varTargetChecksumFile=%varExistingArchivePath%\%%F"
+      SET "varTargetChecksumFile=%varTargetBackupfolder%\%%F"
     )
   )
 
@@ -955,7 +956,7 @@ IF NOT EXIST "%varExistingArchivePath%\%varExistingChecksumFile%" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Checksumfile %varTargetChecksumFile% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
   )
 ) ELSE (
-  SET "varTargetChecksumFile=%varExistingArchivePath%\%varExistingChecksumFile%"
+  SET "varTargetChecksumFile=%varTargetBackupfolder%\%varExistingChecksumFile%"
 )
 
 REM Find the used bitLength by reading the first word on the first line of the checksum file.
@@ -987,6 +988,9 @@ IF %varFileCount% EQU 0 (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Calculating !varSHABitLength! checksum failed. No archive files found. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Verifying archive file:            %varTargetBackupfolder%\!varTargetFileName!" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Comparing values in checksum file: !varTargetChecksumFile!" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "No. of files to process: !varFileCount!" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
