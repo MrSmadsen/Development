@@ -103,7 +103,7 @@ IF "%varCopyFileOk%"=="TRUE" (
 )
 
 REM SET "varToSvnUpdate=%varSvnWorkingCopy01%\Device_Backup"
-SET "varToSvnUpdate=%varSvnWorkingCopy01%\"
+SET "varToSvnUpdate=%varSvnWorkingCopy01%\."
 
 IF EXIST .\test.txt (
   del .\test.txt

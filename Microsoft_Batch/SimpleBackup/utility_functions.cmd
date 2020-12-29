@@ -160,13 +160,13 @@ CALL ..\logging :Append_To_LogFile "%~1" "Exception caught." "OUTPUT_TO_STDOUT" 
 CALL ..\logging :Append_To_LogFile "%~1" "%~2" "%~3" "%~4"
 CALL ..\logging :Append_NewLine_To_LogFile "%~1" "%~3" "%~4"
 
-CALL :Cleanup "CLEANUP_ENABLED"
+CALL :Cleanup "CLEANUP_DISABLED"
 CALL ..\logging :Append_To_LogFile "%~1" "Exitting." "OUTPUT_TO_STDOUT" "%~4"
 CALL ..\logging :Append_NewLine_To_LogFile "%~1" "%~3" "%~4"
 PAUSE
 EXIT
 
-REM PARAM_1 Enable the cleanup function. Values: "CLEANUP_ENABLED" or "CLEANUP_ASK"
+REM PARAM_1 Enable the cleanup function. Values: "CLEANUP_ENABLED", "CLEANUP_DISABLED" or "CLEANUP_ASK"
 :Cleanup
 IF EXIST "%varTargetBackupfolder%" (
   CALL ..\logging :Append_NewLine
@@ -174,16 +174,18 @@ IF EXIST "%varTargetBackupfolder%" (
   IF "%~1"=="CLEANUP_ENABLED" (
     rmdir /Q /S "%varTargetBackupfolder%"
 	IF %ERRORLEVEL%==0 (
-	  ECHO CLEANUP_ENABLED: Deleted folder %varTargetBackupfolder%
+	  CALL ..\logging :Append_To_Screen "CLEANUP_ENABLED: Deleted folder %varTargetBackupfolder%" "OUTPUT_TO_STDOUT" ""
     )
+  ) ELSE IF "%~1%"=="CLEANUP_DISABLED" (
+	  CALL ..\logging :Append_To_Screen "CLEANUP_DISABLED: No cleanup done." "OUTPUT_TO_STDOUT" ""
   ) ELSE IF "%~1%"=="CLEANUP_ASK" (
     CALL ..\logging :Append_To_Screen "Delete folder %varTargetBackupfolder%?" "OUTPUT_TO_STDOUT" ""
 	rmdir /S "%varTargetBackupfolder%"
 	IF %ERRORLEVEL%==0 (
-	  ECHO CLEANUP_ASK: Cleanup done on folder %varTargetBackupfolder%.
+	  CALL ..\logging :Append_To_Screen "CLEANUP_ASK: Cleanup done on folder %varTargetBackupfolder%." "OUTPUT_TO_STDOUT" ""
     )
   ) ELSE (
-    ECHO CLEANUP: No cleanup done.
+	CALL ..\logging :Append_To_Screen "CLEANUP: No cleanup done." "OUTPUT_TO_STDOUT" ""
   )
 )
 EXIT /B 0
