@@ -127,6 +127,55 @@ REM VisualSVN Background Job Service
 sc stop %~1
 EXIT /B 0
 
+REM Param_1: Path to logFile.
+REM Param_2: Name of the command to start.
+:logTimeStampB4CommandStart
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+REM ECHO param_1 %~1
+REM ECHO param_2 %~2
+
+SET varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%
+SET varDate=%varDate: =0%
+
+..\logging :Append_NewLine_To_LogFile "%~1" "OUTPUT_TO_STDOUT" ""
+..\logging :Append_To_LogFile "%~1" "%~2 started at: %varDate%." "OUTPUT_TO_STDOUT" ""
+EXIT /B 0
+
+REM Param_1: Path to logFile.
+REM Param_2: Name of the command to start.
+:logTimeStamp_CommandFinished
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+SET varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%
+SET varDate=%varDate: =0%
+
+..\logging :Append_NewLine_To_LogFile "%~1" "OUTPUT_TO_STDOUT" ""
+..\logging :Append_To_LogFile "%~1" "%~2 finished at: %varDate%." "OUTPUT_TO_STDOUT" ""
+EXIT /B 0
+
 REM Param_1: Path to settingsfile.
 :readBackupSettingsFile
 IF EXIST "%~1" (

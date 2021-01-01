@@ -444,8 +444,21 @@ EXIT /B 0
 REM Do not change the texts used to generate files names etc. It will most certainly break the functionality in other functions.
 :CreateNewArchiveFiles
 ECHO Creating new archive files.
-SET "varTargetBackupSet=%varTargetBackupfolder%\%varDate%-backup.%varFormat%"
-SET "varTargetFileName=%varDate%-backup.%varFormat%"
+
+IF %varGenerateSfxArchive%==NO (
+  SET "varTargetBackupSet=%varTargetBackupfolder%\%varDate%-backup.%varFormat%"
+  SET "varTargetFileName=%varDate%-backup.%varFormat%"
+) ELSE IF %varGenerateSfxArchive%==YES (
+  IF "%varFormat%"=="7z" (  
+    SET "varTargetBackupSet=%varTargetBackupfolder%\%varDate%-backup.exe"
+    SET "varTargetFileName=%varDate%-backup.exe"
+	EXIT /B 0
+  )
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CreateNewArchiveFiles - value in varformat must be 7z. Exit" "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CreateNewArchiveFiles - value in varGenerateSfxArchive is incorrect. Must be either YES or NO. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
 SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-logfile.txt"
 CALL ..\logging :createLogFile "%varTargetLogFile%" ""
 EXIT /B 0
@@ -496,7 +509,10 @@ EXIT /B 0
 
 :ActivateApplicationFunction
 IF %varMode%==a (
+  REM SET varFunctionName1=Func_GenerateBackupArchive
+  REM ..\utility_functions :logTimeStampB4CommandStart "%varTargetLogFile%" "%varFunctionName1%"
   CALL :GenerateBackupArchive
+  REM ..\utility_functions :logTimeStamp_CommandFinished "%varTargetLogFile%" "%varFunctionName1%"
 ) ELSE IF %varMode%==u (
   CALL :UpdateBackupArchive
 ) ELSE IF %varMode%==t (
@@ -547,7 +563,11 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:              
 
 CALL :SetSplitFlag
 CALL :SetupCompressionFlags
+
+REM SET varFunctionName2=Func_DoCompressfiles
+REM ..\utility_functions :logTimeStampB4CommandStart "%varTargetLogFile%" "%varFunctionName2%"
 CALL :DoCompressfiles
+REM ..\utility_functions :logTimeStamp_CommandFinished "%varTargetLogFile%" "%varFunctionName2%"
 
 IF %varIntegrityTestDuringBackup%==YES (
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
@@ -705,15 +725,18 @@ EXIT /B 0
 
 :SetupCompressionFlags
 CALL :SetupUtcMode
+CALL :SetupSfxFlag
+CALL :SetupPasswordFlag
+
 REM Default is on.
 SET "varSolidModeFlag= "
 
 IF %varFormat%==7z (
   IF %varSolidMode%==YES (
-    SET varSolidModeFlag=-ms=on
+    SET "varSolidModeFlag=-ms=on"
   )
   IF %varSolidMode%==NO (
-    SET varSolidModeFlag=-ms=off
+    SET "varSolidModeFlag=-ms=off"
   )
 )
 EXIT /B 0
@@ -736,8 +759,33 @@ SET "varUtcFlag= "
 IF %varZipUtcMode%==YES (
   IF %varFormat%==zip (
     ECHO SETTING UTC MODE.
-    SET varUtcFlag=-mtc
+    SET "varUtcFlag=-mtc"
   )
+)
+EXIT /B 0
+
+:SetupSfxFlag
+SET "varSfxFlag= "
+IF %varGenerateSfxArchive%==YES (
+    ECHO SETTING Sfx MODE.
+    SET "varSfxFlag=-sfx"
+)
+EXIT /B 0
+
+:SetupPasswordFlag
+SET "varPasswordFlag= "
+
+IF %varPassword%==YES (
+  IF NOT %varSecretPassword%==NO (
+  REM ECHO varPassword = YES, varSecretPassword = 'Password'
+  SET "varPasswordFlag=-p%varSecretPassword%"
+  EXIT /B 0
+  )
+  REM ECHO varPassword = YES, varSecretPassword = NO
+  SET "varPasswordFlag=-p"
+) else (
+  REM ECHO varPassword = NO  
+  SET "varPasswordFlag= "
 )
 EXIT /B 0
 
@@ -765,18 +813,7 @@ EXIT /B 0
 
 :DoCompressfiles
 SET varAppErrorCode=0
-IF %varPassword%==YES (
-  IF NOT %varSecretPassword%==NO (
-    REM ECHO varPassword = YES, varSecretPassword = !NO
-    "%varArchiverPath%\%varArchiveProgram%" -p%varSecretPassword% %varSplitFlag% %varMode% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
-    EXIT /B 0
-  )
-  REM ECHO varPassword = YES, varSecretPassword = NO
-  "%varArchiverPath%\%varArchiveProgram%" -p %varSplitFlag% %varMode% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
-) else (
-  REM ECHO varPassword = NO
-  "%varArchiverPath%\%varArchiveProgram%" %varSplitFlag% %varMode% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
-)
+"%varArchiverPath%\%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
 SET varAppErrorCode=%ERRORLEVEL%
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
