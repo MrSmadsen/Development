@@ -727,6 +727,8 @@ EXIT /B 0
 CALL :SetupUtcMode
 CALL :SetupSfxFlag
 CALL :SetupPasswordFlag
+CALL :SetupNTSecurityInfoFlag
+CALL :SetupLinkFlags
 
 REM Default is on.
 SET "varSolidModeFlag= "
@@ -789,6 +791,31 @@ IF %varPassword%==YES (
 )
 EXIT /B 0
 
+REM Store NT security information
+REM Only supported by .wim archives. Not implemented in this script.
+:SetupNTSecurityInfoFlag
+SET "varNTSecurityInfoFlag= "
+REM -sni : store NT security information
+IF "%varFormat%"=="wim" (
+  SET "varNTSecurityInfoFlag=-sni"
+) ELSE (
+  SET "varNTSecurityInfoFlag= "
+)
+EXIT /B 0
+
+REM Only supported by .wim and tar archives. Not implemented in this script.
+:SetupLinkFlags
+REM -snh : store hard links as links
+REM -snl : store symbolic links as links
+IF "%varFormat%"=="tar" (
+  SET "varLinkFlags=-snh -snl"
+) ELSE IF "%varFormat%"=="wim" (
+  SET "varLinkFlags=-snh -snl"
+) ELSE (
+  SET "varLinkFlags= "
+)
+EXIT /B 0
+
 :SetupExtractionFlags
 REM Fallback value is SKIP__EXISTING_FILES
 SET "varOverWriteFilesFlag=-aos"
@@ -813,7 +840,7 @@ EXIT /B 0
 
 :DoCompressfiles
 SET varAppErrorCode=0
-"%varArchiverPath%\%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
+"%varArchiverPath%\%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varLinkFlags% %varNTSecurityInfoFlag% %varLinkFlags% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
 SET varAppErrorCode=%ERRORLEVEL%
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
@@ -862,6 +889,9 @@ CALL :Evaluation !varAppErrorCode!
 setlocal disabledelayedexpansion
 EXIT /B 0
 
+REM To support extracting to the "corrected" drive add the 7zip flag -spf/-spf2(no_drive_letter) as an option in the ini-file.
+REM This will enable fully qualified path support. Currently the files are NOT extracted to their original fully qualified path,
+REM but into the output folder supplied to the extraction function.
 :DoExtractFiles
 SET varAppErrorCode=0
 "%varArchiverPath%\%varArchiveProgram%" %varMode% "%varTargetBackupSet%" -o%varExtractionLocation% * -r %varOverWriteFilesFlag%
