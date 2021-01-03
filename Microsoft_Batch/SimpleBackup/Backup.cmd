@@ -840,7 +840,7 @@ EXIT /B 0
 
 :DoCompressfiles
 SET varAppErrorCode=0
-"%varArchiverPath%\%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varLinkFlags% %varNTSecurityInfoFlag% %varLinkFlags% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
+"%varArchiverPath%\%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varLinkFlags% %varNTSecurityInfoFlag% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
 SET varAppErrorCode=%ERRORLEVEL%
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
