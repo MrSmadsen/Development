@@ -10,17 +10,3 @@ MakeInstaller.bat
 The bat-file must point to an installed 7zip installation to work.
 The installation must include \7-Zip\7z.sfx to generate the self-extracting archive.
 7zip installer can be found here: https://www.7-zip.org/download.html
-
-Either it can generate a cleaned up archive using the textfile:
-  
-  SimpleBackupFilesWithoutRootFolder.txt
-  This archive will consist of only the relevant files for deploying SimpleBackup. But when installing it the user
-  must make a destination folder to store the files.
-  
-  or
-  
-  SimpleBackupFiles.txt
-  This archive will consist of a rootFolder: SimpleBackup and all the files that were in that folder
-  when the archive was generated.
-  If SimpleBackup is in a folder with a different name the file SimpleBackupFiles.txt must use that folder name
-  instead of Simplebackup to work.
