@@ -21,6 +21,49 @@ REM Param_5: Function_Param_4
 CALL %1 %2 %3 %4 %5
 EXIT /B 0
 
+REM Untested: Check attributes if the path is a folder/directory
+REM Param_1: Path
+REM Param_2: returnValue. (YES | NO)
+REM Param_3: Exception on error. (YES | NO)
+:checkIfIsFolder
+SETLOCAL
+SET "_result=NOT_DEFINED"
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+SET "varFileAttribs=%~a1"
+IF "%varFileAttribs:~0,1%"=="d" (
+  ECHO %varFileAttribs% %1 is a folder.
+  SET "_result=YES"
+) ELSE (
+  ECHO %varFileAttribs% %1 is not a folder.
+  SET "_result=NO"
+  IF "%~3"=="NO" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path %~1 is not a folder." "OUTPUT_TO_STDOUT" ""
+  )
+  IF "%~3"=="YES" (
+    CALL  ..\utility_functions :Exception_End "%varTargetLogFile%" "Path %~1 is not a folder." "OUTPUT_TO_STDOUT" ""
+  ) 
+)
+ENDLOCAL & Set "%~2=%_result%"
+EXIT /B 0
+
 REM If EXIST fileName will check for existence of a folder or a file.
 REM Param_1: Path
 REM Param_2: returnValue. (YES | NO)
@@ -53,8 +96,8 @@ IF EXIST "%~1" (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path %~1 does not exist." "OUTPUT_TO_STDOUT" ""
   )
   IF "%~3"=="YES" (
-    CALL  ..\utility_functions :Exception_End "varTargetLogFile" "Path %~1 does not exist. Exit" "OUTPUT_TO_STDOUT" ""
-  ) 
+    CALL  ..\utility_functions :Exception_End "%varTargetLogFile%" "Path %~1 does not exist. Exit" "OUTPUT_TO_STDOUT" ""
+  )
 )
 EXIT /B 0
 

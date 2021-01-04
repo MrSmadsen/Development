@@ -136,7 +136,7 @@ IF "%varCheckWorkingCopyChanges%"=="YES" (
   CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSimpleBackupCheckoutPath%" "varSimpleBackupCheckoutPath" "varResult" "YES"
   CALL :CheckImportantApplicationFiles
 )
-SET "varExecutable=%varArchiverPath%\%varArchiveProgram%"
+SET "varExecutable=%varArchiveProgram%"
 IF NOT EXIST "%varExecutable%" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The archive program not found. %varExecutable%" "OUTPUT_TO_STDOUT" ""
 )
@@ -172,7 +172,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder01%" "varCheck"
   IF !varCheck!==NO (
     set varResult=EMPTY
-    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder01%" "varDstPathFolder01" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder01%" "varDstPathFolder01" "varResult" "NO"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -181,7 +181,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
   IF !varCheck!==NO (
     set varResult=EMPTY
-    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder02%" "varDstPathFolder02" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder02%" "varDstPathFolder02" "varResult" "NO"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )  
@@ -840,7 +840,7 @@ EXIT /B 0
 
 :DoCompressfiles
 SET varAppErrorCode=0
-"%varArchiverPath%\%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varLinkFlags% %varNTSecurityInfoFlag% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
+"%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varLinkFlags% %varNTSecurityInfoFlag% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
 SET varAppErrorCode=%ERRORLEVEL%
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
@@ -848,9 +848,9 @@ EXIT /B 0
 
 :DoUpdateArchive
 IF %varFormat%%==7z (
-  "%varArchiverPath%\%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varSolidModeFlag% %varUpdateFlags%
+  "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varSolidModeFlag% %varUpdateFlags%
 ) ELSE (
-  "%varArchiverPath%\%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varUtcFlag%
+  "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varUtcFlag%
 )
 SET varAppErrorCode=%ERRORLEVEL%
 REM The evaluation function does not work properly when called from within SETLOCAL
@@ -882,7 +882,7 @@ IF %varCheckForSplitFile%==YES (
   )
 )
 ECHO Testing file: "%varTargetBackupfolder%\!varSearchString!"
-"%varArchiverPath%\%varArchiveProgram%" t "%varTargetBackupfolder%\!varSearchString!" * -r
+"%varArchiveProgram%" t "%varTargetBackupfolder%\!varSearchString!" * -r
 SET varAppErrorCode=!ERRORLEVEL!
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation !varAppErrorCode!
@@ -894,7 +894,7 @@ REM This will enable fully qualified path support. Currently the files are NOT e
 REM but into the output folder supplied to the extraction function.
 :DoExtractFiles
 SET varAppErrorCode=0
-"%varArchiverPath%\%varArchiveProgram%" %varMode% "%varTargetBackupSet%" -o%varExtractionLocation% * -r %varOverWriteFilesFlag%
+"%varArchiveProgram%" %varMode% "%varTargetBackupSet%" -o%varExtractionLocation% * -r %varOverWriteFilesFlag%
 SET varAppErrorCode=%ERRORLEVEL%
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
