@@ -15,11 +15,9 @@ set "varGeneralSettingsFile=..\Settings.ini"
 SET "varSettingsFileRead=NO"
 
 REM  Enable this to backup the latest raspberry pi 3b+ image before the general backup.
-REM CALL :backupRaspberryPiImage
-REM  Enable this to backup everything except big binary blop folders.
-CALL :fullBackupNoPictures
-REM  Enable this to backup my user folder.
-CALL :backupUser
+CALL :backupRaspberryPiImage
+REM  Most complete backup I have defined.
+CALL :fullBackup
 PAUSE
 EXIT
 
@@ -43,18 +41,8 @@ TIMEOUT /T 2
 cd ".."
 EXIT /B 0
 
-:fullBackupNoPictures
-cd ".\FullBackupNoPictures"
-IF "%varSettingsFileRead%"=="NO" (
-  CALL :readGeneralSettingsFile
-)
-call BackupFolders.cmd
-TIMEOUT /T 2
-cd ".."
-EXIT /B 0
-
-:backupUser
-cd ".\BackupUser"
+:fullBackup
+cd ".\FullBackup"
 IF "%varSettingsFileRead%"=="NO" (
   CALL :readGeneralSettingsFile
 )
