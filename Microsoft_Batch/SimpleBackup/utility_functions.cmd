@@ -178,49 +178,47 @@ EXIT /B 0
 
 REM Param_1: Path to settingsfile.
 :readBackupSettingsFile
-IF EXIST "%~1" (
-  ECHO Read settings from file: %~1
-  REM You should only use a relative path to the settingsfile. Paths with spaces in them will probably fail.
-  FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
-	IF "%%i"=="varBackupLocation" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varExistingArchivePath" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varExtractionLocation" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varSrcPathFolder01" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varSrcPathFolder02" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varDstPathFolder01" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varDstPathFolder02" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varSimpleBackupCheckoutPath" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varRepositoryLocation" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varRepositoryDumpLocation" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varSvnPath" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varSvnadminPath" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE IF "%%i"=="varArchiveProgram" (
-	    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	) ELSE (
-	  SET %%i=%%j
-	)
-	
-    IF ["%%j"]==[""] (
-      ECHO Empty variable found in file: %~1.
-      ECHO Please enter a configuration value in variable: %%i.
-      CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "" "" ""
-    )
+IF NOT EXIST "%~f1" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Settings file %~f1 does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+ECHO Read settings from file: %~f1
+REM If the path argument %~1 in FOR /F is encapsulated in "" the for loop will tokenize the filename and not the file contents.
+REM Therefore the relative path is used instead of the absolute path %~f1 to avoid problems with spaces.
+FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
+  IF ["%%j"]==[""] (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
   )
-) ELSE (
-    ECHO Settings file %~1 does not exist.
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "" "" ""
+
+  IF "%%i"=="varBackupLocation" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varExistingArchivePath" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varExtractionLocation" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varSrcPathFolder01" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varSrcPathFolder02" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varDstPathFolder01" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varDstPathFolder02" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varSimpleBackupCheckoutPath" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varRepositoryLocation" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varRepositoryDumpLocation" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varSvnPath" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varSvnadminPath" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE IF "%%i"=="varArchiveProgram" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+  ) ELSE (
+    SET %%i=%%j
+  )
 )
 EXIT /B 0
 
