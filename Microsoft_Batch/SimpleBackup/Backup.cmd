@@ -10,12 +10,13 @@ REM Test_Disclaimer: This script has been tested on: Microsoft Windows 10 64bit 
 REM                  Feel free to use this script/software at your own risk.
 REM File Encoding: utf-8
 
-REM DONE_Todo: Test and potentially use the function: fileSystem->getDataFromPath to cleanup paths.
-          REM Implemented fileSystem->NormalizePath
-REM DONE_Todo: Add white space trimming support to the SHA512 functions to avoid accidentally adding
-      REM whitespace to a calculated checksum value. - Maybe add my own endChar to the string. filter
-      REM it away when verification is performed.
-      REM This has been solved by function: CheckImportantApplicationFiles
+REM Todo: Would like to re-implement a lot of functions to: (to avoid having every variable accessible in global scope)
+Rem :function
+REM SETLOCAL
+REM SET _doworkResult=%do_some_work%
+REM ENDLOCAL & SET _returnVariable=%_doworkResult%
+REM Problem: When the above function structure is called from another function that has used SETLOCAL enableDelayedExpansion
+REM the variable _returnVariable is not assigned a value. Haven't found a solution for that problem yet.
 
 REM Set code page to unicode - Requires that the batfile is saved in unicode utf-8 format.
 chcp %varCodePage% > nul
@@ -840,7 +841,7 @@ EXIT /B 0
 
 :DoCompressfiles
 SET varAppErrorCode=0
-"%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varLinkFlags% %varNTSecurityInfoFlag% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
+"%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varLinkFlags% %varNTSecurityInfoFlag% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
 SET varAppErrorCode=%ERRORLEVEL%
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%

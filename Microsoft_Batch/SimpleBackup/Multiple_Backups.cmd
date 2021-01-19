@@ -10,9 +10,10 @@ REM Test_Disclaimer: This script has been tested on: Microsoft Windows 10 64bit 
 REM                  Feel free to use this script/software at your own risk.
 REM File Encoding: utf-8
 
-set "varMultipleBackups=YES"
-set "varGeneralSettingsFile=..\Settings.ini"
+SET "varMultipleBackups=YES"
+SET "varGeneralSettingsFile=..\Settings.ini"
 SET "varSettingsFileRead=NO"
+SET "varBackupSettingsFileRead=NO"
 
 REM  Enable this to backup the latest raspberry pi 3b+ image before the general backup.
 CALL :backupRaspberryPiImage
@@ -24,6 +25,7 @@ EXIT
 REM Because the function :readBackupSettingsFile calls ..\fileSystem NormalizePath with a
 REM one-step navigation backtrack we have to %CD% before calling it.
 :readGeneralSettingsFile
+CALL ..\utility_functions :readBackupSettingsFile_Limits "%varGeneralSettingsFile%"
 CALL ..\utility_functions :readBackupSettingsFile "%varGeneralSettingsFile%"
 SET "varSettingsFileRead=YES"
 

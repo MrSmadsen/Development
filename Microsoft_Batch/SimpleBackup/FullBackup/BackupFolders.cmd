@@ -10,7 +10,9 @@ REM Test_Disclaimer: This script has been tested on: Microsoft Windows 10 64bit 
 REM                  Feel free to use this script/software at your own risk.
 REM File Encoding: utf-8
 
+SET "varBackupSettingsFileRead=NO"
 set varGeneralSettingsFile=..\Settings.ini
+CALL ..\utility_functions :readBackupSettingsFile_Limits "%varGeneralSettingsFile%"
 CALL ..\utility_functions :readBackupSettingsFile "%varGeneralSettingsFile%"
 
 REM Set code page to unicode - Requires that the batfile is saved in unicode utf-8 format.
@@ -18,6 +20,7 @@ chcp %varCodePage% > nul
 
 set varSettingsFile=BackupSettings.ini
 CALL ..\utility_functions :readBackupSettingsFile "%varSettingsFile%"
+SET "varBackupSettingsFileRead=YES"
 CALL ..\Backup :Prepare
 
 IF [%varMultipleBackups%]==[] (

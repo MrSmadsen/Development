@@ -131,16 +131,16 @@ REM Param_1: Path to logFile.
 REM Param_2: Name of the command to start.
 :logTimeStampB4CommandStart
 IF [%1]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%1]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 REM ECHO param_1 %~1
@@ -157,16 +157,16 @@ REM Param_1: Path to logFile.
 REM Param_2: Name of the command to start.
 :logTimeStamp_CommandFinished
 IF [%1]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%1]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 SET varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%
@@ -177,9 +177,34 @@ SET varDate=%varDate: =0%
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
+:readBackupSettingsFile_Limits
+IF NOT EXIST "%~f1" (
+  CALL :Exception_End "%varTargetLogFile%" "Settings file %~f1 does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+ECHO Retriving limit values from file: %~f1
+REM If the path argument %~1 in FOR /F is encapsulated in "" the for loop will tokenize the filename and not the file contents.
+REM Therefore the relative path is used instead of the absolute path %~f1 to avoid problems with spaces.
+FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
+  IF ["%%j"]==[""] (
+    CALL :Exception_End "%varTargetLogFile%" "Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
+  )
+  IF "%%i"=="varFileNameLength" (
+    SET %%i=%%j
+  )
+  IF "%%i"=="varFolderLength" (
+    SET %%i=%%j
+  )
+  IF "%%i"=="varPathLength" (
+    SET %%i=%%j
+  )
+)
+EXIT /B 0
+
+REM Param_1: Path to settingsfile.
 :readBackupSettingsFile
 IF NOT EXIST "%~f1" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Settings file %~f1 does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" "Settings file %~f1 does not exist. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 ECHO Read settings from file: %~f1
@@ -187,7 +212,7 @@ REM If the path argument %~1 in FOR /F is encapsulated in "" the for loop will t
 REM Therefore the relative path is used instead of the absolute path %~f1 to avoid problems with spaces.
 FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   IF ["%%j"]==[""] (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
+    CALL :Exception_End "%varTargetLogFile%" "Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
   )
 
   IF "%%i"=="varBackupLocation" (
@@ -220,6 +245,59 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     SET %%i=%%j
   )
 )
+EXIT /B 0
+
+REM Inspiration from: https://ss64.com/nt/syntax-strlen.html
+REM Param_1 The string which require length calculation.
+REM Param_2 Max_Length allowed. 
+REM Param_3 Exception on error.
+REM Param_4: Verbose_Mode - "V"
+:strLength
+IF [%1]==[] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF [%2]==[] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF [%3]==[] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+Setlocal EnableDelayedExpansion
+Set "s=#%~1"
+Set "len=0"
+For %%N in (4096 2048 1024 512 256 128 64 32 16 8 4 2 1) do (
+  if "!s:~%%N,1!" neq "" (
+    set /a "len+=%%N"
+    set "s=!s:~%%N!"
+  )
+)
+
+IF !len! gtr %~2 (
+  ECHO Param_1 value:      %~1
+  ECHO Calculated length:  !len!
+  ECHO Max_Length allowed: %~2
+  IF "%~3"=="YES" (	
+    ECHO :strLength - Calculated length !len! exceeds Max_Length of %~2. Exit.
+	PAUSE
+	EXIT 1
+  )
+)
+
+IF "%~4"=="V" ( ECHO Calculated length !len! exceeds Max_Length of %~2. Return to caller. )
+IF "%~4"=="v" ( ECHO Calculated length !len! exceeds Max_Length of %~2. Return to caller. )
+Setlocal DisableDelayedExpansion
 EXIT /B 0
 
 REM Exits the script and writes the error message provided.

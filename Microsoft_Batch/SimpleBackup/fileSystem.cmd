@@ -164,6 +164,29 @@ IF [%2]==[""] (
 set "%~2=%~f1"
 EXIT /B 0
 
+REM Implement: Local filesystem check: Either partion labeled with drive letter og partition mounted as a volume point (ntfs - folder mount)
+REM Param_1: Path
+REM Param_2: Check variable used to verify fileSystem-type.
+:CheckIfParamIsLocalFileSystem
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsLocalFileSystem - Not implemented yet. Exit" "OUTPUT_TO_STDOUT" ""
+EXIT /B 0
+
+REM Implement: A path is a network path if it is either an unc network path or an url.
+REM We still do not handle every protocol on the planet. so HKPS, svn, etc is ignored.
+REM Param_1: Path
+REM Param_2: Check variable used to verify network-type.
+:CheckIfParamIsNetworkPath
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsNetworkPath - Not implemented yet. Exit" "OUTPUT_TO_STDOUT" ""
+EXIT /B 0
+
+REM Implement: Unc network path (microsoft): \\SERVER\Share-name\Regular-FilePath-Folder1\Regular-FilePath-Folder2
+REM Unc network path (unix): //SERVER/Share-name/Regular-FilePath-Folder1/Regular-FilePath-Folder2
+REM Param_1: Path
+REM Param_2: Check variable used to verify unc network.
+:CheckIfParamIsUncNetworkPath
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUncNetworkPath - Not implemented yet. Exit" "OUTPUT_TO_STDOUT" ""
+EXIT /B 0
+
 REM Param_1: Path
 REM Param_2: Check variable used to verify url-type.
 :CheckIfParamIsUrl

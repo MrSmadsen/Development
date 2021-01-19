@@ -97,6 +97,12 @@ IF ["%~2"]==["OUTPUT_TO_STDOUT"] (
 ) ELSE (
   SET varLogToSTDOUTOK=NO
 )
+
+REM If we haven't read the settings ini-file we haven't declared the variable varEnableFileLogging.
+IF "%varBackupSettingsFileRead%"=="NO" (
+  SET varEnableFileLogging=NO
+)
+
 IF %varLogToFileOK%==NOT_DEFINED (
   IF %varEnableFileLogging%==NO (
     SET varLogToFileOK=NO
@@ -148,6 +154,11 @@ IF [%2]==[""] (
   IF ["%~4"]==["OUTPUT_DEBUG"] ECHO No message provided for logfile or STD_OUT.
   SET varLogToFileOK=NO
   SET varLogToSTDOUTOK=NO
+)
+
+REM If we haven't read the settings ini-file we haven't declared the variable varEnableFileLogging.
+IF "%varBackupSettingsFileRead%"=="NO" (
+  SET varEnableFileLogging=NO
 )
 
 IF %varLogToFileOK%==NOT_DEFINED (
