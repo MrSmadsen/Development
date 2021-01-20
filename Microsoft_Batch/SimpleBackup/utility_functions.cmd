@@ -222,43 +222,43 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
 
   IF "%%i"=="varBackupLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varExistingArchivePath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varExtractionLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSrcPathFolder01" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSrcPathFolder02" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varDstPathFolder01" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varDstPathFolder02" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSimpleBackupCheckoutPath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varRepositoryLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varRepositoryDumpLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSvnPath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSvnadminPath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varArchiveProgram" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-	CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE (
     SET %%i=%%j
   )
