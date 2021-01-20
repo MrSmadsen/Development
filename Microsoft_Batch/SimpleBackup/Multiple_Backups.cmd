@@ -25,7 +25,6 @@ EXIT
 REM Because the function :readBackupSettingsFile calls ..\fileSystem NormalizePath with a
 REM one-step navigation backtrack we have to %CD% before calling it.
 :readGeneralSettingsFile
-CALL ..\utility_functions :readBackupSettingsFile_Limits "%varGeneralSettingsFile%"
 CALL ..\utility_functions :readBackupSettingsFile "%varGeneralSettingsFile%"
 SET "varSettingsFileRead=YES"
 

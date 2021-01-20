@@ -207,6 +207,11 @@ IF NOT EXIST "%~f1" (
   CALL :Exception_End "%varTargetLogFile%" "Settings file %~f1 does not exist. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
+IF "%~1"=="..\Settings.ini" (
+  REM CALL ..\utility_functions :readBackupSettingsFile_Limits "%varGeneralSettingsFile%"
+  CALL ..\utility_functions :readBackupSettingsFile_Limits "%~1"
+)
+
 ECHO Read settings from file: %~f1
 REM If the path argument %~1 in FOR /F is encapsulated in "" the for loop will tokenize the filename and not the file contents.
 REM Therefore the relative path is used instead of the absolute path %~f1 to avoid problems with spaces.
@@ -217,30 +222,43 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
 
   IF "%%i"=="varBackupLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""	
   ) ELSE IF "%%i"=="varExistingArchivePath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varExtractionLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSrcPathFolder01" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSrcPathFolder02" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varDstPathFolder01" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varDstPathFolder02" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSimpleBackupCheckoutPath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varRepositoryLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varRepositoryDumpLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSvnPath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varSvnadminPath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varArchiveProgram" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+	CALL :strLength "%%i" %varPathLength% "YES" ""
   ) ELSE (
     SET %%i=%%j
   )
