@@ -126,12 +126,36 @@ IF %varAppFunctionVerifyChecksum%==YES (
 EXIT /B 0
 
 :PerformGenericPreconditionalChecks
-REM Param_1: Svn repository check out to get status from
-REM Param_2: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
-REM Param_3: Update before calling status.   (YES | NO)
-REM Param_4: Throw exception if out of date. (YES | NO)
-REM Param_5: Throw exception if changes are found. (YES | NO)
-REM Param_6: Number of acceptable changes.
+SET varCheck=FALSE
+IF %varCheckWorkingCopyChanges%==YES (
+  SET varCheck=TRUE
+)
+IF %varExportSvn%==YES (
+  SET varCheck=TRUE
+)
+
+IF %varCheck%==TRUE (
+  setlocal enabledelayedexpansion
+  set varCheck=EMPTY
+  CALL ..\filesystem :CheckIfParamIsUrl "%varSvnadminPath%" "varCheck"
+  IF !varCheck!==NO (
+    set varResult=EMPTY
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSvnadminPath%" "varSvnadminPath" "varResult" "YES"
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSvnadminPath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )  
+  
+  set varCheck=EMPTY
+  CALL ..\filesystem :CheckIfParamIsUrl "%varSvnPath%" "varCheck"
+  IF !varCheck!==NO (
+    set varResult=EMPTY
+    CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSvnPath%" "varSvnPath" "varResult" "YES"
+  ) ELSE (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSvnPath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  )  
+  setlocal disabledelayedexpansion
+)
+
 IF "%varCheckWorkingCopyChanges%"=="YES" (
   set varResult=EMPTY
   CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSimpleBackupCheckoutPath%" "varSimpleBackupCheckoutPath" "varResult" "YES"
@@ -190,15 +214,6 @@ IF %varCheck%==TRUE (
 )
 
 CALL :CheckIniFileOption_varChecksumBitlength
-
-REM Informational
-IF NOT EXIST "%varSvnadminPath%" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "SvnAdmin.exe not found. %varSvnadminPath%" "OUTPUT_TO_STDOUT" ""
-)
-REM Informational
-IF NOT EXIST "%varSvnPath%" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Svn.exe not found. %varSvnPath%" "OUTPUT_TO_STDOUT" ""
-)
 EXIT /B 0
 
 :PerformBackupPreconditionalChecks
@@ -361,7 +376,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 EXIT /B 0
 
 :CheckIniFileOption_varChecksumBitlength
-SET varChecksumOK=NOT_DEFINED
+SET varChecksumOK=NOT_OK
 
 REM (MD2 | MD4 | MD5 | SHA1 | SHA256 | SHA384 | SHA512)
 IF "%varChecksumBitlength%"=="MD2" (
@@ -382,9 +397,7 @@ IF "%varChecksumBitlength%"=="MD2" (
   SET "varChecksumOK=NOT_OK"
 )
  
-IF "%varChecksumOK%"=="OK" (
-  CALL ..\utility_functions :do_nothing
-) ELSE (
+IF "%varChecksumOK%"=="NOT_OK" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Value defined in %varSettingsFile% varChecksumBitlength is unsupported. Exit." "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
