@@ -219,7 +219,7 @@ EXIT /B 0
 REM Param_1: Path
 REM Param_2: Allow url. (YES | NO). If the path is an url and allow == NO the function will call Exception_End.
 :CheckIfParamIsUrl_2
-set varIsUrl="NOT_VERIFIED"
+set "varIsUrl=NOT_VERIFIED"
 set "varParam1=%~1"
 set "varParam1=%varParam1:~0,7%"
 set "varParam1_2=%~1"
@@ -228,19 +228,19 @@ set "varParam1_2=%varParam1_2:~0,8%"
 REM ECHO varParam_1: %varParam_1%
 IF "%varParam1%"=="http://" (
   REM ECHO SET TO YES
-  set varIsUrl="YES"
+  set "varIsUrl=YES"
 ) ELSE IF "%varParam1%"=="HTTP://" (
   REM ECHO SET TO YES
-  set varIsUrl="YES"
+  set "varIsUrl=YES"
 ) ELSE IF "%varParam1_2%"=="https://" (
   REM ECHO SET TO YES
-  set varIsUrl="YES"
+  set "varIsUrl=YES"
 ) ELSE IF "%varParam1_2%"=="HTTPS://" (
   REM ECHO SET TO YES
-  set varIsUrl="YES"
+  set "varIsUrl=YES"
 ) ELSE (
   REM ECHO SET TO NO
-  set varIsUrl="NO"
+  set "varIsUrl=NO"
 )
 
 IF "varIsUrl"=="NOT_VERIFIED" (
@@ -249,28 +249,28 @@ IF "varIsUrl"=="NOT_VERIFIED" (
 
 REM If allow url:
 IF "%~2"=="NO" (
-  IF %varIsUrl%=="YES" (
+  IF "%varIsUrl%"=="YES" (
     REM Do not accept url - Default behaviour.
     CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "%~1 is an URL. Urls are not accepted as paths. Exit" "OUTPUT_TO_STDOUT" ""
   )
-  IF %varIsUrl%=="NO" (
+  IF "%varIsUrl%"=="NO" (
     ECHO.
     REM PASSTHROUGH - Allow all paths that are not urls.
   )
-  IF %varIsUrl%=="NOT_VERIFIED" (
+  IF "%varIsUrl%"=="NOT_VERIFIED" (
     CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl - Error-2 in the function implementation. Exit" "OUTPUT_TO_STDOUT" ""
   )
 ) ELSE IF "%~2"=="YES" (
 
-  IF %varIsUrl%=="YES" (
+  IF "%varIsUrl%"=="YES" (
     ECHO.
     REM PASSTHROUGH - Allow urls.
   )
-  IF %varIsUrl%=="NO" (
+  IF "%varIsUrl%"=="NO" (
     ECHO.
     REM PASSTHROUGH - Allow urls.
   )
-  IF %varIsUrl%=="NOT_VERIFIED" (
+  IF "%varIsUrl%"=="NOT_VERIFIED" (
     CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl - Error-3 in the function implementation. Exit" "OUTPUT_TO_STDOUT" ""
   )
 ) ELSE (
@@ -289,14 +289,14 @@ ECHO UNTESTED FUNCTION. TEST AND VERIFY FUNCTIONALITY BEFORE USING IT.
 SET "varTest=c:\Test\Test\Awesome Test"
 setlocal enabledelayedexpansion
 for %%a in ("%varTest:\=" "%") do (
-  set varLastFolder=%%a
+  set "varLastFolder=%%a"
 )
 setlocal disabledelayedexpansion
 REM Remove brackets from the string.
-set varLastFolderBracketLess=%varLastFolder:~1,-1%
+set "varLastFolderBracketLess=%varLastFolder:~1,-1%"
 REM Trim trailing whitespace up to 100 chars.
 setlocal enabledelayedexpansion
-for /l %%a in (1,1,100) do if "!varLastFolderBracketLess:~-1!"==" " set varLastFolderBracketLess=!varLastFolderBracketLess:~0,-1!
+for /l %%a in (1,1,100) do if "!varLastFolderBracketLess:~-1!"==" " set "varLastFolderBracketLess=!varLastFolderBracketLess:~0,-1!"
 setlocal disabledelayedexpansion  
 ECHO varLastFolderBracketLess: %varLastFolderBracketLess%
 endlocal
@@ -370,7 +370,7 @@ REM Param_2: RegularMode "" or QuietMode: "USE_QUIET_MODE".
 REM Param_3: Verbose_Mode - "V"
 :deleteFile
 IF "%~2"=="USE_QUIET_MODE" (
-  SET varDeleteMode=/Q
+  SET "varDeleteMode=/Q"
 )
 del %varDeleteMode% "%~1"
 IF %ERRORLEVEL% NEQ 0 (
@@ -411,24 +411,24 @@ EXIT /B 0
 REM Param_1:SourcePath
 REM Param_2:DestinationPath
 :moveFolder
-  SET varMoveFolder=NOT_VERIFIED
+  SET "varMoveFolder=NOT_VERIFIED"
   
   IF NOT EXIST "%~2" (
     mkdir %2
     IF %ERRORLEVEL% NEQ 0 (
-      SET varMoveFolder=NO
+      SET "varMoveFolder=NO"
       CALL ..\logging :Append_To_Screen "Error: :moveFolder: Destination-Path %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
       EXIT /B 1
     )
   )
 
   IF NOT EXIST "%~1" (
-    SET varMoveFolder=NO
+    SET "varMoveFolder=NO"
     CALL ..\logging :Append_To_Screen "Error: :moveFolder: Source-Path %1 does not exist.Return" "OUTPUT_TO_STDOUT" ""
     EXIT /B 1
   )
   
-  set varMoveFolder=YES
+  set "varMoveFolder=YES"
   
   IF [%varMoveFolder%]==[YES] (
     ECHO Moving folder from: %~1
@@ -473,52 +473,52 @@ REM Param_3: Verbose_Mode - "v"
 :getDataFromPath
 SET "varGetDataFromPathResult="
 IF "%~2"=="REMOVE_QUOTE_SIGNS" (
-  SET varGetDataFromPathResult=%~1
+  SET "varGetDataFromPathResult=%~1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="FULLY_QUALIFIED_PATH" (
-  SET varGetDataFromPathResult=%~f1
+  SET "varGetDataFromPathResult=%~f1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="DRIVE_LETTER_ONLY" (
-  SET varGetDataFromPathResult=%~d1
+  SET "varGetDataFromPathResult=%~d1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="PATH_ONLY" (
-  SET varGetDataFromPathResult=%~p1
+  SET "varGetDataFromPathResult=%~p1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="FILE_NAME_ONLY" (
-  SET varGetDataFromPathResult=%~n1
+  SET "varGetDataFromPathResult=%~n1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="FILE_EXTENSION_ONLY" (
-  SET varGetDataFromPathResult=%~x1
+  SET "varGetDataFromPathResult=%~x1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="SHORT_NAME_ONLY" (
-  SET varGetDataFromPathResult=%~s1
+  SET "varGetDataFromPathResult=%~s1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="FILE_ATTRIBUTES" (
-  SET varGetDataFromPathResult=%~a1
+  SET "varGetDataFromPathResult=%~a1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="DATE-TIME_OF_FILE" (
-  SET varGetDataFromPathResult=%~t1
+  SET "varGetDataFromPathResult=%~t1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )
 IF "%~2"=="SIZE_OF_FILE" (
-  SET varGetDataFromPathResult=%~z1
+  SET "varGetDataFromPathResult=%~z1"
   IF "%~3"== "V" ( ECHO "%varGetDataFromPathResult%" )
   IF "%~3"== "v" ( ECHO "%varGetDataFromPathResult%" )
 )

@@ -11,13 +11,13 @@ REM                  Feel free to use this script/software at your own risk.
 REM File Encoding: utf-8
 
 SET "varBackupSettingsFileRead=NO"
-set varGeneralSettingsFile=..\Settings.ini
+set "varGeneralSettingsFile=..\Settings.ini"
 CALL ..\utility_functions :readBackupSettingsFile "%varGeneralSettingsFile%"
 
 REM Set code page to unicode - Requires that the batfile is saved in unicode utf-8 format.
 chcp %varCodePage% > nul
 
-set varSettingsFile=BackupSettings.ini
+set "varSettingsFile=BackupSettings.ini"
 CALL ..\utility_functions :readBackupSettingsFile "%varSettingsFile%"
 SET "varBackupSettingsFileRead=YES"
 CALL ..\Backup :Prepare
@@ -53,8 +53,8 @@ CALL :CleanupImagefolder
 EXIT /B 0
 
 :copyChecksumFile
-SET varPathNotFound=FALSE
-SET varCopyFileOk=FALSE
+SET "varPathNotFound=FALSE"
+SET "varCopyFileOk=FALSE"
 SET "varDir=%varBackupLocation%\%varDate%"
 SET "varDestination=%varRasperryPi3BPlusSha512Path%\%varDate%"
 
@@ -90,7 +90,7 @@ copy "%varSrcFile%" "%varDestination%"
 IF %ERRORLEVEL% NEQ 0 (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Copying varSrcFile failed. varSrcFile: %varSrcFile%" "OUT_TO_STDOUT" ""
 )
-SET varCopyFileOk=TRUE
+SET "varCopyFileOk=TRUE"
 EXIT /B 0
 
 :CommitChecksumFileToSvn
@@ -113,9 +113,9 @@ IF EXIST .\test.txt (
 CALL ..\svnRepoFunctions :svnUpdate "%varToSvnUpdate%"
 CALL ..\svnRepoFunctions :svnStatus "%varToSvnUpdate%" "--no-ignore" "NO" > .\test.txt
 
-SET /a varLineCnt=0
+SET /a "varLineCnt=0"
 FOR /f "usebackq delims=" %%x in (".\test.txt") do (
-  SET /a varLineCnt+=1
+  SET /a "varLineCnt+=1"
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Following changes are found in the working copy:" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%%x" "OUTPUT_TO_STDOUT" ""
 )
@@ -181,10 +181,10 @@ cd /d "%varTmpDir%"
 EXIT /B 0
 
 :GetImagefolder
-SET /a varFolderCnt=0
+SET /a "varFolderCnt=0"
 SET "varFoundfolder="
 FOR /f "usebackq delims=" %%x in ("%varFileList%") do (
-  SET /a varFolderCnt +=1
+  SET /a "varFolderCnt+=1"
   ECHO Folder From backup.txt: %%x
   REM CALL ..\fileSystem :getDataFromPath "%%x" "FULLY_QUALIFIED_PATH" ""
   REM SET "varFoundfolder=%varGetDataFromPathResult%"

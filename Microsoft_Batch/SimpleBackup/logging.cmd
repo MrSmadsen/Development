@@ -57,13 +57,13 @@ REM Param_1: Message
 REM Param_2: OUTPUT_TO_STDOUT  -  The function will also echo the message to stdout.
 REM Param_3: OUTPUT_DEBUG      - Outputs the error messages in this function.
 :Append_To_Screen
-SET varLogToSTDOUTOK=NOT_DEFINED
+SET "varLogToSTDOUTOK=NOT_DEFINED"
 IF ["%~1"]==[""] (
   IF ["%~3"]==["OUTPUT_DEBUG"] ECHO No message provided for STD_OUT.
-  SET varLogToSTDOUTOK=NO
+  SET "varLogToSTDOUTOK=NO"
 )
 IF %varLogToSTDOUTOK%==NOT_DEFINED IF ["%~2"]==["OUTPUT_TO_STDOUT"] (
-  SET varLogToSTDOUTOK=YES
+  SET "varLogToSTDOUTOK=YES"
 )
 
 REM if %1 has double quotes around it, %~1 will strip the quote signs.
@@ -77,39 +77,39 @@ REM Param_1: FileHandle
 REM Param_2: OUTPUT_TO_STDOUT  - The function will also echo the 'New_Line' to stdout.
 REM Param_3: OUTPUT_DEBUG      - Outputs the error messages in this function.
 :Append_NewLine_To_LogFile
-SET varLogToFileOK=NOT_DEFINED
+SET "varLogToFileOK=NOT_DEFINED"
 IF [%1]==[] (
-  SET varLogToFileOK=NO
+  SET "varLogToFileOK=NO"
   IF ["%~3"]==["OUTPUT_DEBUG"] ECHO LogFile has not been defined yet.
 )
 REM Empty parameters in the parameter lists are bad. Batch seems to shift the parameters if an empty slot is found.
 REM Instead use a dummy parameter that do not exist if logToFile is not wanted.
 IF [%1]==[""] (
-  SET varLogToFileOK=NO
+  SET "varLogToFileOK=NO"
   IF ["%~3"]==["OUTPUT_DEBUG"] ECHO LogFile has not been defined yet.
 )
 IF not exist "%~1" (
-  SET varLogToFileOK=NO
+  SET "varLogToFileOK=NO"
   IF ["%~3"]==["OUTPUT_DEBUG"] ECHO LogFile does not exist.
 )
 IF ["%~2"]==["OUTPUT_TO_STDOUT"] (
-  SET varLogToSTDOUTOK=YES
+  SET "varLogToSTDOUTOK=YES"
 ) ELSE (
-  SET varLogToSTDOUTOK=NO
+  SET "varLogToSTDOUTOK=NO"
 )
 
 REM If we haven't read the settings ini-file we haven't declared the variable varEnableFileLogging.
 IF "%varBackupSettingsFileRead%"=="NO" (
-  SET varEnableFileLogging=NO
+  SET "varEnableFileLogging=NO"
 )
 
 IF %varLogToFileOK%==NOT_DEFINED (
   IF %varEnableFileLogging%==NO (
-    SET varLogToFileOK=NO
+    SET "varLogToFileOK=NO"
   ) ELSE IF %varEnableFileLogging%==YES (
-    SET varLogToFileOK=YES
+    SET "varLogToFileOK=YES"
   ) ELSE (
-    SET varLogToFileOK=NO
+    SET "varLogToFileOK=NO"
     ECHO varEnableLogging is configured incorrectly, varEnableFileLogging: %varEnableFileLogging%.
   )
 )
@@ -128,51 +128,51 @@ REM Param_2: Message
 REM Param_3: OUTPUT_TO_STDOUT  -  The function will also echo the message to stdout.
 REM Param_4: OUTPUT_DEBUG      - Outputs the error messages in this function.
 :Append_To_LogFile
-SET varLogToFileOK=NOT_DEFINED
-SET varLogToSTDOUTOK=NOT_DEFINED
+SET "varLogToFileOK=NOT_DEFINED"
+SET "varLogToSTDOUTOK=NOT_DEFINED"
 
 IF [%1]==[] (
   IF ["%~4"]==["OUTPUT_DEBUG"] ECHO LogFile has not been defined yet. Message not logged to file.
-  SET varLogToFileOK=NO
+  SET "varLogToFileOK=NO"
 )
 REM Empty parameters in the parameter lists are bad. Batch seems to shift the parameters if an empty slot is found.
 REM Instead use a dummy parameter that do not exist if logToFile is not wanted.
 IF [%1]==[""] (
   IF ["%~4"]==["OUTPUT_DEBUG"] ECHO LogFile has not been defined yet. Message not logged to file.
-  SET varLogToFileOK=NO
+  SET "varLogToFileOK=NO"
 )
 IF not exist "%~1" (
   IF ["%~4"]==["OUTPUT_DEBUG"] ECHO LogFile does not exist. Message not logged.
-  SET varLogToFileOK=NO
+  SET "varLogToFileOK=NO"
 )
 IF [%2]==[] (
   IF ["%~4"]==["OUTPUT_DEBUG"] ECHO No message provided for logfile or STD_OUT.
-  SET varLogToFileOK=NO
-  SET varLogToSTDOUTOK=NO
+  SET "varLogToFileOK=NO"
+  SET "varLogToSTDOUTOK=NO"
 )
 IF [%2]==[""] (
   IF ["%~4"]==["OUTPUT_DEBUG"] ECHO No message provided for logfile or STD_OUT.
-  SET varLogToFileOK=NO
-  SET varLogToSTDOUTOK=NO
+  SET "varLogToFileOK=NO"
+  SET "varLogToSTDOUTOK=NO"
 )
 
 REM If we haven't read the settings ini-file we haven't declared the variable varEnableFileLogging.
 IF "%varBackupSettingsFileRead%"=="NO" (
-  SET varEnableFileLogging=NO
+  SET "varEnableFileLogging=NO"
 )
 
 IF %varLogToFileOK%==NOT_DEFINED (
   IF %varEnableFileLogging%==NO (
-    SET varLogToFileOK=NO
+    SET "varLogToFileOK=NO"
   ) ELSE IF %varEnableFileLogging%==YES (
-    SET varLogToFileOK=YES
+    SET "varLogToFileOK=YES"
   ) ELSE (
-    SET varLogToFileOK=NO
+    SET "varLogToFileOK=NO"
     ECHO varEnableLogging is configured incorrectly, varEnableFileLogging: %varEnableFileLogging%.
   )
 )
 IF %varLogToSTDOUTOK%==NOT_DEFINED IF ["%~3"]==["OUTPUT_TO_STDOUT"] (
-  SET varLogToSTDOUTOK=YES
+  SET "varLogToSTDOUTOK=YES"
 )
 
 REM if %1 has double quotes around it, %~1 will strip the quote signs.

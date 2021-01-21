@@ -45,34 +45,34 @@ EXIT /B 0
 REM If running as elevated admin, member of local and/or domain admin groups. Set relevant variables to NO/YES
 :is_cmd_running_with_admin_priviligies_using_whoami
 CALL :reset_errorlevel
-SET varElevatedAdminPriviligies=NO
+SET "varElevatedAdminPriviligies=NO"
 whoami /groups | find "S-1-16-12288" > nul 2>&1
 IF %ERRORLEVEL%==0 (
-  SET varElevatedAdminPriviligies=YES
+  SET "varElevatedAdminPriviligies=YES"
 ) ELSE IF %ERRORLEVEL%==1 (
-  SET varElevatedAdminPriviligies=NO
+  SET "varElevatedAdminPriviligies=NO"
 ) ELSE (
   CALL :Exception_End "%varTargetLogFile%" "Unhandled exception in function :is_cmd_running_with_admin_priviligies_using_whoami - Elevations_Part" "OUTPUT_TO_STDOUT" "OUTPUT_DEBUG"
 )
 
 CALL :reset_errorlevel
-SET varUserInLocalAdministratorsGroup=NO
+SET "varUserInLocalAdministratorsGroup=NO"
 whoami /groups | find "S-1-5-32-544" > nul 2>&1
 IF %ERRORLEVEL%==0 (
-  SET varUserInLocalAdministratorsGroup=YES
+  SET "varUserInLocalAdministratorsGroup=YES"
 ) ELSE IF %ERRORLEVEL%==1 (
-  SET varUserInLocalAdministratorsGroup=NO
+  SET "varUserInLocalAdministratorsGroup=NO"
 ) ELSE (
   CALL :Exception_End "%varTargetLogFile%" "Unhandled exception in function :is_cmd_running_with_admin_priviligies_using_whoami - Local Admin Part" "OUTPUT_TO_STDOUT" "OUTPUT_DEBUG"
 )
 
 CALL :reset_errorlevel
-SET varUserInDomainAdministratorsGroup=NO
+SET "varUserInDomainAdministratorsGroup=NO"
 whoami /groups | find "-512" > nul 2>&1
 IF %ERRORLEVEL%==0 (
-  SET varUserInDomainAdministratorsGroup=YES
+  SET "varUserInDomainAdministratorsGroup=YES"
 ) ELSE IF %ERRORLEVEL%==1 (
-  SET varUserInDomainAdministratorsGroup=NO
+  SET "varUserInDomainAdministratorsGroup=NO"
 ) ELSE (
   CALL :Exception_End "%varTargetLogFile%" "Unhandled exception in function :is_cmd_running_with_admin_priviligies_using_whoami - Domain Admin Part" "OUTPUT_TO_STDOUT" "OUTPUT_DEBUG"
 )
@@ -146,8 +146,8 @@ IF [%2]==[""] (
 REM ECHO param_1 %~1
 REM ECHO param_2 %~2
 
-SET varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%
-SET varDate=%varDate: =0%
+SET "varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%"
+SET "varDate=%varDate: =0%"
 
 ..\logging :Append_NewLine_To_LogFile "%~1" "OUTPUT_TO_STDOUT" ""
 ..\logging :Append_To_LogFile "%~1" "%~2 started at: %varDate%." "OUTPUT_TO_STDOUT" ""
@@ -169,8 +169,8 @@ IF [%2]==[""] (
   CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
-SET varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%
-SET varDate=%varDate: =0%
+SET "varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%"
+SET "varDate=%varDate: =0%"
 
 ..\logging :Append_NewLine_To_LogFile "%~1" "OUTPUT_TO_STDOUT" ""
 ..\logging :Append_To_LogFile "%~1" "%~2 finished at: %varDate%." "OUTPUT_TO_STDOUT" ""
@@ -190,13 +190,13 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     CALL :Exception_End "%varTargetLogFile%" "Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
   )
   IF "%%i"=="varFileNameLength" (
-    SET %%i=%%j
+    SET "%%i=%%j"
   )
   IF "%%i"=="varFolderLength" (
-    SET %%i=%%j
+    SET "%%i=%%j"
   )
   IF "%%i"=="varPathLength" (
-    SET %%i=%%j
+    SET "%%i=%%j"
   )
 )
 EXIT /B 0
@@ -260,7 +260,7 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE (
-    SET %%i=%%j
+    SET "%%i=%%j"
   )
 )
 EXIT /B 0
@@ -324,7 +324,7 @@ REM Param_2: Message
 REM Param_3: OUTPUT_TO_STDOUT  -  The function will also echo the message to stdout.
 REM Param_4: OUTPUT_DEBUG      - Outputs the error messages in this function.
 :Exception_End
-SET varLogToSTDOUTOK=NOT_DEFINED
+SET "varLogToSTDOUTOK=NOT_DEFINED"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%~1" "%~3" "%~4"
 CALL ..\logging :Append_To_LogFile "%~1" "Exception caught." "OUTPUT_TO_STDOUT" "%~4"

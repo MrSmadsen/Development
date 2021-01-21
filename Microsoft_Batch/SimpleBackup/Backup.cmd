@@ -13,8 +13,8 @@ REM File Encoding: utf-8
 REM Todo: Would like to re-implement a lot of functions to: (to avoid having every variable accessible in global scope)
 Rem :function
 REM SETLOCAL
-REM SET _doworkResult=%do_some_work%
-REM ENDLOCAL & SET _returnVariable=%_doworkResult%
+REM SET "_doworkResult=%do_some_work%"
+REM ENDLOCAL & SET "_returnVariable=%_doworkResult%"
 REM Problem: When the above function structure is called from another function that has used SETLOCAL enableDelayedExpansion
 REM the variable _returnVariable is not assigned a value. Haven't found a solution for that problem yet.
 
@@ -29,7 +29,7 @@ EXIT /B 0
 REM This is to ensure that the logFile-variable isn't containing anything from a prior backup-execution in the same cmd.exe session.
 set "varTargetLogFile="
 REM Initializing the global application errorcode variable.
-SET varAppErrorCode=0
+SET "varAppErrorCode=0"
 REM Determine privilige level.
 CALL ..\utility_functions :is_cmd_running_with_admin_priviligies_using_whoami
 CALL :SetupApplicationMode
@@ -41,8 +41,8 @@ CALL :ActivateApplicationFunction
 EXIT /B 0
 
 :SetupTimeAndDate
-SET varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%
-SET varDate=%varDate: =0%
+SET "varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%"
+SET "varDate=%varDate: =0%"
 EXIT /B 0
 
 REM This function is meant as an option to do file system stuff in elevated user mode (if UAC is enabled).
@@ -55,38 +55,38 @@ IF %varElevatedAdminPriviligies%==NO (
 EXIT /B 0
 
 :SetupApplicationMode
-set /a varCount=0
-SET varMode=NO_APPLICATION_FUNCTION_DEFINED
-SET varApplicationFunctionText=NO_APPLICATION_FUNCTION_DEFINED
+set /a "varCount=0"
+SET "varMode=NO_APPLICATION_FUNCTION_DEFINED"
+SET "varApplicationFunctionText=NO_APPLICATION_FUNCTION_DEFINED"
 IF %varAppFunctionBackupFiles%==YES (
-SET varMode=a
+SET "varMode=a"
 SET "varApplicationFunctionText=Archive files"
-SET /a varCount += 1
+SET /a "varCount+=1"
 )
 IF %varAppFunctionUpdateArchive%==YES (
-SET varMode=u
+SET "varMode=u"
 SET "varApplicationFunctionText=Update Existing archive"
-SET /a varCount += 1
+SET /a "varCount+=1"
 )
 IF %varAppFunctionIntegrityCheck%==YES (
-SET varMode=t
+SET "varMode=t"
 SET "varApplicationFunctionText=Archive Integrity Test"
-SET /a varCount += 1
+SET /a "varCount+=1"
 )
 IF %varAppFunctionExtractFilestoFolder%==YES (
-SET varMode=e
+SET "varMode=e"
 SET "varApplicationFunctionText=Extract archive to folder"
-SET /a varCount += 1
+SET /a "varCount+=1"
 )
 IF %varAppFunctionExtractFilesWithFullFilePath%==YES (
-SET varMode=x
+SET "varMode=x"
 SET "varApplicationFunctionText=Extract archive with full paths"
-SET /a varCount += 1
+SET /a "varCount+=1"
 )
 IF %varAppFunctionVerifyChecksum%==YES (
-SET varMode=v
+SET "varMode=v"
 SET "varApplicationFunctionText=Verify the archive checksum"
-SET /a varCount += 1
+SET /a "varCount+=1"
 )
 
 IF %varMode%==NO_APPLICATION_FUNCTION_DEFINED (
@@ -126,29 +126,29 @@ IF %varAppFunctionVerifyChecksum%==YES (
 EXIT /B 0
 
 :PerformGenericPreconditionalChecks
-SET varCheck=FALSE
+SET "varCheck=FALSE"
 IF %varCheckWorkingCopyChanges%==YES (
-  SET varCheck=TRUE
+  SET "varCheck=TRUE"
 )
 IF %varExportSvn%==YES (
-  SET varCheck=TRUE
+  SET "varCheck=TRUE"
 )
 
 IF %varCheck%==TRUE (
   setlocal enabledelayedexpansion
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSvnadminPath%" "varCheck"
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
     CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSvnadminPath%" "varSvnadminPath" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSvnadminPath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )  
   
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSvnPath%" "varCheck"
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
     CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSvnPath%" "varSvnPath" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSvnPath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
@@ -157,7 +157,7 @@ IF %varCheck%==TRUE (
 )
 
 IF "%varCheckWorkingCopyChanges%"=="YES" (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSimpleBackupCheckoutPath%" "varSimpleBackupCheckoutPath" "varResult" "YES"
   CALL :CheckImportantApplicationFiles
 )
@@ -166,46 +166,46 @@ IF NOT EXIST "%varExecutable%" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The archive program not found. %varExecutable%" "OUTPUT_TO_STDOUT" ""
 )
 
-SET varCheck=FALSE
+SET "varCheck=FALSE"
 IF %varMoveFolders%==YES (
-  SET varCheck=TRUE
+  SET "varCheck=TRUE"
 )
 IF %varMoveFoldersBack%==YES (
-  SET varCheck=TRUE
+  SET "varCheck=TRUE"
 )
 IF %varCheck%==TRUE (
   setlocal enabledelayedexpansion
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder01%" "varCheck"
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
     CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSrcPathFolder01%" "varSrcPathFolder01" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder02%" "varCheck"
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
     CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varSrcPathFolder02%" "varSrcPathFolder02" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder01%" "varCheck"
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
     CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder01%" "varDstPathFolder01" "varResult" "NO"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
     CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varDstPathFolder02%" "varDstPathFolder02" "varResult" "NO"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
@@ -218,10 +218,10 @@ EXIT /B 0
 
 :PerformBackupPreconditionalChecks
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varBackupLocation%" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varBackupLocation%" "varBackupLocation" "varResult" "YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
@@ -231,19 +231,19 @@ IF %varExportSvn%==YES (
   IF NOT EXIST "%varSvnadminPath%" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "SvnAdmin.exe not found. %varSvnadminPath%" "OUTPUT_TO_STDOUT" ""
   )
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryLocation%" "varCheck"
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
     CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varRepositoryLocation%" "varRepositoryLocation" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"  
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
     CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varRepositoryDumpLocation%" "varRepositoryDumpLocation" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
@@ -269,10 +269,10 @@ REM The script just continues from the line it has reached.
 :PerformUpdatePreconditionalChecks
 :PerformIntegrityCheckPreconditionalChecks
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
@@ -298,19 +298,19 @@ EXIT /B 0
 
 :PerformExtractFilesPreconditionalChecks
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExtractionLocation%" "varExtractionLocation" "varResult" "YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
@@ -324,10 +324,10 @@ EXIT /B 0
 
 :PerformVerifyChecksumPreconditionalChecks
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
@@ -350,12 +350,12 @@ REM to add a fileHandle with unique file name for each function call to CheckWor
 REM This is not implemented.
 :CheckImportantApplicationFiles
 REM These files cannot have changes in them!
-SET varFileSystemCmd=fileSystem.cmd
-SET varBackupCmd=Backup.cmd
-SET varLoggingCmd=logging.cmd
-SET varSettingsIni=Settings.ini
-SET varSvnRepoFunctionsCmd=svnRepoFunctions.cmd
-SET varUtilityFunctionsCmd=utility_functions.cmd
+SET "varFileSystemCmd=fileSystem.cmd"
+SET "varBackupCmd=Backup.cmd"
+SET "varLoggingCmd=logging.cmd"
+SET "varSettingsIni=Settings.ini"
+SET "varSvnRepoFunctionsCmd=svnRepoFunctions.cmd"
+SET "varUtilityFunctionsCmd=utility_functions.cmd"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checking SimpleBackup working copy files for changes:" "OUTPUT_TO_STDOUT" ""
@@ -370,13 +370,13 @@ REM To count the number of changes inside the file use svn diff. Should be able 
 REM That way we can have a higher certainty that only our accepted changes are what we will find in the file.
 REM This is not implemented.
 REM This file can have changes to enable/disable raspberry pi image backup.
-SET varMultipleBackupsCmd=Multiple_Backups.cmd
+SET "varMultipleBackupsCmd=Multiple_Backups.cmd"
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varMultipleBackupsCmd%" "--quiet" "YES" "YES" "YES" 1
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 EXIT /B 0
 
 :CheckIniFileOption_varChecksumBitlength
-SET varChecksumOK=NOT_OK
+SET "varChecksumOK=NOT_OK"
 
 REM (MD2 | MD4 | MD5 | SHA1 | SHA256 | SHA384 | SHA512)
 IF "%varChecksumBitlength%"=="MD2" (
@@ -404,8 +404,7 @@ EXIT /B 0
 
 :CheckFileLoggingCmdForChanges
 IF "%varCheckWorkingCopyChanges%"=="YES" (
-  SET varLoggingCmd=logging.cmd
-  CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varLoggingCmd%" "--quiet" "YES" "YES" "YES" 0
+  CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\logging.cmd" "--quiet" "YES" "YES" "YES" 0
 )
 EXIT /B 0
 
@@ -509,10 +508,10 @@ setlocal enabledelayedexpansion
 IF "%varExtractionLocation%"=="DEFAULT_LOCATION" (
   SET "varExtractionLocation=%varTargetBackupfolder%\ExtractedArchiveContent\"
 ) ELSE (
-  set varCheck=EMPTY
+  set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
   IF !varCheck!==NO (
-    set varResult=EMPTY
+    set "varResult=EMPTY"
 	CALL ..\fileSystem :checkIfFileOrFolderExist_IniFileOptionSupported "%varExtractionLocation%" "varExtractionLocation" "varResult" "YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
@@ -523,7 +522,7 @@ EXIT /B 0
 
 :ActivateApplicationFunction
 IF %varMode%==a (
-  REM SET varFunctionName1=Func_GenerateBackupArchive
+  REM SET "varFunctionName1=Func_GenerateBackupArchive"
   REM ..\utility_functions :logTimeStampB4CommandStart "%varTargetLogFile%" "%varFunctionName1%"
   CALL :GenerateBackupArchive
   REM ..\utility_functions :logTimeStamp_CommandFinished "%varTargetLogFile%" "%varFunctionName1%"
@@ -578,7 +577,7 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:              
 CALL :SetSplitFlag
 CALL :SetupCompressionFlags
 
-REM SET varFunctionName2=Func_DoCompressfiles
+REM SET "varFunctionName2=Func_DoCompressfiles"
 REM ..\utility_functions :logTimeStampB4CommandStart "%varTargetLogFile%" "%varFunctionName2%"
 CALL :DoCompressfiles
 REM ..\utility_functions :logTimeStamp_CommandFinished "%varTargetLogFile%" "%varFunctionName2%"
@@ -709,25 +708,25 @@ EXIT /B 0
 SET "varSplitFlag= "
 IF %varSplitArchiveFile%==YES (
   IF %varSplitVolumesize%==-v1m (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v2m (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v5m (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v10m (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v100m (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v1g (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v2g (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v5g (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v10g (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE IF %varSplitVolumesize%==-v100g (
-    SET varSplitFlag=%varSplitVolumesize%
+    SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE (
     ECHO.
     ECHO ERROR in %varSettingsFile%. Continuing without splitting up the archive.
@@ -764,7 +763,7 @@ IF "%varUpdateMode%"=="DEFAULT_FUNCTIONALITY" (
 ) ELSE (
   REM Untested feature. Enable on at your own risk. CHeck out https://sevenzip.osdn.jp/chm/cmdline/switches/update.htm for help
   REM :DoUpdateArchive might require an update to get it to work.
-  REM SET varUpdateFlags=%varUpdateMode%
+  REM SET "varUpdateFlags=%varUpdateMode%"
   SET "varUpdateFlags= "
 )
 CALL :SetupUtcMode
@@ -833,29 +832,29 @@ EXIT /B 0
 :SetupExtractionFlags
 REM Fallback value is SKIP__EXISTING_FILES
 SET "varOverWriteFilesFlag=-aos"
-SET varSetOverWriteFlag=EMPTY
+SET "varSetOverWriteFlag=EMPTY"
 
 IF %varSetOverWriteFlag%==YES (
   REM Assume yes to overwrite.
   IF "%varOverWriteFiles%"=="OVERWRITE_EXISTING_FILES" (
-    SET varOverWriteFilesFlag=-aoa
+    SET "varOverWriteFilesFlag=-aoa"
   )
   IF "%varOverWriteFiles%"=="SKIP__EXISTING_FILES" (
-    SET varOverWriteFilesFlag=-aos
+    SET "varOverWriteFilesFlag=-aos"
   )
   IF "%varOverWriteFiles%"=="AUTO_RENAME_EXTRACTING_FILE" (
-    SET varOverWriteFilesFlag=-aou
+    SET "varOverWriteFilesFlag=-aou"
   )
   IF "%varOverWriteFiles%"=="AUTO_RENAME_EXISTING_FILE" (
-    SET varOverWriteFilesFlag=-aot
+    SET "varOverWriteFilesFlag=-aot"
   )
 )
 EXIT /B 0
 
 :DoCompressfiles
-SET varAppErrorCode=0
+SET "varAppErrorCode=0"
 "%varArchiveProgram%" %varPasswordFlag% %varSplitFlag% %varMode% %varLinkFlags% %varNTSecurityInfoFlag% %varSfxFlag% -t%varFormat% "%varTargetBackupSet%" @"%varFileList%" %varCompressionLvl% %varThreadAffinity% %varUtcFlag% %varSolidModeFlag%
-SET varAppErrorCode=%ERRORLEVEL%
+SET "varAppErrorCode=%ERRORLEVEL%"
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
 EXIT /B 0
@@ -866,7 +865,7 @@ IF %varFormat%%==7z (
 ) ELSE (
   "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varUtcFlag%
 )
-SET varAppErrorCode=%ERRORLEVEL%
+SET "varAppErrorCode=%ERRORLEVEL%"
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
 EXIT /B 0
@@ -874,15 +873,15 @@ EXIT /B 0
 :DoIntegrityTest
 setlocal enabledelayedexpansion
 SET "varDir=%varTargetBackupfolder%"
-SET varSearchString=!varTargetFileName!
-SET varAppErrorCode=0
-SET varCheckForSplitFile=NO
+SET "varSearchString=!varTargetFileName!"
+SET "varAppErrorCode=0"
+SET "varCheckForSplitFile=NO"
 
 REM Find the split file if it exists.
 REM All other cases the file is defined in the ini-file.
 IF %varAppFunctionBackupFiles%==YES (
   IF %varSplitArchiveFile%==YES (
-    SET varCheckForSplitFile=YES
+    SET "varCheckForSplitFile=YES"
   )
 )
 
@@ -891,13 +890,13 @@ IF %varCheckForSplitFile%==YES (
   for /f "delims=" %%F in ('dir "%varDir%" /b /a-d') do (
     echo %%F|findstr /i /b "!varSearchString!.001">nul
     IF !ERRORLEVEL!==0 (
-      SET varSearchString=!varSearchString!.001
+      SET "varSearchString=!varSearchString!.001"
     )
   )
 )
 ECHO Testing file: "%varTargetBackupfolder%\!varSearchString!"
 "%varArchiveProgram%" t "%varTargetBackupfolder%\!varSearchString!" * -r
-SET varAppErrorCode=!ERRORLEVEL!
+SET "varAppErrorCode=!ERRORLEVEL!"
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation !varAppErrorCode!
 setlocal disabledelayedexpansion
@@ -907,9 +906,9 @@ REM To support extracting to the "corrected" drive add the 7zip flag -spf/-spf2(
 REM This will enable fully qualified path support. Currently the files are NOT extracted to their original fully qualified path,
 REM but into the output folder supplied to the extraction function.
 :DoExtractFiles
-SET varAppErrorCode=0
+SET "varAppErrorCode=0"
 "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" -o%varExtractionLocation% * -r %varOverWriteFilesFlag%
-SET varAppErrorCode=%ERRORLEVEL%
+SET "varAppErrorCode=%ERRORLEVEL%"
 REM The evaluation function does not work properly when called from within SETLOCAL
 CALL :Evaluation %varAppErrorCode%
 EXIT /B 0
@@ -920,23 +919,23 @@ REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 
 setlocal enabledelayedexpansion
 
 for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
-  SET varSearchString=%%F.%%G
+  SET "varSearchString=%%F.%%G"
 )
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%varChecksumBitlength% checksums will be calculated for archive files in the backup destination folder." "OUTPUT_TO_STDOUT" ""
 
-SET varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt
+SET "varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt"
 CALL ..\logging :createLogFile "%varTargetChecksumFile%" ""
 
-SET /a varProcessedFileCount=0
-SET /a varFailedFileCount=0
-SET /a varFileCount=0
+SET /a "varProcessedFileCount=0"
+SET /a "varFailedFileCount=0"
+SET /a "varFileCount=0"
 REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
 for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
   echo %%F|findstr /i /b "!varSearchString!">nul
   IF !ERRORLEVEL!==0 (
-    SET /a varFileCount +=1
+    SET /a "varFileCount+=1"
   )
 )
 
@@ -948,7 +947,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "No. of files to process: !varFileCount!" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
-set originalDir=%cd%
+set "originalDir=%cd%"
 cd /d "%varTargetBackupfolder%"
 REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
 for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
@@ -958,7 +957,7 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating %varChecksumBitlength% checksum for file: %%A" "OUTPUT_TO_STDOUT" ""
     cd /d "%varTargetBackupfolder%"
     
-    SET/a count=0
+    SET /a "count=0"
     REM Certutil will return 3 lines.
     REM Line 1: SHA algorithm and file id
 	REM Line 2: The checksum
@@ -968,29 +967,29 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
       IF NOT !ERRORLEVEL!==0 (
         CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CalculateFileChecksum - Calculating %varChecksumBitlength% checmsum for file: %%A Failed. ErorLevel: !ERROR_LEVEL!. Exit." "OUTPUT_TO_STDOUT" ""
       )
-      SET/a count=!count!+1
+      SET /a "count=!count!+1"
       REM Put checksum into variable
       IF !count! EQU 1 (
-        SET varSHAChecksumJobDefinition=%%F
+        SET "varSHAChecksumJobDefinition=%%F"
       )
       IF !count! EQU 2 (
-	    SET varSHAChecksumValue=%%F
+	    SET "varSHAChecksumValue=%%F"
 	  )
 	  IF !count! EQU 3 (
         REM If enabled (ini-file option: varCheckWorkingCopyChanges) the file logging.cmd is checked for changes.
         REM This is to avoid writing trailing white space after the checksum.
         CALL :CheckFileLoggingCmdForChanges
-        SET varCertutilResultStr=%%F
+        SET "varCertutilResultStr=%%F"
         CALL ..\logging :Append_To_LogFile "%varTargetChecksumFile%" "!varSHAChecksumJobDefinition!" "OUTPUT_TO_STDOUT" ""
 		CALL ..\logging :Append_To_LogFile "%varTargetChecksumFile%" "%%A=!varSHAChecksumValue!" "OUTPUT_TO_STDOUT" ""
         CALL ..\logging :Append_To_LogFile "%varTargetChecksumFile%" "!varCertutilResultStr!" "OUTPUT_TO_STDOUT" ""
         CALL ..\logging :Append_NewLine_To_LogFile "%varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
-        SET/a count=0
+        SET /a "count=0"
       )
       cd /d "%varTargetBackupfolder%"
     )
     cd /d "%originalDir%"
-    SET /a varProcessedFileCount=!varProcessedFileCount!+1
+    SET /a "varProcessedFileCount=!varProcessedFileCount!+1"
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating %varChecksumBitlength% checksum for file: %%A performed with success." "" ""
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
     cd /d "%varTargetBackupfolder%"
@@ -998,7 +997,7 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
 )
 
 cd /d "%originalDir%"
-SET /a varFailedFileCount=(!varFileCount!-!varProcessedFileCount!)
+SET /a "varFailedFileCount=(!varFileCount!-!varProcessedFileCount!)"
 IF !varProcessedFileCount! EQU !varFileCount! (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating %varChecksumBitlength% checksum for !varProcessedFileCount! of !varFileCount! file/files. Checksum generation succeeded." "OUTPUT_TO_STDOUT" ""
 ) ELSE (
@@ -1014,10 +1013,10 @@ REM This function uses certutil to calculate the checksum.
 REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 file.extension.
 :VerifyFileChecksum
 setlocal enabledelayedexpansion
-REM SET varIsSplitFile=NO
+REM SET "varIsSplitFile=NO"
 
 for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
-  SET varSearchString=%%F.%%G
+  SET "varSearchString=%%F.%%G"
 )
 
 IF NOT EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
@@ -1041,27 +1040,27 @@ IF NOT EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
 )
 
 REM Find the used bitLength by reading the first word on the first line of the checksum file.
-SET /a count=0
+SET /a "count=0"
 SET "varSHABitLength=SHA000"
 REM Iterate through the file but only store word 1 from line 1. This might be slow if the file has many lines.
 FOR /f "usebackq tokens=1 delims= " %%x in ("%varTargetChecksumFile%") do (
   IF !count! EQU 0 (
     SET "varSHABitLength=%%x"
-    SET /a count=!count!+1
+    SET /a "count=!count!+1"
   )
 )
 IF "!varSHABitLength!"=="SHA000" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "VerifyFileChecksum: SHA bitlength revtrieval error. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
-SET /a varProcessedFileCount=0
-SET /a varFailedFileCount=0
-SET /a varFileCount=0
+SET /a "varProcessedFileCount=0"
+SET /a "varFailedFileCount=0"
+SET /a "varFileCount=0"
 REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
 for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
   echo %%F|findstr /i /b "!varSearchString!">nul
   IF !ERRORLEVEL!==0 (
-    SET /a varFileCount +=1
+    SET /a "varFileCount+=1"
   )
 )
 
@@ -1076,7 +1075,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "No. of files to process: !varFileCount!" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
-set originalDir=%cd%
+set "originalDir=%cd%"
 cd /d "%varTargetBackupfolder%"
 REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
 for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
@@ -1086,7 +1085,7 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating !varSHABitLength! checksum for file: %%A" "OUTPUT_TO_STDOUT" ""
     cd /d "%varTargetBackupfolder%"
     
-	SET/a count=0
+	SET /a "count=0"
     REM Certutil will return 3 lines.
     REM Line 1: SHA algorithm and file id
 	REM Line 2: The checksum
@@ -1096,19 +1095,19 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
       IF NOT !ERRORLEVEL!==0 (
         CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Calculating !varSHABitLength! checksum for file: %%A Failed. ErorLevel: !ERROR_LEVEL!. Exit." "OUTPUT_TO_STDOUT" ""
       )
-      SET/a count=!count!+1
+      SET /a "count=!count!+1"
       REM Put checksum into variable
       IF !count! EQU 1 (
-        SET varSHAChecksumJobDefinition=%%F
+        SET "varSHAChecksumJobDefinition=%%F"
       )
       IF !count! EQU 2 (
-	    SET varSHA512ChecksumValue=%%F
+	    SET "varSHA512ChecksumValue=%%F"
 	  )
 	  IF !count! EQU 3 (
         REM If enabled (ini-file option: varCheckWorkingCopyChanges) the file logging.cmd is checked for changes.
         REM This is to avoid writing trailing white space after the checksum.
         CALL :CheckFileLoggingCmdForChanges
-        SET varCertutilResultStr=%%F
+        SET "varCertutilResultStr=%%F"
         CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "!varSHAChecksumJobDefinition!" "OUTPUT_TO_STDOUT" ""
 		CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculated: !varSHA512ChecksumValue!" "OUTPUT_TO_STDOUT" ""
         CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "!varCertutilResultStr!" "OUTPUT_TO_STDOUT" ""
@@ -1118,23 +1117,23 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
           echo %%x|findstr /i /b "%%A">nul
           IF !ERRORLEVEL!==0 (
             FOR /f "tokens=2 delims==" %%y in ("%%x") do (
-              SET varSHA512ChecksumFromFile=%%y
+              SET "varSHA512ChecksumFromFile=%%y"
               CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "From file:  !varSHA512ChecksumFromFile!" "OUTPUT_TO_STDOUT" ""
             )
             IF !varSHA512ChecksumValue! EQU !varSHA512ChecksumFromFile! (
-              SET /a varProcessedFileCount=!varProcessedFileCount!+1
+              SET /a "varProcessedFileCount=!varProcessedFileCount!+1"
             )
           )
         )
         CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-        SET/a count=0
+        SET /a "count=0"
       )
       cd /d "%varTargetBackupfolder%"
     )
   )
 )
 cd /d "%originalDir%"
-SET /a varFailedFileCount=(!varFileCount!-!varProcessedFileCount!)
+SET /a "varFailedFileCount=(!varFileCount!-!varProcessedFileCount!)"
 IF !varProcessedFileCount! EQU !varFileCount! (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating !varSHABitLength! checksum for !varProcessedFileCount! of !varFileCount! file/files. Checksum verification succeeded." "OUTPUT_TO_STDOUT" ""
 ) ELSE (
@@ -1173,8 +1172,8 @@ if %1==0 (
 EXIT /B 0
 
 :End
-SET varDateBackupEnded=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%
-SET varDateBackupEnded=%varDateBackupEnded: =0%
+SET "varDateBackupEnded=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%"
+SET "varDateBackupEnded=%varDateBackupEnded: =0%"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Started backup at %varDate%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Finished backup at %varDateBackupEnded%" "OUTPUT_TO_STDOUT" ""

@@ -26,10 +26,10 @@ EXIT /B 0
 REM Param_1: Svn repository check out to update
 :svnUpdate
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
@@ -39,13 +39,13 @@ IF !varCheck!==NO (
   EXIT /B 1
 )
 setlocal disabledelayedexpansion
-set execPath="%varSvnPath%"
+set "execPath=%varSvnPath%"
 
 REM Oberservation:
 REM It seems that if spaces in folder names occure in the path before reaching
 REM the repository root folder makes svn.exe commands fail on windows 10.
 REM Spaces in folder names "inside the repository"-part of the path is not a problem.
-%execPath% update "%~1"
+"%execPath%" update "%~1"
 IF %ERRORLEVEL% NEQ 0 (
   REM cd /d "%varReturnDir%"
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "svnUpdate failed. Errorlevel: %ERRORLEVEL%." "OUTPUT_TO_STDOUT" ""
@@ -58,10 +58,10 @@ REM Param_2: Path to destination folder to check repo out to.
 REM Param_3: Optional flags to pass to svn.exe.
 :svnCheckout
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
@@ -71,10 +71,10 @@ IF !varCheck!==NO (
   EXIT /B 1
 )
 
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~2" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~2" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
@@ -84,10 +84,10 @@ IF !varCheck!==NO (
   EXIT /B 1
 )
 setlocal disabledelayedexpansion
-set execPath="%varSvnPath%"
+set "execPath=%varSvnPath%"
 set "varFlags=%~3"
 
-%execPath% co %varFlags% %1 %~2
+"%execPath%" co %varFlags% %1 %~2
 IF %ERRORLEVEL% NEQ 0 (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "svnCheckout failed. Errorlevel: %ERRORLEVEL%." "OUTPUT_TO_STDOUT" ""
   EXIT /B 1
@@ -101,7 +101,7 @@ REM Param_4: Throw exception if out of date. (YES | NO)
 REM Param_5: Throw exception if changes are found. (YES | NO)
 REM Param_6: Number of acceptable changes.
 :CheckWorkingCopyForChanges
-SET /a varNoOfAcceptableChanges=%6
+SET /a "varNoOfAcceptableChanges=%6"
 REM this file contains the result of the SvnStatus call.
 IF EXIST .\__VerifyFileStateBeforeCriticalFunction_test.txt (
   CALL ..\fileSystem :deleteFile ".\__VerifyFileStateBeforeCriticalFunction_test.txt" "" ""
@@ -116,9 +116,9 @@ CALL ..\fileSystem :createFile ".\__VerifyFileStateBeforeCriticalFunction_test.t
 CALL ..\svnRepoFunctions :svnStatus "%~1" "%~2" "%~4" > .\__VerifyFileStateBeforeCriticalFunction_test.txt
 
 REM First edition of this function exits with exception if any change is found.
-SET /a varLineCnt=0
+SET /a "varLineCnt=0"
 FOR /f "usebackq delims=" %%x in (".\__VerifyFileStateBeforeCriticalFunction_test.txt") do (
-  SET /a varLineCnt+=1
+  SET /a "varLineCnt+=1"
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Following changes are found in the working copy:" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%%x" "OUTPUT_TO_STDOUT" ""
 )
@@ -158,10 +158,10 @@ REM Param_2: Optional flags to pass to svn.exe. Example: --no-ignore to check fo
 REM Param_3: Throw exception if out of date. (YES | NO)
 :svnStatus
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
@@ -174,12 +174,12 @@ setlocal disabledelayedexpansion
 
 REM SET "varReturnDir=%CD%"
 REM cd /d "%~1"
-set execPath="%varSvnPath%"
+set "execPath=%varSvnPath%"
 set "varFlags=%~2"
 
-REM %execPath% status %varFlags% "%~1"
-REM %execPath% status %varFlags% "."
-%execPath% status %varFlags% %~1
+REM "%execPath%" status %varFlags% "%~1"
+REM "%execPath%" status %varFlags% "."
+"%execPath%" status %varFlags% %~1
 
 IF %ERRORLEVEL% NEQ 0 (
 REM cd /d "%varReturnDir%"
@@ -191,8 +191,8 @@ REM HEAD is the latest revision in the repository.
 REM BASE is the last revision you have obtained from the repository.
 REM They are the same after a successful commit or update.
 REM When you make changes, your files differ from the BASE copies
-for /F "tokens=1,2" %%I in ('%execPath% info -r HEAD %~1') do if "%%I"=="Revision:" set vHEAD=%%J
-for /F "tokens=1,2" %%I in ('%execPath% info -r BASE %~1') do if "%%I"=="Revision:" set vBASE=%%J
+for /F "tokens=1,2" %%I in ('"%execPath%" info -r HEAD %~1') do if "%%I"=="Revision:" set vHEAD=%%J
+for /F "tokens=1,2" %%I in ('"%execPath%" info -r BASE %~1') do if "%%I"=="Revision:" set vBASE=%%J
 
 IF NOT "%vBASE%"=="%vHEAD%" (
   IF "%~3"=="YES" (
@@ -208,10 +208,10 @@ REM Param_2: Path to file to add.
 REM Param_3: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
 :svnAdd
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
@@ -225,9 +225,9 @@ setlocal disabledelayedexpansion
 SET "varReturnDir=%CD%"
 cd /d "%~1"
 
-set execPath="%varSvnPath%"
+set "execPath=%varSvnPath%"
 set "varFlags=%~3"
-%execPath% add %varFlags% %~2
+"%execPath%" add %varFlags% %~2
 IF %ERRORLEVEL% NEQ 0 (
   cd /d "%varReturnDir%"
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "svnAdd failed. Errorlevel: %ERRORLEVEL%." "OUTPUT_TO_STDOUT" ""
@@ -242,10 +242,10 @@ REM Param_2: Message
 REM Param_3: Optional flags to pass to svn.exe.
 :svnCommitAlreadyAddedContent
 setlocal enabledelayedexpansion
-set varCheck=EMPTY
+set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
-  set varResult=EMPTY
+  set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
@@ -259,10 +259,10 @@ setlocal disabledelayedexpansion
 SET "varReturnDir=%CD%"
 cd /d "%~1"
 
-set execPath="%varSvnPath%"
+set "execPath=%varSvnPath%"
 set "varFlags=%~3"
-REM %execPath% commit %varFlags% -m"%~2"
-%execPath% commit -m"%~2"
+REM "%execPath%" commit %varFlags% -m"%~2"
+"%execPath%" commit -m"%~2"
 IF %ERRORLEVEL% NEQ 0 (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "svnCommit failed. Errorlevel: %ERRORLEVEL%." "OUTPUT_TO_STDOUT" ""
   cd /d "%varReturnDir%"
@@ -305,12 +305,12 @@ EXIT /B 0
 
 :generateSvnRepositoryDump
 REM MM-DD-YYYY
-set TIME_STAMP=%date:~3,2%-%date:~0,2%-%date:~6,4%
+set "TIME_STAMP=%date:~3,2%-%date:~0,2%-%date:~6,4%"
 set "execPath=%varSvnadminPath%"
 
 REM Repositories...
-set REPO01=%varSvnRepo1%
-set REPO02=%varSvnRepo2%
+set "REPO01=%varSvnRepo1%"
+set "REPO02=%varSvnRepo2%"
 
 REM Repositories Dump Names...
 set "REPO01_DUMP_NAME=%REPO01%_%TIME_STAMP%.full"
@@ -363,7 +363,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDO
 "%execPath%" dump "%varTargetRepo1%" >> "%varTargetFile1%"
 
 REM MM-DD-YYYY
-set TIME_STAMP=%date:~3,2%-%date:~0,2%-%date:~6,4%
+set "TIME_STAMP=%date:~3,2%-%date:~0,2%-%date:~6,4%"
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Done exporting to file %REPO01_DUMP_NAME% - Time: %TIME_STAMP%" "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
 
@@ -375,7 +375,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDO
 "%execPath%" dump "%varTargetRepo2%" >> "%varTargetFile2%"
 
 REM MM-DD-YYYY
-set TIME_STAMP=%date:~3,2%-%date:~0,2%-%date:~6,4%
+set "TIME_STAMP=%date:~3,2%-%date:~0,2%-%date:~6,4%"
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Done exporting to file %REPO02_DUMP_NAME% - Time: %TIME_STAMP%" "OUTPUT_TO_STDOUT"
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile1%" "OUTPUT_TO_STDOUT" ""
 
