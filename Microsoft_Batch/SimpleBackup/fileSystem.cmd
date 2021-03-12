@@ -387,24 +387,120 @@ EXIT /B 0
 
 REM Param_1:SourcePath
 REM Param_2:DestinationPath
-:copyFolder
-IF NOT EXIST "%~1" (
-  CALL ..\logging :Append_To_Screen "Error: :copyFolder: Source-Path not found.Return" "OUTPUT_TO_STDOUT" ""
-  EXIT /B 1
-)
-
-ECHO Copying folder from: %~1
-ECHO                  to: %~2
-
-IF EXIST "%~1" (
-  robocopy %~1 %~2 %varOutputFormat% /e /sec /dcopy:DAT /r:2 /w:10
-  IF %ERRORLEVEL% NEQ 0 (
-    CALL ..\logging :Append_To_Screen "Error: :copyFolder: Robocopy copy error. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
+REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
+:synchronizeFolder
+  IF NOT EXIST "%~2" (
+    mkdir %2
+    IF %ERRORLEVEL% NEQ 0 (      
+      CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" :Append_To_Screen "Error: :synchronizeFolder: Destination-Path %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
+      EXIT /B 1
+    )
+  )
+  IF NOT EXIST "%~1" (    
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Error: :synchronizeFolder: Source-Path %1 does not exist.Return" "OUTPUT_TO_STDOUT" ""
     EXIT /B 1
   )
-) ELSE (
-  CALL ..\logging :Append_To_Screen "Error: :copyFolder: Robocopy folder error." "OUTPUT_TO_STDOUT" ""
-)
+
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing folder from: %~1" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "                       to: %~2" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "               Purge Mode: %~3" "OUTPUT_TO_STDOUT" ""
+  
+  REM /mir	Mirrors a directory tree (equivalent to /e plus /purge). Using this option with the /e option and a destination directory,
+  REM overwrites the destination directory security settings.
+  REM /xx - https://ss64.com/nt/robocopy.html eXclude "eXtra" files and dirs (present in destination but not source)
+  SET "varSyncFlags= "
+  IF "%~3"=="PURGE_ENABLED" (
+    SET "varSyncFlags= /DCOPY:DAT /COPY:DATS /e /mir"
+  ) ELSE (
+    SET "varSyncFlags= /DCOPY:DAT /COPY:DATS /e"
+  )
+  
+  REM This line will potentially extract MTNNN from ini-file option varThreadAffinity (-mmtN). Robocopy supports upto 128 threads (/MT128). /MT = 8 threads.
+  REM Use same number of threads as 7zip. Unsure if extracting too many chars will add whitespace or potentially copy chars from other variables.
+  REM SET "varRoboCopyThreadAffinity=/%varThreadAffinity:~2,5%"
+  SET "varRoboCopyThreadAffinity=/MT"
+  
+  REM /copy:DATS - file properties:       D:Data, A:Attributes, T:Time stamps, S:NTFS access control list (ACL)
+  REM /dcopy:DAT - directory  properties: D:Data, A:Attributes, T:Time stamps
+  REM /zb	Uses restartable mode. If access is denied, this option uses Backup mode. (Requires: Backup and Restore Files user rights)
+  
+  REM /xf <filename>[ ...]	Excludes files that match the specified names or paths. Wildcard characters (* and ?) are supported.
+  REM /xd <directory>[ ...]	Excludes directories that match the specified names and paths.
+  REM /xc	Excludes changed files.
+  REM /xn	Excludes newer files.
+  REM /xo	Excludes older files.
+  REM /xx	Excludes extra files and directories.
+  REM /xl	Excludes "lonely" files and directories.
+  REM /is	Includes the same files.
+  REM /it	Includes modified files.
+  
+  REM /xa:[RASHCNETO]	Excludes files for which any of the specified attributes are set. The valid values for this option are:
+  REM R - Read only
+  REM A - Archive
+  REM S - System
+  REM H - Hidden
+  REM C - Compressed
+  REM N - Not content indexed
+  REM E - Encrypted
+  REM T - Temporary
+  REM O - Offline
+  
+  REM Exclude google backup and sync folder: /xd "%~1\.tmp.drivedownload"
+  
+  IF %varElevatedAdminPriviligies%==YES (        
+    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xf "%varTargetLogFile%" /xa:SHT /xo %varSyncFlags% %varRoboCopyThreadAffinity% /zb /r:2 /w:10
+  ) ELSE (
+    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xf "%varTargetLogFile%" /xa:SHT /xo %varSyncFlags% /xo %varRoboCopyThreadAffinity% /r:2 /w:10	
+  )  
+  REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
+  IF %ERRORLEVEL% GEQ 8 (
+    if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 13 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: OKCOPY + FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 12 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 11 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: OKCOPY + FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 10 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 9  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: OKCOPY + FAIL. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+  )  
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing to external storage done. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
+  ECHO.
+EXIT /B 0
+
+REM Param_1:SourcePath
+REM Param_2:DestinationPath
+:copyFolder
+  IF NOT EXIST "%~2" (
+    mkdir %2
+    IF %ERRORLEVEL% NEQ 0 (      
+      CALL ..\logging :Append_To_Screen "Error: :copyFolder: Destination-Path %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
+      EXIT /B 1
+    )
+  )
+
+  IF NOT EXIST "%~1" (    
+    CALL ..\logging :Append_To_Screen "Error: :copyFolder: Source-Path %1 does not exist.Return" "OUTPUT_TO_STDOUT" ""
+    EXIT /B 1
+  )
+  
+  ECHO Copying folder from: %~1
+  ECHO                  to: %~2
+
+  REM /copy:DATS - file properties:       D:Data, A:Attributes, T:Time stamps, S:NTFS access control list (ACL)
+  REM /dcopy:DAT - directory  properties: D:Data, A:Attributes, T:Time stamps
+  robocopy %~1 %~2 %varOutputFormat% /e /copy:DATS /dcopy:DAT /r:2 /w:10
+  REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
+  IF %ERRORLEVEL% GEQ 8 (	
+    if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 13 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 12 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 11 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 10 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 9  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+  )  
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Copying folder is done.. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
   ECHO.
 EXIT /B 0
 
@@ -442,18 +538,25 @@ REM Param_2:DestinationPath
     REM TWO-Step copy:
     REM robocopy source dstination /r:5 /MIR /Tee
     REM robocopy \\<servername>\sharename e:\data\foldername /r:5 /E /DCOPY:T /XF * /Tee
-
     REM /tee writes console output to a logfile aswell.
     REM robocopy %~1 %~2 %varOutputFormat% /tee /e /dcopy:DAT /sec /MOVE /r:2 /w:10
-    IF EXIST "%~1" IF EXIST "%~2" (
-      robocopy %~1 %~2 %varOutputFormat% /e /sec /dcopy:DAT /MOVE /r:2 /w:10
-      IF %ERRORLEVEL% NEQ 0 (
-        CALL ..\logging :Append_To_Screen "Error: :moveFolder: Robocopy copy error. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
-        EXIT /B 1
-      )
-    ) ELSE (
-      CALL ..\logging :Append_To_Screen "Error: :moveFolder: Robocopy folder error." "OUTPUT_TO_STDOUT" ""
-    )
+    REM (/sec) /copy:DATS - file properties:       D:Data, A:Attributes, T:Time stamps, S:NTFS access control list (ACL)
+    REM        /dcopy:DAT - directory  properties: D:Data, A:Attributes, T:Time stamps
+    
+    robocopy %~1 %~2 %varOutputFormat% /e /sec /dcopy:DAT /MOVE /r:2 /w:10
+      REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
+    IF %ERRORLEVEL% GEQ 8 (	
+      if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 13 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 12 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 11 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 10 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 9  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    )  
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Copying folder is done.. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
+    ECHO.    
   ) ELSE IF [%varMoveFolder%]==[NO] (
     ECHO varMoveFolder == NO. 
     EXIT /B 1

@@ -21,6 +21,7 @@ set "varSettingsFile=BackupSettings.ini"
 CALL ..\utility_functions :readBackupSettingsFile "%varSettingsFile%"
 SET "varBackupSettingsFileRead=YES"
 CALL ..\Backup :Prepare
+CALL ..\Backup :End
 CALL :PostBackupProcedures
 
 IF [%varMultipleBackups%]==[] (

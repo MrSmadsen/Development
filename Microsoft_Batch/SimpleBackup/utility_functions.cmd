@@ -223,6 +223,9 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   IF "%%i"=="varBackupLocation" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+  ) ELSE IF "%%i"=="varSyncFolderLocation" (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL :strLength "%%j" %varPathLength% "YES" ""
   ) ELSE IF "%%i"=="varExistingArchivePath" (
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
