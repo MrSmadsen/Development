@@ -408,11 +408,12 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   REM /mir	Mirrors a directory tree (equivalent to /e plus /purge). Using this option with the /e option and a destination directory,
   REM overwrites the destination directory security settings.
   REM /xx - https://ss64.com/nt/robocopy.html eXclude "eXtra" files and dirs (present in destination but not source)
+  
   SET "varSyncFlags= "
   IF "%~3"=="PURGE_ENABLED" (
-    SET "varSyncFlags= /DCOPY:DAT /COPY:DATS /e /mir"
+    SET "varSyncFlags= /DCOPY:%varSyncFolder_DCOPY_FLAGS% /COPY:%varSyncFolder_COPY_FLAGS% /e /mir"
   ) ELSE (
-    SET "varSyncFlags= /DCOPY:DAT /COPY:DATS /e"
+    SET "varSyncFlags= /DCOPY:%varSyncFolder_DCOPY_FLAGS% /COPY:%varSyncFolder_COPY_FLAGS% /e"
   )
   
   REM This line will potentially extract MTNNN from ini-file option varThreadAffinity (-mmtN). Robocopy supports upto 128 threads (/MT128). /MT = 8 threads.
@@ -486,9 +487,9 @@ REM Param_2:DestinationPath
   ECHO Copying folder from: %~1
   ECHO                  to: %~2
 
-  REM /copy:DATS - file properties:       D:Data, A:Attributes, T:Time stamps, S:NTFS access control list (ACL)
-  REM /dcopy:DAT - directory  properties: D:Data, A:Attributes, T:Time stamps
-  robocopy %~1 %~2 %varOutputFormat% /e /copy:DATS /dcopy:DAT /r:2 /w:10
+  SET "varCopyFlags= /DCOPY:%varCopyFolder_DCOPY_FLAGS% /COPY:%varCopyFolder_COPY_FLAGS% /e"
+  robocopy %~1 %~2 %varOutputFormat% %varCopyFlags% /r:2 /w:10
+  
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
   IF %ERRORLEVEL% GEQ 8 (	
     if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
@@ -529,21 +530,10 @@ REM Param_2:DestinationPath
   IF [%varMoveFolder%]==[YES] (
     ECHO Moving folder from: %~1
     ECHO                 to: %~2
-    REM move /Y %~f1 %~f2
     
-    REM If /MOVE is used with robocopy version 10.0.19041.1 the program appearently does not preserve folder and file
-    REM attributes. Even though I used /SEC (which should be equal to /DATS). Some advice to use a two step copy and
-    REM then delete source folder. Going to test if it was because of missing /DCOPY:DAT.
-    REM Maybe also test /secfix and /timfix.
-    REM TWO-Step copy:
-    REM robocopy source dstination /r:5 /MIR /Tee
-    REM robocopy \\<servername>\sharename e:\data\foldername /r:5 /E /DCOPY:T /XF * /Tee
-    REM /tee writes console output to a logfile aswell.
-    REM robocopy %~1 %~2 %varOutputFormat% /tee /e /dcopy:DAT /sec /MOVE /r:2 /w:10
-    REM (/sec) /copy:DATS - file properties:       D:Data, A:Attributes, T:Time stamps, S:NTFS access control list (ACL)
-    REM        /dcopy:DAT - directory  properties: D:Data, A:Attributes, T:Time stamps
-    
-    robocopy %~1 %~2 %varOutputFormat% /e /sec /dcopy:DAT /MOVE /r:2 /w:10
+    SET "varMoveFlags= /DCOPY:%varMoveFolder_DCOPY_FLAGS% /COPY:%varMoveFolder_COPY_FLAGS% /e"
+    robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% /MOVE /r:2 /w:10
+
       REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
     IF %ERRORLEVEL% GEQ 8 (	
       if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
