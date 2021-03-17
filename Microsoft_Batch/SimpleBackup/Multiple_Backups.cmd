@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 1.0 (05-12-2020)
+REM Version and Github_upload date: 2.0 (17-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -14,6 +14,12 @@ SET "varMultipleBackups=YES"
 SET "varGeneralSettingsFile=..\Settings.ini"
 SET "varSettingsFileRead=NO"
 SET "varBackupSettingsFileRead=NO"
+
+REM Initialize counters.
+SET /a "varGeneralSettingsRetrieved=0"
+SET /a "varBackupSettingsRetrieved=0"
+SET /a "varGeneralSettingsVerified=0"
+SET /a "varBackupSettingsVerified=0"
 
 REM  Enable this to backup the latest raspberry pi 3b+ image before the general backup.
 CALL :backupRaspberryPiImage

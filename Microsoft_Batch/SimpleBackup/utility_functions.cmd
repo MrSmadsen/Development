@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 1.0 (05-12-2020)
+REM Version and Github_upload date: 2.0 (17-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -22,6 +22,8 @@ CALL %1 %2 %3 %4 %5
 EXIT /B 0
 
 REM Just a dummy function that does nothing.
+REM Always try to structure your logic to avoid using this function. It can be used for testing while developing,
+REM but the finished algorithm should not use this function if it can be avoided.
 :do_nothing
 REM start at 1, steps by 1, until 2.
 for /l %%x IN (1,1,2) do (
@@ -189,13 +191,18 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   IF ["%%j"]==[""] (
     CALL :Exception_End "%varTargetLogFile%" "Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
   )
+  REM Only requirement for these variables is (currently) to NOT be empty.
+  REM An improvement would be to verify the value as a digit number.
   IF "%%i"=="varFileNameLength" (
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   )
   IF "%%i"=="varFolderLength" (
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   )
   IF "%%i"=="varPathLength" (
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   )
 )
@@ -208,9 +215,10 @@ IF NOT EXIST "%~f1" (
 )
 
 IF "%~1"=="..\Settings.ini" (
-  REM CALL ..\utility_functions :readBackupSettingsFile_Limits "%varGeneralSettingsFile%"
   CALL ..\utility_functions :readBackupSettingsFile_Limits "%~1"
 )
+
+SET /a "varUnverifiedParametersCounter=0"
 
 ECHO Read settings from file: %~f1
 REM If the path argument %~1 in FOR /F is encapsulated in "" the for loop will tokenize the filename and not the file contents.
@@ -219,51 +227,233 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   IF ["%%j"]==[""] (
     CALL :Exception_End "%varTargetLogFile%" "Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
   )
+  
+  REM The counters must be initialized outside this functions scope to work properly.
+  REM They are initialized to 0 in Multiple_Backups.cmd and BackupFolders.cmd.
+  REM Increment counters.
+  Rem This incrementation also includes the 3 values explicitly set in function: :readBackupSettingsFile_Limits
+  IF "%~1"=="..\Settings.ini" (    
+    SET /a "varGeneralSettingsRetrieved+=1"
+  )
+  IF "%~1"=="BackupSettings.ini" (
+    SET /a "varBackupSettingsRetrieved+=1"
+  )
 
   IF "%%i"=="varBackupLocation" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSyncFolderLocation" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varExistingArchivePath" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varExtractionLocation" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSrcPathFolder01" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSrcPathFolder02" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varDstPathFolder01" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varDstPathFolder02" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSimpleBackupCheckoutPath" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varRepositoryLocation" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varRepositoryDumpLocation" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSvnPath" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSvnadminPath" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varArchiveProgram" (
-    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL :strLength "%%j" %varPathLength% "YES" ""
-  ) ELSE (
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"	
+  ) ELSE IF "%%i"=="varRasperryPi3BPlusSha512Path" (
+    CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+  ) ELSE IF "%%i"=="varSvnWorkingCopy01" (
+    CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+  ) ELSE IF "%%i"=="varAppFunctionBackupFiles" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
     SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varAppFunctionIntegrityCheck" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varAppFunctionUpdateArchive" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varAppFunctionExtractFilestoFolder" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varAppFunctionExtractFilesWithFullFilePath" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varAppFunctionVerifyChecksum" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varPassword" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSplitArchiveFile" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varEnableFileLogging" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varGenerateSfxArchive" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varMoveFolders" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varMoveFoldersBack" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varZipUtcMode" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varIntegrityTestDuringBackup" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varChecksumVerificationDuringBackup" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varCheckWorkingCopyChanges" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varExportSvn" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+	SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSolidMode" (    
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varOverWriteFiles" (
+    CALL ..\parameterVerification.cmd :verifyParameter_WriteMode "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varAppFunctionSyncBackupFolder" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES_PURGE_DST-YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varBackupSynchronizationDuringBackup" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES_PURGE_DST-YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSplitVolumesize" (
+    CALL ..\parameterVerification.cmd :verifyParameter_SplitVolumesize "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varCompressionLvl" (
+    CALL ..\parameterVerification.cmd :verifyParameter_SplitCompressionLvl "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varFormat" (
+    CALL ..\parameterVerification.cmd :verifyParameter_Format "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSyncFolder_DCOPY_FLAGS" (
+    CALL ..\parameterVerification.cmd :verifyParameter_COPY_FLAGS "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSyncFolder_COPY_FLAGS" (
+    CALL ..\parameterVerification.cmd :verifyParameter_COPY_FLAGS "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varMoveFolder_DCOPY_FLAGS" (
+    CALL ..\parameterVerification.cmd :verifyParameter_COPY_FLAGS "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varMoveFolder_COPY_FLAGS" (
+    CALL ..\parameterVerification.cmd :verifyParameter_COPY_FLAGS "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varCopyFolder_DCOPY_FLAGS" (
+    CALL ..\parameterVerification.cmd :verifyParameter_COPY_FLAGS "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varCopyFolder_COPY_FLAGS" (
+    CALL ..\parameterVerification.cmd :verifyParameter_COPY_FLAGS "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varChecksumBitlength" (
+    CALL ..\parameterVerification.cmd :verifyParameter_ChecksumBitlength "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varFileList" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varUpdateMode" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSecretPassword" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varThreadAffinity" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"	
+  ) ELSE IF "%%i"=="varExistingArchiveFileName" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varExistingChecksumFile" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSvnRepo1" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSvnRepo2" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varOutputFormat" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varCodePage" (
+    REM Only requirement for this variable is (currently) to NOT be empty.    
+    REM An improvement would be to verify the value as a digit number.
+	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varFileNameLength" (
+    REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
+	SET "%%i=%%j"  
+  ) ELSE IF "%%i"=="varFolderLength" (
+    REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
+	SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varPathLength" (
+    REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
+	SET "%%i=%%j"
+  ) ELSE (
+	SET /a "varUnverifiedParametersCounter+=1"
+	ECHO UNVERIFIED PARAMETER: %%i.
+    SET "%%i=%%j"
+  )
+  
+  IF %varUnverifiedParametersCounter% GTR 0 (
+   CALL :Exception_End "NO_FILE_HANDLE" ":readBackupSettingsFile - No of unverified parameters is %varUnverifiedParametersCounter%. Exit" "OUTPUT_TO_STDOUT" ""
   )
 )
 EXIT /B 0
