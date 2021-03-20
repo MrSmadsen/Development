@@ -127,6 +127,7 @@ FOR /f "tokens=*" %%x in ('DIR "%~1" /a:d /b') DO (
     CALL :deleteFolderIfItIsAnOldBackup "%~1" "%%x"
   )
 )
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 EXIT /B 0
 
 REM Param_1: Path to backupFolder

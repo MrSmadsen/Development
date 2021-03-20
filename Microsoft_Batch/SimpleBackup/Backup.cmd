@@ -388,6 +388,8 @@ SET "varLoggingCmd=logging.cmd"
 SET "varSettingsIni=Settings.ini"
 SET "varSvnRepoFunctionsCmd=svnRepoFunctions.cmd"
 SET "varUtilityFunctionsCmd=utility_functions.cmd"
+SET "varParameterVerificationCmd=ParameterVerification.cmd"
+SET "varSettingsIni=Settings.ini"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checking SimpleBackup working copy files for changes:" "OUTPUT_TO_STDOUT" ""
@@ -397,6 +399,8 @@ CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPa
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSettingsIni%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSvnRepoFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varUtilityFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varParameterVerificationCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSettingsIni%" "--quiet" "YES" "YES" "YES" 0
 
 REM To count the number of changes inside the file use svn diff. Should be able to do just that.
 REM That way we can have a higher certainty that only our accepted changes are what we will find in the file.
