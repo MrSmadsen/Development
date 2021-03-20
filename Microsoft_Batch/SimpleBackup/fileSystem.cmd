@@ -120,6 +120,7 @@ IF NOT "%~1"=="%varBackupLocation%" (
   EXIT /B 1
 )
 
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 FOR /f "tokens=*" %%x in ('DIR "%~1" /a:d /b') DO (    
   REM If the found folderName is NOT the same as the current targetBackupFolderName.
   IF NOT "%%x"=="%varDate%" (
@@ -213,7 +214,8 @@ REM Delete folder without user confirmation.
     Setlocal disabledelayedexpansion
     EXIT /B 1
   )
-  rmdir /Q /S "%~1\%~2"
+  rmdir /Q /S "%~1\%~2"    
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Deleted old backup: %~1\%~2" "OUTPUT_TO_STDOUT" ""
 )
 setlocal disabledelayedexpansion
 EXIT /B 0

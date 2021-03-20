@@ -592,15 +592,20 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checksum algorithm used
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders:                         %varMoveFolders%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders back:                    %varMoveFoldersBack%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Export SVN repository:                %varExportSvn%" "OUTPUT_TO_STDOUT" ""
-IF %varBackupSynchronizationDuringBackup%==YES (  
+IF "%varDeleteOldBackupFolders%"=="YES" (  
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Delete old backups                    YES" "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Delete old backups                    NO" "OUTPUT_TO_STDOUT" ""
+)
+IF "%varBackupSynchronizationDuringBackup%"=="YES" (  
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      YES, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
-) ELSE IF %varBackupSynchronizationDuringBackup%==YES_PURGE_DST (
+) ELSE IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      YES_WITH_PURGE, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
 ) ELSE (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      NO" "OUTPUT_TO_STDOUT" ""
 )
-IF %varZipUtcMode%==YES (
-  IF %varFormat%==zip (
+IF "%varZipUtcMode%"=="YES" (
+  IF "%varFormat%"=="zip" (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Zip Utc mode:                         %varZipUtcMode%" "OUTPUT_TO_STDOUT" ""
   )
 )
