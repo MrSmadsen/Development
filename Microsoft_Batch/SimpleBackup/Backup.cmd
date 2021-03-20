@@ -225,15 +225,6 @@ IF %varCheck%==TRUE (
   )  
   setlocal disabledelayedexpansion
 )
-
-REM Verify that the values entered in ini-file options are supported.
-CALL :CheckIniFileOption_varChecksumBitlength
-CALL :CheckIniFileOptions_varMoveFolder_COPY_FLAGS
-CALL :CheckIniFileOptions_varMoveFolder_DCOPY_FLAGS
-CALL :CheckIniFileOptions_varCopyFolder_COPY_FLAGS
-CALL :CheckIniFileOptions_varCopyFolder_DCOPY_FLAGS
-CALL :CheckIniFileOptions_varSyncFolder_COPY_FLAGS
-CALL :CheckIniFileOptions_varSyncFolder_DCOPY_FLAGS
 EXIT /B 0
 
 :PerformBackupPreconditionalChecks
@@ -414,183 +405,6 @@ REM This file can have changes to enable/disable raspberry pi image backup.
 SET "varMultipleBackupsCmd=Multiple_Backups.cmd"
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varMultipleBackupsCmd%" "--quiet" "YES" "YES" "YES" 1
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-EXIT /B 0
-
-:CheckIniFileOptions_varSyncFolder_DCOPY_FLAGS
-SET "varSyncFolderOK=NOT_OK"
-
-REM (D | DA | DAT | DATS | DATSO | DATSOU)
-IF "%varSyncFolder_DCOPY_FLAGS%"=="D" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_DCOPY_FLAGS%"=="DA" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_DCOPY_FLAGS%"=="DAT" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_DCOPY_FLAGS%"=="DATS" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_DCOPY_FLAGS%"=="DATSO" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_DCOPY_FLAGS%"=="DATSOU" (
-  SET "varSyncFolderOK=OK"
-) ELSE (
-  SET "varSyncFolderOK=NOT_OK"
-)
- 
-IF "%varSyncFolderOK%"=="NOT_OK" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Value defined in %varSettingsFile% varSyncFolder_DCOPY_FLAGS is unsupported. Exit." "OUTPUT_TO_STDOUT" ""
-)
-EXIT /B 0
-
-:CheckIniFileOptions_varSyncFolder_COPY_FLAGS
-SET "varSyncFolderOK=NOT_OK"
-
-REM (D | DA | DAT | DATS | DATSO | DATSOU)
-IF "%varSyncFolder_COPY_FLAGS%"=="D" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_COPY_FLAGS%"=="DA" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_COPY_FLAGS%"=="DAT" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_COPY_FLAGS%"=="DATS" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_COPY_FLAGS%"=="DATSO" (
-  SET "varSyncFolderOK=OK"
-) ELSE IF "%varSyncFolder_COPY_FLAGS%"=="DATSOU" (
-  SET "varSyncFolderOK=OK"
-) ELSE (
-  SET "varSyncFolderOK=NOT_OK"
-)
- 
-IF "%varSyncFolderOK%"=="NOT_OK" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Value defined in %varSettingsFile% varSyncFolder_COPY_FLAGS is unsupported. Exit." "OUTPUT_TO_STDOUT" ""
-)
-EXIT /B 0
-
-:CheckIniFileOptions_varCopyFolder_DCOPY_FLAGS
-SET "varCopyFolderOK=NOT_OK"
-
-REM (D | DA | DAT | DATS | DATSO | DATSOU)
-IF "%varCopyFolder_DCOPY_FLAGS%"=="D" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_DCOPY_FLAGS%"=="DA" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_DCOPY_FLAGS%"=="DAT" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_DCOPY_FLAGS%"=="DATS" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_DCOPY_FLAGS%"=="DATSO" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_DCOPY_FLAGS%"=="DATSOU" (
-  SET "varCopyFolderOK=OK"
-) ELSE (
-  SET "varCopyFolderOK=NOT_OK"
-)
- 
-IF "%varCopyFolderOK%"=="NOT_OK" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Value defined in %varSettingsFile% varCopyFolder_DCOPY_FLAGS is unsupported. Exit." "OUTPUT_TO_STDOUT" ""
-)
-EXIT /B 0
-
-:CheckIniFileOptions_varCopyFolder_COPY_FLAGS
-SET "varCopyFolderOK=NOT_OK"
-
-REM (D | DA | DAT | DATS | DATSO | DATSOU)
-IF "%varCopyFolder_COPY_FLAGS%"=="D" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_COPY_FLAGS%"=="DA" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_COPY_FLAGS%"=="DAT" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_COPY_FLAGS%"=="DATS" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_COPY_FLAGS%"=="DATSO" (
-  SET "varCopyFolderOK=OK"
-) ELSE IF "%varCopyFolder_COPY_FLAGS%"=="DATSOU" (
-  SET "varCopyFolderOK=OK"
-) ELSE (
-  SET "varCopyFolderOK=NOT_OK"
-)
- 
-IF "%varCopyFolderOK%"=="NOT_OK" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Value defined in %varSettingsFile% varCopyFolder_COPY_FLAGS is unsupported. Exit." "OUTPUT_TO_STDOUT" ""
-)
-EXIT /B 0
-
-:CheckIniFileOptions_varMoveFolder_DCOPY_FLAGS
-SET "varMoveFolderOK=NOT_OK"
-
-REM (D | DA | DAT | DATS | DATSO | DATSOU)
-IF "%varMoveFolder_DCOPY_FLAGS%"=="D" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_DCOPY_FLAGS%"=="DA" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_DCOPY_FLAGS%"=="DAT" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_DCOPY_FLAGS%"=="DATS" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_DCOPY_FLAGS%"=="DATSO" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_DCOPY_FLAGS%"=="DATSOU" (
-  SET "varMoveFolderOK=OK"
-) ELSE (
-  SET "varMoveFolderOK=NOT_OK"
-)
- 
-IF "%varMoveFolderOK%"=="NOT_OK" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Value defined in %varSettingsFile% varMoveFolder_DCOPY_FLAGS is unsupported. Exit." "OUTPUT_TO_STDOUT" ""
-)
-EXIT /B 0
-
-:CheckIniFileOptions_varMoveFolder_COPY_FLAGS
-SET "varMoveFolderOK=NOT_OK"
-
-REM (D | DA | DAT | DATS | DATSO | DATSOU)
-IF "%varMoveFolder_COPY_FLAGS%"=="D" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_COPY_FLAGS%"=="DA" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_COPY_FLAGS%"=="DAT" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_COPY_FLAGS%"=="DATS" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_COPY_FLAGS%"=="DATSO" (
-  SET "varMoveFolderOK=OK"
-) ELSE IF "%varMoveFolder_COPY_FLAGS%"=="DATSOU" (
-  SET "varMoveFolderOK=OK"
-) ELSE (
-  SET "varMoveFolderOK=NOT_OK"
-)
- 
-IF "%varMoveFolderOK%"=="NOT_OK" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Value defined in %varSettingsFile% varMoveFolder_COPY_FLAGS is unsupported. Exit." "OUTPUT_TO_STDOUT" ""
-)
-EXIT /B 0
-
-:CheckIniFileOption_varChecksumBitlength
-SET "varChecksumOK=NOT_OK"
-
-REM (MD2 | MD4 | MD5 | SHA1 | SHA256 | SHA384 | SHA512)
-IF "%varChecksumBitlength%"=="MD2" (
-  SET "varChecksumOK=OK"
-) ELSE IF "%varChecksumBitlength%"=="MD4" (
-  SET "varChecksumOK=OK"
-) ELSE IF "%varChecksumBitlength%"=="MD5" (
-  SET "varChecksumOK=OK"
-) ELSE IF "%varChecksumBitlength%"=="SHA1" (
-  SET "varChecksumOK=OK"
-) ELSE IF "%varChecksumBitlength%"=="SHA256" (
-  SET "varChecksumOK=OK"
-) ELSE IF "%varChecksumBitlength%"=="SHA384" (
-  SET "varChecksumOK=OK"
-) ELSE IF "%varChecksumBitlength%"=="SHA512" (
-  SET "varChecksumOK=OK"
-) ELSE (
-  SET "varChecksumOK=NOT_OK"
-)
- 
-IF "%varChecksumOK%"=="NOT_OK" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Value defined in %varSettingsFile% varChecksumBitlength is unsupported. Exit." "OUTPUT_TO_STDOUT" ""
-)
 EXIT /B 0
 
 :CheckFileLoggingCmdForChanges
@@ -801,7 +615,7 @@ REM ..\utility_functions :logTimeStampB4CommandStart "%varTargetLogFile%" "%varF
 CALL :DoCompressfiles
 REM ..\utility_functions :logTimeStamp_CommandFinished "%varTargetLogFile%" "%varFunctionName2%"
 
-IF %varIntegrityTestDuringBackup%==YES (
+IF "%varIntegrityTestDuringBackup%"=="YES" (
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "Performing Integrity test of file: %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
   CALL :DoIntegrityTest
@@ -810,7 +624,7 @@ IF %varIntegrityTestDuringBackup%==YES (
 
 CALL :CalculateFileChecksum
 
-IF %varChecksumVerificationDuringBackup%==YES (
+IF "%varChecksumVerificationDuringBackup%"=="YES" (
   CALL ..\logging :Append_To_LogFile "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   CALL :VerifyFileChecksum
@@ -819,10 +633,14 @@ IF %varChecksumVerificationDuringBackup%==YES (
 
 CALL :MoveMultipleFoldersBack
 
-IF %varBackupSynchronizationDuringBackup%==YES (
+IF "%varDeleteOldBackupFolders%"=="YES" (
+  CALL ..\fileSystem :deleteOldBackups "%varBackupLocation%" "%varDate%"
+)
+
+IF "%varBackupSynchronizationDuringBackup%"=="YES" (
   ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
 )
-IF %varBackupSynchronizationDuringBackup%==YES_PURGE_DST (
+IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
   ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
 )
 EXIT /B 0

@@ -357,6 +357,9 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   ) ELSE IF "%%i"=="varSolidMode" (    
     CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
     SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varDeleteOldBackupFolders" (
+    CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
   ) ELSE IF "%%i"=="varOverWriteFiles" (
     CALL ..\parameterVerification.cmd :verifyParameter_WriteMode "%~1" "%%j" "%%i"
     SET "%%i=%%j"
@@ -465,24 +468,24 @@ REM Param_3 Exception on error.
 REM Param_4: Verbose_Mode - "V"
 :strLength
 IF [%1]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_1 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%1]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_1 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF [%2]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_2 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_2 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF [%3]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_3 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%3]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_3 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 Setlocal EnableDelayedExpansion
@@ -509,6 +512,92 @@ IF !len! gtr %~2 (
 IF "%~4"=="V" ( ECHO Calculated length !len! exceeds Max_Length of %~2. Return to caller. )
 IF "%~4"=="v" ( ECHO Calculated length !len! exceeds Max_Length of %~2. Return to caller. )
 Setlocal DisableDelayedExpansion
+EXIT /B 0
+
+REM Inspiration from: https://ss64.com/nt/syntax-strlen.html
+REM Functionality: The function is meant to work as follows:
+REM If "Calculated length" Condition "Length Limitation" ( OK ) ELSE ( NOT OK )
+REM Param_1 The string which require length calculation.
+REM Param_2 Condition. If condition is not met return errorlevel 1. If condition is met return 0.
+REM EQU : Equal, NEQ : Not equal, LSS : Less than <, LEQ : Less than or Equal <=, GTR : Greater than >, GEQ : Greater than or equal >=
+REM Param_3 Length Limitation
+REM Param_4: Verbose_Mode - "V"
+:strLengthConditionalCheck
+IF [%1]==[] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_1 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_1 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF [%2]==[] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_2 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_2 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF [%3]==[] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_3 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_3 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+Setlocal EnableDelayedExpansion
+Set "s=#%~1"
+Set "len=0"
+For %%N in (4096 2048 1024 512 256 128 64 32 16 8 4 2 1) do (
+  if "!s:~%%N,1!" neq "" (
+    set /a "len+=%%N"
+    set "s=!s:~%%N!"
+  )
+)
+
+REM EQU : Equal, NEQ : Not equal, LSS : Less than <, LEQ : Less than or Equal <=, GTR : Greater than >, GEQ : Greater than or equal >=
+REM If "Calculated length" Condition "Length Limitation" ( OK ) ELSE ( NOT OK )
+IF !len! %~2 %~3 (
+  IF "%~4"=="V" (
+    ECHO !len! %~2 %~3 evaluated to: OK.
+  )
+  IF "%~4"=="v" (
+    ECHO !len! %~2 %~3 evaluated to: OK.
+  )
+) ELSE (
+  IF "%~4"=="V" (
+    ECHO !len! %~2 %~3 evaluated to: NOT OK.
+  )
+  IF "%~4"=="v" (
+    ECHO !len! %~2 %~3 evaluated to: NOT OK.
+  )
+  
+  CALL :Exception_End "NO_FILE_HANDLE" ":strLengthConditionalCheck - Calculated length !len! exceeds Max_Length of %~2. Exit." "OUTPUT_TO_STDOUT" ""      
+)
+
+Setlocal DisableDelayedExpansion
+EXIT /B 0
+
+REM An example of hot to set the codepage without setting it each time a file is called.
+REM This however relies on the output from chcp.exe always being 4 tokens wide and the last token is the codepage value.
+:setCodePage
+REM CODEPAGE___________________________________________________________________________________
+REM Set code page to unicode - Requires that the batfile is saved in unicode utf-8 format.
+REM If the "logic" used in the codepage code fails use the simpel solution instead - chcp %varCodePage% > nul
+REM The logic avoids setting the same chcp value each time a file is called.
+REM chcp %varCodePage% > nul
+
+REM Change to the codepage from Settings.ini.
+IF DEFINED varCodePage (
+  for /F "tokens=4 delims= " %%a in ('chcp') do (
+    set varChcpResult=%%a
+  )  
+  ECHO %varChcpResult%
+  IF NOT "%varChcpResult%"=="%varCodePage%" (  
+    REM ECHO Setting codepage! a: "%varChcpResult%"  - "%varCodePage%"
+    chcp %varCodePage% > nul
+  )
+)
+REM ___________________________________________________________________________________________
 EXIT /B 0
 
 REM Exits the script and writes the error message provided.

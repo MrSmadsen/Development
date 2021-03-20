@@ -101,6 +101,123 @@ IF EXIST "%~1" (
 )
 EXIT /B 0
 
+REM Param_1: Path to backupFolder
+REM Param_2: BackupFolderNameToKeep (varDate)
+:deleteOldBackups
+IF NOT EXIST "%~1" (
+  CALL ..\logging :Append_To_Screen "Error: :deleteOldBackups: BackupFolder %1 does not exist. Return 1" "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
+)
+
+IF NOT EXIST "%~1\%~2" (
+  CALL ..\logging :Append_To_Screen "Error: :deleteOldBackups: BackupFolder\%~2 does not exist. Return 1" "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
+)
+
+REM Must be current running configurationBackupfolder to work.
+IF NOT "%~1"=="%varBackupLocation%" (
+  CALL ..\logging :Append_To_Screen "Error: :deleteOldBackups: Param_1 must be varBackupLocation. Not folders deleted. Return 1" "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
+)
+
+FOR /f "tokens=*" %%x in ('DIR "%~1" /a:d /b') DO (    
+  REM If the found folderName is NOT the same as the current targetBackupFolderName.
+  IF NOT "%%x"=="%varDate%" (
+    CALL :deleteFolderIfItIsAnOldBackup "%~1" "%%x"
+  )
+)
+EXIT /B 0
+
+REM Param_1: Path to backupFolder
+REM Param_2: Folder to verify as valid backup.
+:deleteFolderIfItIsAnOldBackup
+setlocal enabledelayedexpansion
+IF NOT EXIST "%~1" (
+  CALL ..\logging :Append_To_Screen "Error: :deleteFolderIfItIsAnOldBackup: BackupFolder %1 does not exist. Return 1" "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
+)
+REM Must be current running configurationBackupfolder to work.
+IF NOT "%~1"=="%varBackupLocation%" (
+  CALL ..\logging :Append_To_Screen "Error: :deleteFolderIfItIsAnOldBackup: Param_1 must be varBackupLocation. Not folders deleted. Return 1" "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
+)
+IF NOT EXIST "%~1\%~2" (
+  CALL ..\logging :Append_To_Screen "Error: :deleteFolderIfItIsAnOldBackup: Folder to delete not found. Return" "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
+)
+
+SET "varIsValidFolder=NOT_DEFINED"
+SET "varfolderStartSubStr=%~2"
+REM 2021-03-17_15-20-backup.zip.001
+SET "varSrcStr1=%varfolderStartSubStr%-backup.zip"
+REM 2021-03-17_15-20-Checksum-SHA512.txt
+SET "varSrcStr2=%varfolderStartSubStr%-Checksum-*"
+REM 2021-03-17_15-20-logfile.txt
+SET "varSrcStr3=%varfolderStartSubStr%-logfile.txt"
+
+REM Shows only files in the directory %varDir% in simple output format.
+for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
+  echo %%F|findstr /i /b "!varSrcStr1!">nul
+  IF !ERRORLEVEL!==0 (
+    SET "varTmpBackupFile=%~1\%~2\%%F"
+  )
+)
+IF NOT EXIST "!varTmpBackupFile!" (
+  SET "varIsValidFolder=NO"
+  setlocal disabledelayedexpansion
+  EXIT /B 1
+) ELSE (
+  SET "varIsValidFolder=YES"
+)
+
+REM Shows only files in the directory %varDir% in simple output format.
+for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
+  echo %%F|findstr /i /b "!varSrcStr2!">nul
+  IF !ERRORLEVEL!==0 (
+    SET "varTmpChecksumFile=%~1\%~2\%%F"
+  )
+)
+IF NOT EXIST "!varTmpChecksumFile!" (
+  SET "varIsValidFolder=NO"
+  setlocal disabledelayedexpansion
+  EXIT /B 1
+) ELSE (
+  SET "varIsValidFolder=YES"
+)
+
+REM Shows only files in the directory %varDir% in simple output format.
+for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
+  echo %%F|findstr /i /b "!varSrcStr3!">nul
+  IF !ERRORLEVEL!==0 (
+    SET "varTmpLogFile=%~1\%~2\%%F"
+  )
+)
+IF NOT EXIST "!varTmpLogFile!" (
+  SET "varIsValidFolder=NO"
+  setlocal disabledelayedexpansion
+  EXIT /B 1
+) ELSE (
+  SET "varIsValidFolder=YES"
+)
+
+IF "%varIsValidFolder%"=="NOT_DEFINED" (
+  SET "varIsValidFolder=NO"
+  setlocal disabledelayedexpansion
+  EXIT /B 1
+)
+
+IF "%varIsValidFolder%"=="YES" (
+REM Delete folder without user confirmation.
+  IF NOT "%~1"=="%varBackupLocation%" (
+    ECHO %~1 is not the current configuration backupfolder. Exit without deleting folder.
+    Setlocal disabledelayedexpansion
+    EXIT /B 1
+  )
+  rmdir /Q /S "%~1\%~2"
+)
+setlocal disabledelayedexpansion
+EXIT /B 0
+
 REM If EXIST fileName will check for existence of a folder or a file.
 REM Param_1: Path
 REM Param_2: Ini-file option name.
