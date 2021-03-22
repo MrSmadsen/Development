@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.1 (22-03-2021)
+REM Version and Github_upload date: 2.12 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -643,17 +643,6 @@ IF "%varChecksumVerificationDuringBackup%"=="YES" (
 )
 
 CALL :MoveMultipleFoldersBack
-
-IF "%varDeleteOldBackupFolders%"=="YES" (
-  CALL ..\fileSystem :deleteOldBackups "%varBackupLocation%" "%varDate%"
-)
-
-IF "%varBackupSynchronizationDuringBackup%"=="YES" (
-  ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
-)
-IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
-  ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
-)
 EXIT /B 0
 
 :UpdateBackupArchive
@@ -1253,4 +1242,11 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Started backup at %varD
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Finished backup at %varDateBackupEnded%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup finished. Backup-result is available in log-file: %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+
+IF "%varBackupSynchronizationDuringBackup%"=="YES" (
+  ..\fileSystem :copyFile "%varTargetLogFile%" "%varSyncFolderLocation%"
+)
+IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
+  ..\fileSystem :copyFile "%varTargetLogFile%" "%varSyncFolderLocation%"
+)
 EXIT /B 0

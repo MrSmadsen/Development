@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.1 (22-03-2021)
+REM Version and Github_upload date: 2.12 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -625,6 +625,12 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   )  
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing to external storage done. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
   ECHO.
+EXIT /B 0
+
+REM Param_1:SourcePath
+REM Param_2:DestinationPath
+:copyFile
+CALL :copyFolder "%~1" "%~2"
 EXIT /B 0
 
 REM Param_1:SourcePath
