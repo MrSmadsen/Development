@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12.1 (22-03-2021)
+REM Version and Github_upload date: 2.12.2 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -395,8 +395,8 @@ SET "varSettingsIni=Settings.ini"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checking SimpleBackup working copy files for changes:" "OUTPUT_TO_STDOUT" ""
-CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varFileSystemCmd%" "--quiet" "YES" "YES" "YES" 1
-CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varBackupCmd%" "--quiet" "YES" "YES" "YES" 1
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varFileSystemCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varBackupCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varLoggingCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSettingsIni%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSvnRepoFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0

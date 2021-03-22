@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12.1 (22-03-2021)
+REM Version and Github_upload date: 2.12.2 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -575,10 +575,11 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
     SET "varSyncFlags= /DCOPY:%varSyncFolder_DCOPY_FLAGS% /COPY:%varSyncFolder_COPY_FLAGS% /e"
   )
   
-  REM This line will potentially extract MTNNN from ini-file option varThreadAffinity (-mmtN). Robocopy supports upto 128 threads (/MT128). /MT = 8 threads.
-  REM Use same number of threads as 7zip. Unsure if extracting too many chars will add whitespace or potentially copy chars from other variables.
-  REM SET "varRoboCopyThreadAffinity=/%varThreadAffinity:~2,5%"
-  SET "varRoboCopyThreadAffinity=/MT"
+  IF %varThreadAffinity:~2,5% GTR 1 (
+    SET "varRoboCopyThreadAffinity=/MT"
+  ) ELSE (
+    SET "varRoboCopyThreadAffinity="
+  )
   
   REM /copy:DATS - file properties:       D:Data, A:Attributes, T:Time stamps, S:NTFS access control list (ACL)
   REM /dcopy:DAT - directory  properties: D:Data, A:Attributes, T:Time stamps
@@ -608,9 +609,9 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   REM Exclude google backup and sync folder: /xd "%~1\.tmp.drivedownload"
   
   IF %varElevatedAdminPriviligies%==YES (        
-    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT /xo %varSyncFlags% %varRoboCopyThreadAffinity% /zb /r:2 /w:10
+    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /zb /r:2 /w:10
   ) ELSE (
-    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT /xo %varSyncFlags% /xo %varRoboCopyThreadAffinity% /r:2 /w:10	
+    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /r:2 /w:10	
   )  
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
   IF %ERRORLEVEL% GEQ 8 (
@@ -644,14 +645,17 @@ REM Param_3:DestinationPath
     EXIT /B 1
   )
   
+  IF %varThreadAffinity:~2,5% GTR 1 (
+    SET "varRoboCopyThreadAffinity=/MT"
+  ) ELSE (
+    SET "varRoboCopyThreadAffinity="
+  )
+  
   ECHO Copying file: %~1\%~2
   ECHO           to: %~3
 
   SET "varCopyFlags= /DCOPY:%varCopyFolder_DCOPY_FLAGS% /COPY:%varCopyFolder_COPY_FLAGS% /e"
-  robocopy %~1 %~3 %~2 %varOutputFormat% %varCopyFlags% /r:2 /w:10
-  
-  REM robocopy c:\reports '\\marketing\videos' yearly-report.mov /mt /z
-  
+  robocopy %~1 %~3 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% /r:2 /w:10
   
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
   IF %ERRORLEVEL% GEQ 8 (	
@@ -693,9 +697,15 @@ REM Param_2:DestinationPath
   IF [%varMoveFolder%]==[YES] (
     ECHO Moving folder from: %~1
     ECHO                 to: %~2
+
+    IF %varThreadAffinity:~2,5% GTR 1 (
+      SET "varRoboCopyThreadAffinity=/MT"
+    ) ELSE (
+      SET "varRoboCopyThreadAffinity="
+    )
     
     SET "varMoveFlags= /DCOPY:%varMoveFolder_DCOPY_FLAGS% /COPY:%varMoveFolder_COPY_FLAGS% /e"
-    robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% /MOVE /r:2 /w:10
+    robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% /MOVE /r:2 /w:10
 
       REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
     IF %ERRORLEVEL% GEQ 8 (	
@@ -739,8 +749,14 @@ REM Param_2:DestinationPath
   ECHO Copying folder from: %~1
   ECHO                  to: %~2
 
+  IF %varThreadAffinity:~2,5% GTR 1 (
+    SET "varRoboCopyThreadAffinity=/MT"
+  ) ELSE (
+    SET "varRoboCopyThreadAffinity="
+  )
+
   SET "varCopyFlags= /DCOPY:%varCopyFolder_DCOPY_FLAGS% /COPY:%varCopyFolder_COPY_FLAGS% /e"
-  robocopy %~1 %~2 %varOutputFormat% %varCopyFlags% /r:2 /w:10
+  robocopy %~1 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% /r:2 /w:10
   
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
   IF %ERRORLEVEL% GEQ 8 (	
