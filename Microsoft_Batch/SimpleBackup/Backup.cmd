@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.0 (17-03-2021)
+REM Version and Github_upload date: 2.1 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -40,6 +40,8 @@ CALL :CreateBackupDestinationFolderAndFiles
 CALL :ActivateApplicationFunction
 EXIT /B 0
 
+REM Do not change this date variable. The format is used extensively in the script and 
+REM changing this requires alot of the code to be changed.
 :SetupTimeAndDate
 SET "varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%"
 SET "varDate=%varDate: =0%"

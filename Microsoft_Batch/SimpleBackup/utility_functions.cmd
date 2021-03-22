@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.0 (17-03-2021)
+REM Version and Github_upload date: 2.1 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -462,6 +462,8 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
 EXIT /B 0
 
 REM Inspiration from: https://ss64.com/nt/syntax-strlen.html
+REM Default cmd.exe only supports 8192 characters on the commandline. So Max string lenght is aprox 8k.
+REM Cmd.exe might crash if bigger strings are supplied to the function.
 REM Param_1 The string which require length calculation.
 REM Param_2 Max_Length allowed. 
 REM Param_3 Exception on error.
@@ -516,6 +518,8 @@ EXIT /B 0
 
 REM Inspiration from: https://ss64.com/nt/syntax-strlen.html
 REM Functionality: The function is meant to work as follows:
+REM Default cmd.exe only supports 8192 characters on the commandline. So Max string lenght is aprox 8k.
+REM Cmd.exe might crash if bigger strings are supplied to the function.
 REM If "Calculated length" Condition "Length Limitation" ( OK ) ELSE ( NOT OK )
 REM Param_1 The string which require length calculation.
 REM Param_2 Condition. If condition is not met return errorlevel 1. If condition is met return 0.
@@ -575,6 +579,90 @@ IF !len! %~2 %~3 (
 )
 
 Setlocal DisableDelayedExpansion
+EXIT /B 0
+
+REM This function consists of 2 functions - :strLength2 and :CheckNextLetter.
+REM I am trying to make a strlength calculation without using delayedexpansion to be able to return the value.
+REM Default cmd.exe only supports 8192 characters on the commandline. So Max string lenght is aprox 8k.
+REM Cmd.exe might crash if bigger strings are supplied to the function.
+REM Param_1 The string which require length calculation.
+REM Param_2 Return value.
+:strLength2
+SET "varStringToCount=%~1"
+SET /A varStrLength2=0
+
+IF "%varStringToCount:~4096%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~4096%"
+  SET /A "varStrLength2+=4096"
+)
+IF "%varStringToCount:~2048%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~2048%"
+  SET /A "varStrLength2+=2048"
+)
+IF "%varStringToCount:~1024%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~1024%"
+  SET /A "varStrLength2+=1024"
+)
+IF "%varStringToCount:~512%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~512%"
+  SET /A "varStrLength2+=512"
+)
+IF "%varStringToCount:~256%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~256%"
+  SET /A "varStrLength2+=256"
+)
+IF "%varStringToCount:~128%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~128%"
+  SET /A "varStrLength2+=128"
+)
+IF "%varStringToCount:~64%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~64%"
+  SET /A "varStrLength2+=64"
+)
+IF "%varStringToCount:~32%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~32%"
+  SET /A "varStrLength2+=32"
+)
+IF "%varStringToCount:~16%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~16%"
+  SET /A "varStrLength2+=16"
+)
+IF "%varStringToCount:~8%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~8%"
+  SET /A "varStrLength2+=8"
+)
+IF "%varStringToCount:~4%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~4%"
+  SET /A "varStrLength2+=4"
+)
+IF "%varStringToCount:~2%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~2%"
+  SET /A "varStrLength2+=2"
+)
+IF "%varStringToCount:~1%" NEQ "" (
+  SET "varStringToCount=%varStringToCount:~1%"
+  SET /A "varStrLength2+=1"
+)
+IF "%varStringToCount%" NEQ "" (  
+  GOTO :CheckNextLetter "%varStringToCount%" "%~2"
+) ELSE (
+  REM ECHO There is %varStrLength2% character^(s^) in the string.
+  EXIT /B 0
+)
+
+REM This function is a sub-function to :strLength2. 
+:CheckNextLetter 
+IF "%varStringToCount%" NEQ "" (
+    SET varStringToCount=%varStringToCount:~1%
+    SET /A varStrLength2=%varStrLength2%+1
+    GOTO :CheckNextLetter
+) ELSE (
+    REM ECHO There is %varStrLength2% character^(s^) in the string.
+	SET "%~2=%varStrLength2%"
+    EXIT /B 0
+)
+REM ECHO There is %varStrLength2% character^(s^) in the string.
+SET "%~2=%varStrLength2%"
 EXIT /B 0
 
 REM An example of hot to set the codepage without setting it each time a file is called.

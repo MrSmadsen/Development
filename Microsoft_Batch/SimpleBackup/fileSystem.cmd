@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.0 (17-03-2021)
+REM Version and Github_upload date: 2.1 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -148,6 +148,27 @@ IF NOT EXIST "%~1\%~2" (
   EXIT /B 1
 )
 
+SET "varResultStrLength2=NOT_DEFINED"
+CALL ..\utility_functions :strLength2 "%varDate%" "varResultStrLength2"
+REM The expected length is the length of varDate string, which is the name of the backupFolder-subfolder for a specific configuration backup.
+SET "varExpectedFolderLength=%varResultStrLength2%"
+
+REM Calculate the length of the folder to be verified.
+SET "varResultStrLength2=NOT_DEFINED"
+CALL ..\utility_functions :strLength2 "%~2" "varResultStrLength2"
+IF "%varResultStrLength2%"=="NOT_DEFINED" (  
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "Error: :deleteFolderIfItIsAnOldBackup: Unexpected error in ..\utility_functions :strLength2. Exit" "OUTPUT_TO_STDOUT" ""
+) ELSE IF %varResultStrLength2% NEQ %varExpectedFolderLength% (
+  REM Folder does not have the expected length.
+  EXIT /B 1
+)
+
+REM Check for directories. If any are found return and do not delete. The backup-script do not make subdirs.
+FOR /f "tokens=*" %%a in ('DIR "%~1\%~2" /a:d /b') DO (      
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "FOUND UNEXPECTED FOLDER^(s^) in folder: %~1\%~2. Might be user folder. Do not delete folder. Return." "OUTPUT_TO_STDOUT" ""
+  EXIT /B 1
+)
+
 SET "varIsValidFolder=NOT_DEFINED"
 SET "varfolderStartSubStr=%~2"
 REM 2021-03-17_15-20-backup.zip.001
@@ -157,53 +178,71 @@ SET "varSrcStr2=%varfolderStartSubStr%-Checksum-*"
 REM 2021-03-17_15-20-logfile.txt
 SET "varSrcStr3=%varfolderStartSubStr%-logfile.txt"
 
+SET /A "varNoOfFilesInTotal=0"
+SET /A "varNoOfExpectedFilesInTotal=0"
 REM Shows only files in the directory %varDir% in simple output format.
 for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
+  SET /A "varNoOfFilesInTotal+=1"
+  
   echo %%F|findstr /i /b "!varSrcStr1!">nul
   IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpBackupFile=%~1\%~2\%%F"
   )
-)
-IF NOT EXIST "!varTmpBackupFile!" (
-  SET "varIsValidFolder=NO"
-  setlocal disabledelayedexpansion
-  EXIT /B 1
-) ELSE (
-  SET "varIsValidFolder=YES"
-)
-
-REM Shows only files in the directory %varDir% in simple output format.
-for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
+  
   echo %%F|findstr /i /b "!varSrcStr2!">nul
   IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpChecksumFile=%~1\%~2\%%F"
   )
-)
-IF NOT EXIST "!varTmpChecksumFile!" (
-  SET "varIsValidFolder=NO"
-  setlocal disabledelayedexpansion
-  EXIT /B 1
-) ELSE (
-  SET "varIsValidFolder=YES"
-)
-
-REM Shows only files in the directory %varDir% in simple output format.
-for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
+  
   echo %%F|findstr /i /b "!varSrcStr3!">nul
   IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpLogFile=%~1\%~2\%%F"
   )
 )
-IF NOT EXIST "!varTmpLogFile!" (
-  SET "varIsValidFolder=NO"
-  setlocal disabledelayedexpansion
-  EXIT /B 1
+
+SET "varIsValidFolder=YES"
+
+IF DEFINED varTmpBackupFile (
+  REM If anyone of these requirements fail the folder is not deleted.
+  IF NOT EXIST "!varTmpBackupFile!" (
+    SET "varIsValidFolder=NO"
+  )
 ) ELSE (
-  SET "varIsValidFolder=YES"
+  SET "varIsValidFolder=NO"
+)
+
+IF DEFINED varTmpChecksumFile (
+  REM If anyone of these requirements fail the folder is not deleted.
+  IF NOT EXIST "!varTmpChecksumFile!" (
+    SET "varIsValidFolder=NO"
+  )
+) ELSE (
+  SET "varIsValidFolder=NO"
+)
+
+IF DEFINED varTmpLogFile (
+  REM If anyone of these requirements fail the folder is not deleted.
+  IF NOT EXIST "!varTmpLogFile!" (
+    SET "varIsValidFolder=NO"
+  )
+) ELSE (
+  SET "varIsValidFolder=NO"
+)
+
+REM IF there are more files than expected we do not delete the folder. Might be user copied files they wish to keep.
+IF %varNoOfFilesInTotal% GTR %varNoOfExpectedFilesInTotal% (  
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "FOUND UNEXPECTED FILE^(s^) in folder: %~1\%~2. Might be user files. Do not delete folder. Return." "OUTPUT_TO_STDOUT" ""
+  SET "varIsValidFolder=NO"  
 )
 
 IF "%varIsValidFolder%"=="NOT_DEFINED" (
   SET "varIsValidFolder=NO"
+)
+
+IF  "%varIsValidFolder%"=="NO" (
   setlocal disabledelayedexpansion
   EXIT /B 1
 )
@@ -569,9 +608,9 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   REM Exclude google backup and sync folder: /xd "%~1\.tmp.drivedownload"
   
   IF %varElevatedAdminPriviligies%==YES (        
-    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xf "%varTargetLogFile%" /xa:SHT /xo %varSyncFlags% %varRoboCopyThreadAffinity% /zb /r:2 /w:10
+    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT /xo %varSyncFlags% %varRoboCopyThreadAffinity% /zb /r:2 /w:10
   ) ELSE (
-    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xf "%varTargetLogFile%" /xa:SHT /xo %varSyncFlags% /xo %varRoboCopyThreadAffinity% /r:2 /w:10	
+    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT /xo %varSyncFlags% /xo %varRoboCopyThreadAffinity% /r:2 /w:10	
   )  
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
   IF %ERRORLEVEL% GEQ 8 (
