@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12.2 (22-03-2021)
+REM Version and Github_upload date: 2.12.3 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -60,7 +60,7 @@ IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
   ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
 )
 
-CALL ..\Backup :End
+CALL ..\Backup.cmd :End
 
 IF [%varMultipleBackups%]==[] (
   PAUSE
