@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12 (22-03-2021)
+REM Version and Github_upload date: 2.12.1 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -395,8 +395,8 @@ SET "varSettingsIni=Settings.ini"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checking SimpleBackup working copy files for changes:" "OUTPUT_TO_STDOUT" ""
-CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varFileSystemCmd%" "--quiet" "YES" "YES" "YES" 0
-CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varBackupCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varFileSystemCmd%" "--quiet" "YES" "YES" "YES" 1
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varBackupCmd%" "--quiet" "YES" "YES" "YES" 1
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varLoggingCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSettingsIni%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSvnRepoFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
@@ -489,7 +489,8 @@ IF %varGenerateSfxArchive%==NO (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CreateNewArchiveFiles - value in varGenerateSfxArchive is incorrect. Must be either YES or NO. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
-SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-logfile.txt"
+SET "varTargetLogFileName=%varDate%-logfile.txt"
+SET "varTargetLogFile=%varTargetBackupfolder%\%varTargetLogFileName%"
 CALL ..\logging :createLogFile "%varTargetLogFile%" ""
 EXIT /B 0
 
@@ -1244,9 +1245,9 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup finished. Backup
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
 IF "%varBackupSynchronizationDuringBackup%"=="YES" (
-  ..\fileSystem :copyFile "%varTargetLogFile%" "%varSyncFolderLocation%"
+  CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
 )
 IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
-  ..\fileSystem :copyFile "%varTargetLogFile%" "%varSyncFolderLocation%"
+  CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
 )
 EXIT /B 0

@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12 (22-03-2021)
+REM Version and Github_upload date: 2.12.1 (22-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -628,9 +628,96 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
 EXIT /B 0
 
 REM Param_1:SourcePath
-REM Param_2:DestinationPath
+REM Param_2:Filename of the file to be copied.
+REM Param_3:DestinationPath
 :copyFile
-CALL :copyFolder "%~1" "%~2"
+  IF NOT EXIST "%~3" (
+    mkdir %3
+    IF %ERRORLEVEL% NEQ 0 (      
+      CALL ..\logging :Append_To_Screen "Error: :copyFile: Destination-Path %3 does not exist.Return" "OUTPUT_TO_STDOUT" ""
+      EXIT /B 1
+    )
+  )
+
+  IF NOT EXIST "%~1\%~2" (    
+    CALL ..\logging :Append_To_Screen "Error: :copyFile: Source-File %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
+    EXIT /B 1
+  )
+  
+  ECHO Copying file: %~1\%~2
+  ECHO           to: %~3
+
+  SET "varCopyFlags= /DCOPY:%varCopyFolder_DCOPY_FLAGS% /COPY:%varCopyFolder_COPY_FLAGS% /e"
+  robocopy %~1 %~3 %~2 %varOutputFormat% %varCopyFlags% /r:2 /w:10
+  
+  REM robocopy c:\reports '\\marketing\videos' yearly-report.mov /mt /z
+  
+  
+  REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
+  IF %ERRORLEVEL% GEQ 8 (	
+    if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 13 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 12 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 11 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 10 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    if %ERRORLEVEL% EQU 9  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+  )  
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Copying file is done.. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
+  ECHO.
+EXIT /B 0
+
+REM Param_1:SourcePath
+REM Param_2:DestinationPath
+:moveFolder
+  SET "varMoveFolder=NOT_VERIFIED"
+  
+  IF NOT EXIST "%~2" (
+    mkdir %2
+    IF %ERRORLEVEL% NEQ 0 (
+      SET "varMoveFolder=NO"
+      CALL ..\logging :Append_To_Screen "Error: :moveFolder: Destination-Path %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
+      EXIT /B 1
+    )
+  )
+
+  IF NOT EXIST "%~1" (
+    SET "varMoveFolder=NO"
+    CALL ..\logging :Append_To_Screen "Error: :moveFolder: Source-Path %1 does not exist.Return" "OUTPUT_TO_STDOUT" ""
+    EXIT /B 1
+  )
+  
+  set "varMoveFolder=YES"
+  
+  IF [%varMoveFolder%]==[YES] (
+    ECHO Moving folder from: %~1
+    ECHO                 to: %~2
+    
+    SET "varMoveFlags= /DCOPY:%varMoveFolder_DCOPY_FLAGS% /COPY:%varMoveFolder_COPY_FLAGS% /e"
+    robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% /MOVE /r:2 /w:10
+
+      REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
+    IF %ERRORLEVEL% GEQ 8 (	
+      if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 13 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 12 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 11 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 10 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+      if %ERRORLEVEL% EQU 9  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
+    )  
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Copying folder is done.. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
+    ECHO.    
+  ) ELSE IF [%varMoveFolder%]==[NO] (
+    ECHO varMoveFolder == NO. 
+    EXIT /B 1
+  ) ELSE (
+    CALL ..\logging :Append_To_Screen "Error: :moveFolder: varMoveFolder (%varMoveFolder%)" "OUTPUT_TO_STDOUT" ""
+    EXIT /B 1
+  )
+  ECHO.
 EXIT /B 0
 
 REM Param_1:SourcePath
