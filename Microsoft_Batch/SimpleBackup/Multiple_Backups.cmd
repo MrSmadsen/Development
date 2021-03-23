@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12.3 (22-03-2021)
+REM Version and Github_upload date: 2.2 (23-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -21,10 +21,20 @@ SET /a "varBackupSettingsRetrieved=0"
 SET /a "varGeneralSettingsVerified=0"
 SET /a "varBackupSettingsVerified=0"
 
+REM Initializing the lists used for ini-file parameter verification.
+CALL .\ParameterVerification :initParameterListValues
+
 REM  Enable this to backup the latest raspberry pi 3b+ image before the general backup.
 CALL :backupRaspberryPiImage
+
 REM  Most complete backup I have defined.
 CALL :fullBackup
+
+IF "%varMultipleBackups%"=="YES" (
+  IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
+    CALL .\utility_functions :shutdownDevice
+  )
+)
 PAUSE
 EXIT
 

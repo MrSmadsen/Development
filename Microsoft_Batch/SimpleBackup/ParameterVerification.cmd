@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12.3 (22-03-2021)
+REM Version and Github_upload date: 2.2 (23-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -89,6 +89,17 @@ SET "itemList_varChecksumBitlength[3]=SHA1"
 SET "itemList_varChecksumBitlength[4]=SHA256"
 SET "itemList_varChecksumBitlength[5]=SHA384"
 SET "itemList_varChecksumBitlength[6]=SHA512"
+
+REM (NO (Default) | PowerOff | PowerOff_F | Hibernate | Restart | Restart_F | Hybrid | Hybrid_F)
+REM varShutdownDeviceWhenDone
+SET "itemList_varShutdownDeviceWhenDone[0]=NO"
+SET "itemList_varShutdownDeviceWhenDone[1]=PowerOff"
+SET "itemList_varShutdownDeviceWhenDone[2]=PowerOff_F"
+SET "itemList_varShutdownDeviceWhenDone[3]=Hibernate"
+SET "itemList_varShutdownDeviceWhenDone[4]=Restart"
+SET "itemList_varShutdownDeviceWhenDone[5]=Restart_F"
+SET "itemList_varShutdownDeviceWhenDone[6]=Hybrid"
+SET "itemList_varShutdownDeviceWhenDone[7]=Hybrid_F"
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
@@ -267,6 +278,35 @@ IF "%~2"=="MD2" (
   CALL :incrementVerificationCounters "%~1"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":verifyParameter_ChecksumBitlength - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+)
+EXIT /B 0
+
+REM Param_1: Path to settingsfile.
+REM Param_2: Variable name
+REM Param_3: Variable value
+:verifyParameter_ShutdownDeviceWhenDone
+IF NOT DEFINED itemList_varShutdownDeviceWhenDone[0] (
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":verifyParameter_ShutdownDeviceWhenDone - Verification list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%~2"=="NO" (
+  CALL :incrementVerificationCounters "%~1"
+) ELSE IF "%~2"=="PowerOff" (
+  CALL :incrementVerificationCounters "%~1"
+) ELSE IF "%~2"=="PowerOff_F" (
+  CALL :incrementVerificationCounters "%~1"
+) ELSE IF "%~2"=="Hibernate" (
+  CALL :incrementVerificationCounters "%~1"
+) ELSE IF "%~2"=="Restart" (
+  CALL :incrementVerificationCounters "%~1"
+) ELSE IF "%~2"=="Restart_F" (
+  CALL :incrementVerificationCounters "%~1"
+) ELSE IF "%~2"=="Hybrid" (
+  CALL :incrementVerificationCounters "%~1"
+) ELSE IF "%~2"=="Hybrid_F" (
+  CALL :incrementVerificationCounters "%~1"
+) ELSE (
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":verifyParameter_ShutdownDeviceWhenDone - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 

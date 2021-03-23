@@ -1,6 +1,6 @@
 @echo off
-REM Version and Github_upload date: 2.12.3 (22-03-2021)
-REM Author/Developer: SÃ¸ren Madsen
+REM Version and Github_upload date: 2.2 (23-03-2021)
+REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
 REM             provided by standard archiving programs such as 7zip.
@@ -10,7 +10,6 @@ REM Test_Disclaimer: This script has been tested on: Microsoft Windows 10 64bit 
 REM                  Feel free to use this script/software at your own risk.
 REM File Encoding: utf-8
 
-@echo off
 REM Some variables are initialized both in ..\Multi_Backups.cmd and ind the BackupFolders.cmd.
 REM This is to ensure correct program flow if the script is started using either of these cmd files.
 
@@ -25,7 +24,7 @@ SET /a "varGeneralSettingsVerified=0"
 SET /a "varBackupSettingsVerified=0"
 
 REM Initializing the lists used for ini-file parameter verification.
-CALL ..\parameterVerification.cmd :initParameterListValues
+CALL ..\ParameterVerification :initParameterListValues
 CALL ..\utility_functions :readBackupSettingsFile "%varGeneralSettingsFile%"
 
 REM Set code page to unicode - Requires that the batfile is saved in unicode utf-8 format.
@@ -53,6 +52,8 @@ IF "%varDeleteOldBackupFolders%"=="YES" (
   CALL ..\fileSystem :deleteOldBackups "%varBackupLocation%" "%varDate%"
 )
 
+CALL ..\Backup :End
+
 IF "%varBackupSynchronizationDuringBackup%"=="YES" (
   ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
 )
@@ -60,9 +61,10 @@ IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
   ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
 )
 
-CALL ..\Backup.cmd :End
-
 IF [%varMultipleBackups%]==[] (
+  IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
+    CALL ..\utility_functions :shutdownDevice
+  )
   PAUSE
 ) ELSE (
   ECHO Continuing..

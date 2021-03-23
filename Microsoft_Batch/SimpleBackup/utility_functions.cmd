@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12.3 (22-03-2021)
+REM Version and Github_upload date: 2.2 (23-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -399,6 +399,9 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   ) ELSE IF "%%i"=="varChecksumBitlength" (
     CALL ..\parameterVerification.cmd :verifyParameter_ChecksumBitlength "%~1" "%%j" "%%i"
     SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varShutdownDeviceWhenDone" (
+    CALL ..\parameterVerification.cmd :verifyParameter_ShutdownDeviceWhenDone "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
   ) ELSE IF "%%i"=="varFileList" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
@@ -686,6 +689,40 @@ IF DEFINED varCodePage (
   )
 )
 REM ___________________________________________________________________________________________
+EXIT /B 0
+
+:shutdownDevice
+REM If you change the timeout (/t seconds)) also remember to change the timeoutMessage to match the timeout.
+SET "varShutdownDeviceTimeout=/t 120"
+SET "varShutdownDeviceTimeoutMessage=2 minutes"
+
+REM User message.
+IF "%varShutdownDeviceWhenDone%"=="Hybrid" (
+  SET "varshutdownDeviceMessage=SimpleBackup: You will be logged off in %varShutdownDeviceTimeoutMessage%. Please save your work now! Logoff mode: Shutdown (Hybrid mode)."
+ELSE IF "%varShutdownDeviceWhenDone%"=="Hybrid_F" (
+  SET "varshutdownDeviceMessage=SimpleBackup: You will be logged off in %varShutdownDeviceTimeoutMessage%. Please save your work now! Logoff mode: Shutdown (Hybrid_F mode)."
+) ELSE (
+  SET "varshutdownDeviceMessage=SimpleBackup: You will be logged off in %varShutdownDeviceTimeoutMessage%. Please save your work now! Logoff mode: %varShutdownDeviceWhenDone%."
+)
+
+REM (PowerOff | PowerOff_F | Hibernate | Restart | Restart_F | Hybrid | Hybrid_F)
+IF "%varShutdownDeviceWhenDone%"=="PowerOff" (
+  shutdown.exe /s %varShutdownDeviceTimeout% /c "%varshutdownDeviceMessage%"
+) ELSE IF "%varShutdownDeviceWhenDone%"=="PowerOff_F" (
+  shutdown.exe /s /f %varShutdownDeviceTimeout% /c "%varshutdownDeviceMessage%"
+) ELSE IF "%varShutdownDeviceWhenDone%"=="Hibernate" (
+  shutdown.exe /h /f %varShutdownDeviceTimeout% /c "%varshutdownDeviceMessage%"
+) ELSE IF "%varShutdownDeviceWhenDone%"=="Restart" (
+  shutdown.exe /r %varShutdownDeviceTimeout% /c "%varshutdownDeviceMessage%"
+) ELSE IF "%varShutdownDeviceWhenDone%"=="Restart_F" (
+  shutdown.exe /r /f %varShutdownDeviceTimeout% /c "%varshutdownDeviceMessage%"  
+) ELSE IF "%varShutdownDeviceWhenDone%"=="Hybrid" (
+  shutdown.exe /s /hybrid %varShutdownDeviceTimeout% /c "%varshutdownDeviceMessage%"
+) ELSE IF "%varShutdownDeviceWhenDone%"=="Hybrid_F" (
+  shutdown.exe /s /hybrid /f %varShutdownDeviceTimeout% /c "%varshutdownDeviceMessage%"
+) ELSE (
+  CALL :Exception_End "NO_FILE_HANDLE" ":shutdownDevice - Unsupported option chosen. Exit" "OUTPUT_TO_STDOUT" ""
+)
 EXIT /B 0
 
 REM Exits the script and writes the error message provided.

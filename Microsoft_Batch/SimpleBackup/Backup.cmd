@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12.3 (22-03-2021)
+REM Version and Github_upload date: 2.2 (23-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -391,7 +391,6 @@ SET "varSettingsIni=Settings.ini"
 SET "varSvnRepoFunctionsCmd=svnRepoFunctions.cmd"
 SET "varUtilityFunctionsCmd=utility_functions.cmd"
 SET "varParameterVerificationCmd=ParameterVerification.cmd"
-SET "varSettingsIni=Settings.ini"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checking SimpleBackup working copy files for changes:" "OUTPUT_TO_STDOUT" ""
@@ -402,7 +401,6 @@ CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPa
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSvnRepoFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varUtilityFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varParameterVerificationCmd%" "--quiet" "YES" "YES" "YES" 0
-CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSettingsIni%" "--quiet" "YES" "YES" "YES" 0
 
 REM To count the number of changes inside the file use svn diff. Should be able to do just that.
 REM That way we can have a higher certainty that only our accepted changes are what we will find in the file.
@@ -599,7 +597,7 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checksum algorithm used
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders:                         %varMoveFolders%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders back:                    %varMoveFoldersBack%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Export SVN repository:                %varExportSvn%" "OUTPUT_TO_STDOUT" ""
-IF "%varDeleteOldBackupFolders%"=="YES" (  
+IF "%varDeleteOldBackupFolders%"=="YES" (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Delete old backups                    YES" "OUTPUT_TO_STDOUT" ""
 ) ELSE (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Delete old backups                    NO" "OUTPUT_TO_STDOUT" ""
@@ -615,6 +613,11 @@ IF "%varZipUtcMode%"=="YES" (
   IF "%varFormat%"=="zip" (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Zip Utc mode:                         %varZipUtcMode%" "OUTPUT_TO_STDOUT" ""
   )
+)
+IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:            YES, Mode: %varShutdownDeviceWhenDone%" "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:            NO" "OUTPUT_TO_STDOUT" ""
 )
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                          %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                             %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
@@ -657,8 +660,13 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                  
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "UpdateFlags:                       %varUpdateFlags%" "OUTPUT_TO_STDOUT" ""
 IF %varZipUtcMode%==YES (
   IF %varFormat%==zip (
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Zip Utc mode:                     %varZipUtcMode%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Zip Utc mode:                      %varZipUtcMode%" "OUTPUT_TO_STDOUT" ""
   )
+)
+IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         YES, Mode: %varShutdownDeviceWhenDone%" "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         NO" "OUTPUT_TO_STDOUT" ""
 )
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                       %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
@@ -674,6 +682,11 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                    %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
+IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         YES, Mode: %varShutdownDeviceWhenDone%" "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         NO" "OUTPUT_TO_STDOUT" ""
+)
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                       %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
@@ -692,6 +705,11 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Overwrite Mode:        
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                       %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Extract to:                        %varExtractionLocation%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         YES, Mode: %varShutdownDeviceWhenDone%" "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         NO" "OUTPUT_TO_STDOUT" ""
+)
 
 CALL :DoExtractFiles
 EXIT /B 0
@@ -704,6 +722,11 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                    %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
+IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         YES, Mode: %varShutdownDeviceWhenDone%" "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         NO" "OUTPUT_TO_STDOUT" ""
+)
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
 CALL :VerifyFileChecksum
@@ -1245,9 +1268,11 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup finished. Backup
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
 IF "%varBackupSynchronizationDuringBackup%"=="YES" (
-  CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage will start now." "OUTPUT_TO_STDOUT" ""
 )
 IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
-  CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage will start now." "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0

@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.12.3 (22-03-2021)
+REM Version and Github_upload date: 2.2 (23-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -548,6 +548,7 @@ REM Param_1:SourcePath
 REM Param_2:DestinationPath
 REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
 :synchronizeFolder
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   IF NOT EXIST "%~2" (
     mkdir %2
     IF %ERRORLEVEL% NEQ 0 (      
@@ -612,7 +613,8 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
     robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /zb /r:2 /w:10
   ) ELSE (
     robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /r:2 /w:10	
-  )  
+  )
+
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
   IF %ERRORLEVEL% GEQ 8 (
     if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
@@ -624,7 +626,16 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
     if %ERRORLEVEL% EQU 10 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
     if %ERRORLEVEL% EQU 9  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: OKCOPY + FAIL. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
   )  
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing to external storage done. ERRORLEVEL: %ERRORLEVEL%" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing to external storage done." "OUTPUT_TO_STDOUT" ""
+    
+  IF "%varBackupSynchronizationDuringBackup%"=="YES" (
+    CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
+  )
+  IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
+    CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
+  )
+  CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile done." "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_Screen "Synchronizing to external storage done." "OUTPUT_TO_STDOUT" ""    
   ECHO.
 EXIT /B 0
 
