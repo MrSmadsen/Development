@@ -13,6 +13,10 @@ REM File Encoding: utf-8
 REM Some variables are initialized both in ..\Multi_Backups.cmd and ind the BackupFolders.cmd.
 REM This is to ensure correct program flow if the script is started using either of these cmd files.
 
+@echo off
+REM Some variables are initialized both in ..\Multi_Backups.cmd and ind the BackupFolders.cmd.
+REM This is to ensure correct program flow if the script is started using either of these cmd files.
+
 SET "varBackupSettingsFileRead=NO"
 SET "varSettingsFile=BackupSettings.ini"
 SET "varGeneralSettingsFile=..\Settings.ini"
@@ -48,17 +52,8 @@ IF %varBackupSettingsVerified% LSS %varBackupSettingsRetrieved% (
 
 CALL ..\Backup :Prepare
 
-IF "%varDeleteOldBackupFolders%"=="YES" (
-  CALL ..\fileSystem :deleteOldBackups "%varBackupLocation%" "%varDate%"
-)
-
-CALL ..\Backup :End
-
-IF "%varBackupSynchronizationDuringBackup%"=="YES" (
-  ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
-)
-IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
-  ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
+IF "%varPreparationSucccesful%"=="YES" (
+  CALL ..\Backup :ActivateApplicationFunction
 )
 
 IF [%varMultipleBackups%]==[] (

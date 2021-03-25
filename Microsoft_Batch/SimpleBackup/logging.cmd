@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2 (23-03-2021)
+REM Version and Github_upload date: 2.2.1 (25-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -29,9 +29,11 @@ IF %varEnableFileLogging%==NO (
   IF "%~2"=="V" ( ECHO Skipping file creation: varEnableFileLogging - %varEnableFileLogging%. )
   IF "%~2"=="v" ( ECHO Skipping file creation: varEnableFileLogging - %varEnableFileLogging%. )
 ) ELSE IF %varEnableFileLogging%==YES (
+  REM This is done to avoid overwriting existing archive logfiles. Instead we append to the existing logfile if it is found.
+  IF "%~2"=="v" ( ECHO :createLogFile existence check )
   IF EXIST "%~1" (
     IF "%~2"=="V" ( ECHO Using existing logfile: %~1. )
-	IF "%~2"=="v" ( ECHO Using existing logfile: %~1. )
+    IF "%~2"=="v" ( ECHO Using existing logfile: %~1. )
     CALL :Append_NewLine_To_LogFile "%~1" "" ""
     CALL :Append_NewLine_To_LogFile "%~1" "" ""
     CALL :Append_To_LogFile "%~1" "##########################################" "" ""

@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2 (23-03-2021)
+REM Version and Github_upload date: 2.2.1 (25-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -30,7 +30,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
   )
@@ -62,7 +62,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
   )
@@ -75,7 +75,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~2" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~2" "varResult" "NO"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~2" "" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
   )
@@ -131,7 +131,7 @@ IF %varLineCnt% LEQ %varNoOfAcceptableChanges% (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%varLineCnt% changes found. %varNoOfAcceptableChanges% are acceptable. Workingcopy OK." "OUTPUT_TO_STDOUT" ""
   )
   IF %varLineCnt% LSS 0 (    
-	CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CheckWorkingCopyForChanges - Function implementation error. Integer varLineCnt below 0. Exit." "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CheckWorkingCopyForChanges - Function implementation error. Integer varLineCnt below 0. Exit." "OUTPUT_TO_STDOUT" ""
   )
 )
 
@@ -162,7 +162,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
   )
@@ -212,7 +212,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
   )
@@ -246,7 +246,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "varResult" "NO"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "NO"
   IF !varResult!==NO (
     EXIT /B 1
   )

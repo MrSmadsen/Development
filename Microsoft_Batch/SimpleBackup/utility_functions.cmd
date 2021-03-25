@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2 (23-03-2021)
+REM Version and Github_upload date: 2.2.1 (25-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -294,7 +294,7 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   ) ELSE IF "%%i"=="varArchiveProgram" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
-    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"	
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"  
   ) ELSE IF "%%i"=="varRasperryPi3BPlusSha512Path" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
@@ -353,7 +353,7 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varExportSvn" (
     CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
-	SET "%%i=%%j"
+    SET "%%i=%%j"
   ) ELSE IF "%%i"=="varSolidMode" (    
     CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
     SET "%%i=%%j"
@@ -412,49 +412,49 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varSecretPassword" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
-	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varThreadAffinity" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
-	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
-    SET "%%i=%%j"	
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    SET "%%i=%%j"   
   ) ELSE IF "%%i"=="varExistingArchiveFileName" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
-	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varExistingChecksumFile" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
-	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varSvnRepo1" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
-	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varSvnRepo2" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
-	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varOutputFormat" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
-	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varCodePage" (
     REM Only requirement for this variable is (currently) to NOT be empty.    
     REM An improvement would be to verify the value as a digit number.
-	CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
+    CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varFileNameLength" (
     REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
-	SET "%%i=%%j"  
+    SET "%%i=%%j"  
   ) ELSE IF "%%i"=="varFolderLength" (
     REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
-	SET "%%i=%%j"
+    SET "%%i=%%j"
   ) ELSE IF "%%i"=="varPathLength" (
     REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
-	SET "%%i=%%j"
+    SET "%%i=%%j"
   ) ELSE (
-	SET /a "varUnverifiedParametersCounter+=1"
-	ECHO UNVERIFIED PARAMETER: %%i.
+    SET /a "varUnverifiedParametersCounter+=1"
+    ECHO UNVERIFIED PARAMETER: %%i.
     SET "%%i=%%j"
   )
   
@@ -507,10 +507,10 @@ IF !len! gtr %~2 (
   ECHO Param_1 value:      %~1
   ECHO Calculated length:  !len!
   ECHO Max_Length allowed: %~2
-  IF "%~3"=="YES" (	
+  IF "%~3"=="YES" ( 
     ECHO :strLength - Calculated length !len! exceeds Max_Length of %~2. Exit.
-	PAUSE
-	EXIT 1
+    PAUSE
+    EXIT 1
   )
 )
 
@@ -661,7 +661,7 @@ IF "%varStringToCount%" NEQ "" (
     GOTO :CheckNextLetter
 ) ELSE (
     REM ECHO There is %varStrLength2% character^(s^) in the string.
-	SET "%~2=%varStrLength2%"
+    SET "%~2=%varStrLength2%"
     EXIT /B 0
 )
 REM ECHO There is %varStrLength2% character^(s^) in the string.
@@ -751,19 +751,19 @@ IF EXIST "%varTargetBackupfolder%" (
 
   IF "%~1"=="CLEANUP_ENABLED" (
     rmdir /Q /S "%varTargetBackupfolder%"
-	IF %ERRORLEVEL%==0 (
-	  CALL ..\logging :Append_To_Screen "CLEANUP_ENABLED: Deleted folder %varTargetBackupfolder%" "OUTPUT_TO_STDOUT" ""
+    IF %ERRORLEVEL%==0 (
+      CALL ..\logging :Append_To_Screen "CLEANUP_ENABLED: Deleted folder %varTargetBackupfolder%" "OUTPUT_TO_STDOUT" ""
     )
   ) ELSE IF "%~1%"=="CLEANUP_DISABLED" (
-	  CALL ..\logging :Append_To_Screen "CLEANUP_DISABLED: No cleanup done." "OUTPUT_TO_STDOUT" ""
+      CALL ..\logging :Append_To_Screen "CLEANUP_DISABLED: No cleanup done." "OUTPUT_TO_STDOUT" ""
   ) ELSE IF "%~1%"=="CLEANUP_ASK" (
     CALL ..\logging :Append_To_Screen "Delete folder %varTargetBackupfolder%?" "OUTPUT_TO_STDOUT" ""
-	rmdir /S "%varTargetBackupfolder%"
-	IF %ERRORLEVEL%==0 (
-	  CALL ..\logging :Append_To_Screen "CLEANUP_ASK: Cleanup done on folder %varTargetBackupfolder%." "OUTPUT_TO_STDOUT" ""
+    rmdir /S "%varTargetBackupfolder%"
+    IF %ERRORLEVEL%==0 (
+      CALL ..\logging :Append_To_Screen "CLEANUP_ASK: Cleanup done on folder %varTargetBackupfolder%." "OUTPUT_TO_STDOUT" ""
     )
   ) ELSE (
-	CALL ..\logging :Append_To_Screen "CLEANUP: No cleanup done." "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_To_Screen "CLEANUP: No cleanup done." "OUTPUT_TO_STDOUT" ""
   )
 )
 EXIT /B 0

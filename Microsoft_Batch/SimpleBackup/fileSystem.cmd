@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2 (23-03-2021)
+REM Version and Github_upload date: 2.2.1 (25-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -19,86 +19,6 @@ REM Param_3: Function_Param_2
 REM Param_4: Function_Param_3
 REM Param_5: Function_Param_4
 CALL %1 %2 %3 %4 %5
-EXIT /B 0
-
-REM Untested: Check attributes if the path is a folder/directory
-REM Param_1: Path
-REM Param_2: returnValue. (YES | NO)
-REM Param_3: Exception on error. (YES | NO)
-:checkIfIsFolder
-SETLOCAL
-SET "_result=NOT_DEFINED"
-IF [%1]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%1]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%2]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%2]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%3]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%3]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
-)
-
-SET "varFileAttribs=%~a1"
-IF "%varFileAttribs:~0,1%"=="d" (
-  ECHO %varFileAttribs% %1 is a folder.
-  SET "_result=YES"
-) ELSE (
-  ECHO %varFileAttribs% %1 is not a folder.
-  SET "_result=NO"
-  IF "%~3"=="NO" (
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path %~1 is not a folder." "OUTPUT_TO_STDOUT" ""
-  )
-  IF "%~3"=="YES" (
-    CALL  ..\utility_functions :Exception_End "%varTargetLogFile%" "Path %~1 is not a folder." "OUTPUT_TO_STDOUT" ""
-  ) 
-)
-ENDLOCAL & Set "%~2=%_result%"
-EXIT /B 0
-
-REM If EXIST fileName will check for existence of a folder or a file.
-REM Param_1: Path
-REM Param_2: returnValue. (YES | NO)
-REM Param_3: Exception on error. (YES | NO)
-:checkIfFileOrFolderExist
-IF [%1]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%1]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%2]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%2]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%3]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%3]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
-)
-
-IF EXIST "%~1" (
-  set "%~2=YES"
-) ELSE (
-  set "%~2=NO"
-  IF "%~3"=="NO" (
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path %~1 does not exist." "OUTPUT_TO_STDOUT" ""
-  )
-  IF "%~3"=="YES" (
-    CALL  ..\utility_functions :Exception_End "%varTargetLogFile%" "Path %~1 does not exist. Exit" "OUTPUT_TO_STDOUT" ""
-  )
-)
 EXIT /B 0
 
 REM Param_1: Path to backupFolder
@@ -121,6 +41,7 @@ IF NOT "%~1"=="%varBackupLocation%" (
 )
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "---------- Delete old backups starting ----------" "OUTPUT_TO_STDOUT" ""
 FOR /f "tokens=*" %%x in ('DIR "%~1" /a:d /b') DO (    
   REM If the found folderName is NOT the same as the current targetBackupFolderName.
   IF NOT "%%x"=="%varDate%" (
@@ -177,6 +98,20 @@ REM 2021-03-17_15-20-Checksum-SHA512.txt
 SET "varSrcStr2=%varfolderStartSubStr%-Checksum-*"
 REM 2021-03-17_15-20-logfile.txt
 SET "varSrcStr3=%varfolderStartSubStr%-logfile.txt"
+REM 2021-03-17_15-20-RoboCopyLogfile.txt"
+SET "varSrcStr4=%varfolderStartSubStr%-RoboCopyLogfile.txt"
+REM 2021-03-17_15-20-RoboCopyLogfile.txt"
+SET "varSrcStr5=%varfolderStartSubStr%-UpdateArchive-logfile.txt"
+REM 2021-03-17_15-20-RoboCopyLogfile.txt"
+SET "varSrcStr6=%varfolderStartSubStr%-ExtractToFolder-logfile.txt"
+REM 2021-03-17_15-20-RoboCopyLogfile.txt"
+SET "varSrcStr7=%varfolderStartSubStr%-ExtractFullPath-logfile.txt"
+REM 2021-03-17_15-20-RoboCopyLogfile.txt"
+SET "varSrcStr8=%varfolderStartSubStr%-IntegrityTest-logfile.txt"
+REM 2021-03-17_15-20-RoboCopyLogfile.txt"
+SET "varSrcStr9=%varfolderStartSubStr%-VerifyChecksum-logfile.txt"
+REM 2021-03-17_15-20-backup.exe"
+SET "varSrcStr10=%varfolderStartSubStr%-backup.exe"
 
 SET /A "varNoOfFilesInTotal=0"
 SET /A "varNoOfExpectedFilesInTotal=0"
@@ -201,45 +136,65 @@ for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpLogFile=%~1\%~2\%%F"
   )
-)
 
-SET "varIsValidFolder=YES"
-
-IF DEFINED varTmpBackupFile (
-  REM If anyone of these requirements fail the folder is not deleted.
-  IF NOT EXIST "!varTmpBackupFile!" (
-    SET "varIsValidFolder=NO"
+  echo %%F|findstr /i /b "!varSrcStr4!">nul
+  IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
+    SET "varTmpRoboCopyLogFile=%~1\%~2\%%F"
   )
-) ELSE (
-  SET "varIsValidFolder=NO"
-)
 
-IF DEFINED varTmpChecksumFile (
-  REM If anyone of these requirements fail the folder is not deleted.
-  IF NOT EXIST "!varTmpChecksumFile!" (
-    SET "varIsValidFolder=NO"
+  echo %%F|findstr /i /b "!varSrcStr5!">nul
+  IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
+    SET "varTmpUpdateArchiveLogFile=%~1\%~2\%%F"
   )
-) ELSE (
-  SET "varIsValidFolder=NO"
-)
 
-IF DEFINED varTmpLogFile (
-  REM If anyone of these requirements fail the folder is not deleted.
-  IF NOT EXIST "!varTmpLogFile!" (
-    SET "varIsValidFolder=NO"
+  echo %%F|findstr /i /b "!varSrcStr6!">nul
+  IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
+    SET "varTmpExtractToFolderLogFile=%~1\%~2\%%F"
   )
-) ELSE (
-  SET "varIsValidFolder=NO"
+  
+  echo %%F|findstr /i /b "!varSrcStr7!">nul
+  IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
+    SET "varTmpExtractFullPathLogFile=%~1\%~2\%%F"
+  )
+
+  echo %%F|findstr /i /b "!varSrcStr8!">nul
+  IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
+    SET "varTmpIntegrityTestLogFile=%~1\%~2\%%F"
+  )
+
+  echo %%F|findstr /i /b "!varSrcStr9!">nul
+  IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
+    SET "varTmpVerifyChecksumLogFile=%~1\%~2\%%F"
+  )
+  
+  echo %%F|findstr /i /b "!varSrcStr10!">nul
+  IF !ERRORLEVEL!==0 (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
+    SET "varTmpBackupSfxFile=%~1\%~2\%%F"
+  )
 )
 
 REM IF there are more files than expected we do not delete the folder. Might be user copied files they wish to keep.
 IF %varNoOfFilesInTotal% GTR %varNoOfExpectedFilesInTotal% (  
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "FOUND UNEXPECTED FILE^(s^) in folder: %~1\%~2. Might be user files. Do not delete folder. Return." "OUTPUT_TO_STDOUT" ""
-  SET "varIsValidFolder=NO"  
+  SET "varIsValidFolder=NO"
 )
 
+REM If expected no of files equal all files found the folder is valid.
+IF %varNoOfFilesInTotal% EQU %varNoOfExpectedFilesInTotal% (
+  SET "varIsValidFolder=YES"
+)
+
+REM Unexpected error. Exception.
 IF "%varIsValidFolder%"=="NOT_DEFINED" (
   SET "varIsValidFolder=NO"
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":deleteFolderIfItIsAnOldBackup - Unexpected error. Params: %~1 - %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF  "%varIsValidFolder%"=="NO" (
@@ -265,7 +220,7 @@ REM Param_1: Path
 REM Param_2: Ini-file option name.
 REM Param_3: returnValue. (YES | NO)
 REM Param_4: Exception on error. (YES | NO)
-:checkIfFileOrFolderExist_IniFileOptionSupported
+:checkIfFileOrFolderExist
 IF [%1]==[] (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
@@ -273,10 +228,10 @@ IF [%1]==[""] (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_Screen  ":checkIfDirExist - Parameter 2 missing ini-file option name. Exit" "" "OUTPUT_DEBUG"
 )
 IF [%2]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 2 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_Screen  ":checkIfDirExist - Parameter 2 missing ini-file option name. Exit" "" "OUTPUT_DEBUG"
 )
 IF [%3]==[] (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Exit" "OUTPUT_TO_STDOUT" ""
@@ -469,7 +424,7 @@ ECHO UNTESTED FUNCTION. TEST AND VERIFY FUNCTIONALITY BEFORE USING IT.
 SET "varTmpParamStr=%~1"
 set "varTmpParamStr=%varTmpParamStr:~-1%"
 if '%varTmpParamStr% NEQ '\ set "varTmpParamStr=%varTmpParamStr%\"
-/EXIT /B 0
+EXIT /B 0
 
 REM Param_1 File path
 :CheckFileReadAccess
@@ -502,11 +457,11 @@ REM Use existing file
 IF EXIST "%~1" (
   IF "%~2"=="USE_EXISTING_FILE" (
     IF "%~3"=="V" ( ECHO Using existing file: %~1. )
-	IF "%~3"=="v" ( ECHO Using existing file: %~1. )
+    IF "%~3"=="v" ( ECHO Using existing file: %~1. )
     EXIT /B 0
   ) ELSE IF "%~2"=="OVERWRITE_EXISTING_FILE" (
     IF "%~3"=="V" ( ECHO OVER_WRITE_FILE: deleting file: %~1. )
-	IF "%~3"=="v" ( ECHO OVER_WRITE_FILE: deleting file: %~1. )
+    IF "%~3"=="v" ( ECHO OVER_WRITE_FILE: deleting file: %~1. )
     CALL :deleteFile "%~1" "" "%~3"
     REM Proceed through the code to reach fil creation.
   ) ELSE (
@@ -515,6 +470,8 @@ IF EXIST "%~1" (
 )
 IF NOT EXIST "%~1" (
   REM Create empty file.
+  REM fsutil file createnew "%~1" 0
+  REM copy "test" > "%~1"
   TYPE NUL > "%~1"
   IF %ERRORLEVEL% NEQ 0 (
     CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "createFile: Could not create file. Exit" "OUTPUT_TO_STDOUT" ""
@@ -544,6 +501,33 @@ REM deleteFolder param1:Path to folder
 ECHO TODO: Implement!
 EXIT /B 0
 
+:createRobocopyLogFile
+  REM Create robocopy logfile.
+  SET "varTargetRoboCopyLogFileName=%varDate%-RoboCopyLogfile.txt"  
+  IF "%varMode%"=="s1" (
+    SET "varTargetRoboCopyLogFile=%varBackupLocation%\%varTargetLogFileName%"
+  ) ELSE IF "%varMode%"=="s2" (
+    SET "varTargetRoboCopyLogFile=%varBackupLocation%\%varTargetLogFileName%"
+  ) ELSE (
+    SET "varTargetRoboCopyLogFile=%varTargetBackupfolder%\%varTargetLogFileName%"
+  )
+
+  IF "%varEnableFileLogging%"==YES (
+    REM The '+' in /log+: means append. /log without the '+' will overwrite an existing logfile.
+    IF "%varCodePage%"=="65001" (
+      SET "varRoboCopyLogFlags=/tee /unilog+:"
+    )
+    IF NOT "%varCodePage%"=="65001" (
+      SET "varRoboCopyLogFlags=/tee /log+:"
+    )
+  ) ELSE (
+    SET "varRoboCopyLogFlags="
+  )
+  IF  NOT EXIST "%varTargetRoboCopyLogFile%" (
+    CALL ..\logging :createLogFile "%varTargetRoboCopyLogFile%" ""
+  )
+EXIT /B 0
+
 REM Param_1:SourcePath
 REM Param_2:DestinationPath
 REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
@@ -561,11 +545,12 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
     EXIT /B 1
   )
 
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "---------- Synchronization to external storage ----------" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing folder from: %~1" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "                       to: %~2" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "               Purge Mode: %~3" "OUTPUT_TO_STDOUT" ""
   
-  REM /mir	Mirrors a directory tree (equivalent to /e plus /purge). Using this option with the /e option and a destination directory,
+  REM /mir  Mirrors a directory tree (equivalent to /e plus /purge). Using this option with the /e option and a destination directory,
   REM overwrites the destination directory security settings.
   REM /xx - https://ss64.com/nt/robocopy.html eXclude "eXtra" files and dirs (present in destination but not source)
   
@@ -575,6 +560,8 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   ) ELSE (
     SET "varSyncFlags= /DCOPY:%varSyncFolder_DCOPY_FLAGS% /COPY:%varSyncFolder_COPY_FLAGS% /e"
   )
+
+  REM CALL :createRobocopyLogFile
   
   IF %varThreadAffinity:~2,5% GTR 1 (
     SET "varRoboCopyThreadAffinity=/MT"
@@ -584,19 +571,19 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   
   REM /copy:DATS - file properties:       D:Data, A:Attributes, T:Time stamps, S:NTFS access control list (ACL)
   REM /dcopy:DAT - directory  properties: D:Data, A:Attributes, T:Time stamps
-  REM /zb	Uses restartable mode. If access is denied, this option uses Backup mode. (Requires: Backup and Restore Files user rights)
+  REM /zb   Uses restartable mode. If access is denied, this option uses Backup mode. (Requires: Backup and Restore Files user rights)
   
-  REM /xf <filename>[ ...]	Excludes files that match the specified names or paths. Wildcard characters (* and ?) are supported.
-  REM /xd <directory>[ ...]	Excludes directories that match the specified names and paths.
-  REM /xc	Excludes changed files.
-  REM /xn	Excludes newer files.
-  REM /xo	Excludes older files.
-  REM /xx	Excludes extra files and directories.
-  REM /xl	Excludes "lonely" files and directories.
-  REM /is	Includes the same files.
-  REM /it	Includes modified files.
+  REM /xf <filename>[ ...]  Excludes files that match the specified names or paths. Wildcard characters (* and ?) are supported.
+  REM /xd <directory>[ ...] Excludes directories that match the specified names and paths.
+  REM /xc   Excludes changed files.
+  REM /xn   Excludes newer files.
+  REM /xo   Excludes older files.
+  REM /xx   Excludes extra files and directories.
+  REM /xl   Excludes "lonely" files and directories.
+  REM /is   Includes the same files.
+  REM /it   Includes modified files.
   
-  REM /xa:[RASHCNETO]	Excludes files for which any of the specified attributes are set. The valid values for this option are:
+  REM /xa:[RASHCNETO]   Excludes files for which any of the specified attributes are set. The valid values for this option are:
   REM R - Read only
   REM A - Archive
   REM S - System
@@ -609,10 +596,12 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   
   REM Exclude google backup and sync folder: /xd "%~1\.tmp.drivedownload"
   
-  IF %varElevatedAdminPriviligies%==YES (        
+  IF %varElevatedAdminPriviligies%==YES (
+    REM robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /zb /r:2 /w:10
     robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /zb /r:2 /w:10
   ) ELSE (
-    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /r:2 /w:10	
+    REM robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /r:2 /w:10
+    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /r:2 /w:10
   )
 
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
@@ -630,13 +619,41 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
     
   IF "%varBackupSynchronizationDuringBackup%"=="YES" (
     CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
+    REM CALL :copyLogfilesToExternalStorage
   )
   IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
     CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
+    REM CALL :copyLogfilesToExternalStorage
   )
+
   CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile done." "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_Screen "Synchronizing to external storage done." "OUTPUT_TO_STDOUT" ""    
   ECHO.
+EXIT /B 0
+
+:copyLogfilesToExternalStorage
+IF "%varMode%"=="s1" (
+  IF EXIST "%varTargetLogFile%" (
+    CALL :copyFile "%varBackupLocation%" "%varTargetLogFileName%" "%varSyncFolderLocation%"
+  )
+  IF EXIST "%varTargetRoboCopyLogFile%" (
+    CALL :copyFile "%varBackupLocation%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%"
+  )
+) ELSE IF "%varMode%"=="s2" (
+  IF EXIST "%varTargetLogFile%" (
+    CALL :copyFile "%varBackupLocation%" "%varTargetLogFileName%" "%varSyncFolderLocation%"
+  )
+  IF EXIST "%varTargetRoboCopyLogFile%" (
+    CALL :copyFile "%varBackupLocation%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%"
+  )
+) ELSE (
+  IF EXIST "%varTargetLogFile%" (
+    CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
+  )
+  IF EXIST "%varTargetRoboCopyLogFile%" (
+    CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
+  )
+)
 EXIT /B 0
 
 REM Param_1:SourcePath
@@ -645,16 +662,18 @@ REM Param_3:DestinationPath
 :copyFile
   IF NOT EXIST "%~3" (
     mkdir %3
-    IF %ERRORLEVEL% NEQ 0 (      
+    IF %ERRORLEVEL% NEQ 0 (
       CALL ..\logging :Append_To_Screen "Error: :copyFile: Destination-Path %3 does not exist.Return" "OUTPUT_TO_STDOUT" ""
       EXIT /B 1
     )
   )
 
-  IF NOT EXIST "%~1\%~2" (    
+  IF NOT EXIST "%~1\%~2" (
     CALL ..\logging :Append_To_Screen "Error: :copyFile: Source-File %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
     EXIT /B 1
   )
+  
+  CALL :createRobocopyLogFile
   
   IF %varThreadAffinity:~2,5% GTR 1 (
     SET "varRoboCopyThreadAffinity=/MT"
@@ -666,10 +685,11 @@ REM Param_3:DestinationPath
   ECHO           to: %~3
 
   SET "varCopyFlags= /DCOPY:%varCopyFolder_DCOPY_FLAGS% /COPY:%varCopyFolder_COPY_FLAGS% /e"
+  REM robocopy %~1 %~3 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /r:2 /w:10
   robocopy %~1 %~3 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% /r:2 /w:10
   
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
-  IF %ERRORLEVEL% GEQ 8 (	
+  IF %ERRORLEVEL% GEQ 8 (
     if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
     if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
     if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
@@ -709,17 +729,20 @@ REM Param_2:DestinationPath
     ECHO Moving folder from: %~1
     ECHO                 to: %~2
 
-    IF %varThreadAffinity:~2,5% GTR 1 (
+  CALL :createRobocopyLogFile
+
+  IF %varThreadAffinity:~2,5% GTR 1 (
       SET "varRoboCopyThreadAffinity=/MT"
     ) ELSE (
       SET "varRoboCopyThreadAffinity="
     )
     
     SET "varMoveFlags= /DCOPY:%varMoveFolder_DCOPY_FLAGS% /COPY:%varMoveFolder_COPY_FLAGS% /e"
+    REM robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /MOVE /r:2 /w:10
     robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% /MOVE /r:2 /w:10
 
-      REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
-    IF %ERRORLEVEL% GEQ 8 (	
+    REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
+    IF %ERRORLEVEL% GEQ 8 ( 
       if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
       if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
       if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
@@ -760,6 +783,8 @@ REM Param_2:DestinationPath
   ECHO Copying folder from: %~1
   ECHO                  to: %~2
 
+  CALL :createRobocopyLogFile
+
   IF %varThreadAffinity:~2,5% GTR 1 (
     SET "varRoboCopyThreadAffinity=/MT"
   ) ELSE (
@@ -767,10 +792,11 @@ REM Param_2:DestinationPath
   )
 
   SET "varCopyFlags= /DCOPY:%varCopyFolder_DCOPY_FLAGS% /COPY:%varCopyFolder_COPY_FLAGS% /e"
+  REM robocopy %~1 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /r:2 /w:10
   robocopy %~1 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% /r:2 /w:10
-  
+
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
-  IF %ERRORLEVEL% GEQ 8 (	
+  IF %ERRORLEVEL% GEQ 8 (
     if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
     if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
     if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
@@ -807,14 +833,23 @@ REM Param_2:DestinationPath
   set "varMoveFolder=YES"
   
   IF [%varMoveFolder%]==[YES] (
+    CALL :createRobocopyLogFile
+
+    IF %varThreadAffinity:~2,5% GTR 1 (
+      SET "varRoboCopyThreadAffinity=/MT"
+    ) ELSE (
+      SET "varRoboCopyThreadAffinity="
+    )
+
     ECHO Moving folder from: %~1
     ECHO                 to: %~2
     
     SET "varMoveFlags= /DCOPY:%varMoveFolder_DCOPY_FLAGS% /COPY:%varMoveFolder_COPY_FLAGS% /e"
-    robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% /MOVE /r:2 /w:10
+    REM robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /MOVE /r:2 /w:10
+    robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% /MOVE /r:2 /w:10
 
       REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
-    IF %ERRORLEVEL% GEQ 8 (	
+    IF %ERRORLEVEL% GEQ 8 (
       if %ERRORLEVEL% EQU 16 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: ***FATAL ERROR***. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
       if %ERRORLEVEL% EQU 15 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: OKCOPY + FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
       if %ERRORLEVEL% EQU 14 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :copyFolder: FAIL + MISMATCHES + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
