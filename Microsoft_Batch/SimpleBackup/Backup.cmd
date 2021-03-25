@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.2 (25-03-2021)
+REM Version and Github_upload date: 2.2.3 (25-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -591,6 +591,8 @@ IF "%varMode%"=="a" (
     CALL ..\fileSystem :deleteOldBackups "%varBackupLocation%" "%varDate%"
   )
   
+  CALL :End  
+  REM :End is called before sync'ing to be able to copy the entire logFile to external storage.
   IF "%varBackupSynchronizationDuringBackup%"=="YES" (
   ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
   )
@@ -599,30 +601,35 @@ IF "%varMode%"=="a" (
   )
 ) ELSE IF "%varMode%"=="u" (
   CALL :UpdateBackupArchive
-  
+  CALL :End  
+  REM :End is called before sync'ing to be able to copy the entire logFile to external storage.
   IF "%varBackupSynchronizationDuringBackup%"=="YES" (
   ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
   )
   IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
     ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
-  )
+  )  
 ) ELSE IF "%varMode%"=="t" (
   CALL :TestBackupArchiveIntegrity
+  CALL :End
 ) ELSE IF "%varMode%"=="e" (
   CALL :ExtractBackupArchive
+  CALL :End
 ) ELSE IF "%varMode%"=="x" (
   CALL :ExtractBackupArchive
+  CALL :End
 ) ELSE IF "%varMode%"=="v" (
   CALL :VerifyChecksum
+  CALL :End
 ) ELSE IF "%varMode%"=="s1" (
   CALL :SyncBackupFolder
+  CALL :End
 ) ELSE IF "%varMode%"=="s2" (
   CALL :SyncBackupFolder
+  CALL :End
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Error in varMode. Exit" "OUTPUT_TO_STDOUT" ""
 )
-
-CALL :End
 EXIT /B 0
 
 :GenerateBackupArchive
