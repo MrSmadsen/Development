@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.1 (25-03-2021)
+REM Version and Github_upload date: 2.2.2 (25-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -159,16 +159,15 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varSvnadminPath%" "varCheck"
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varSvnadminPath%" "varSvnadminPath" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varSvnadminPath%" "varSvnadminPath" "varResult" "CREATE_NO" "EXCEPTION_YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSvnadminPath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
-  )  
-  
+  )
   set "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSvnPath%" "varCheck"
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varSvnPath%" "varSvnPath" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varSvnPath%" "varSvnPath" "varResult" "CREATE_NO" "EXCEPTION_YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSvnPath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )  
@@ -177,7 +176,7 @@ IF %varCheck%==TRUE (
 
 IF "%varCheckWorkingCopyChanges%"=="YES" (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%varSimpleBackupCheckoutPath%" "varSimpleBackupCheckoutPath" "varResult" "YES"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%varSimpleBackupCheckoutPath%" "varSimpleBackupCheckoutPath" "varResult" "CREATE_NO" "EXCEPTION_YES"
   CALL :CheckImportantApplicationFiles
 )
 SET "varExecutable=%varArchiveProgram%"
@@ -198,7 +197,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder01%" "varCheck"
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varSrcPathFolder01%" "varSrcPathFolder01" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varSrcPathFolder01%" "varSrcPathFolder01" "varResult" "CREATE_NO" "EXCEPTION_YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSrcPathFolder01 is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -207,7 +206,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder02%" "varCheck"
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varSrcPathFolder02%" "varSrcPathFolder02" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varSrcPathFolder02%" "varSrcPathFolder02" "varResult" "CREATE_NO" "EXCEPTION_YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSrcPathFolder02 is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -216,7 +215,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder01%" "varCheck"
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varDstPathFolder01%" "varDstPathFolder01" "varResult" "NO"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varDstPathFolder01%" "varDstPathFolder01" "varResult" "CREATE_DIR" "EXCEPTION_NO"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varDstPathFolder01 is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -225,7 +224,7 @@ IF %varCheck%==TRUE (
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varDstPathFolder02%" "varDstPathFolder02" "varResult" "NO"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varDstPathFolder02%" "varDstPathFolder02" "varResult" "CREATE_DIR" "EXCEPTION_NO"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varDstPathFolder02 is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )  
@@ -239,7 +238,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varBackupLocation%" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%varBackupLocation%" "varBackupLocation" "varResult" "YES"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%varBackupLocation%" "varBackupLocation" "varResult" "CREATE_DIR" "EXCEPTION_YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varBackupLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
@@ -260,7 +259,7 @@ IF %varExportSvn%==YES (
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryLocation%" "varCheck"
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varRepositoryLocation%" "varRepositoryLocation" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varRepositoryLocation%" "varRepositoryLocation" "varResult" "CREATE_NO" "EXCEPTION_YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varRepositoryLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -269,7 +268,7 @@ IF %varExportSvn%==YES (
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"  
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varRepositoryDumpLocation%" "varRepositoryDumpLocation" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varRepositoryDumpLocation%" "varRepositoryDumpLocation" "varResult" "CREATE_DIR" "EXCEPTION_YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varRepositoryDumpLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
@@ -298,7 +297,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "CREATE_NO" "EXCEPTION_YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExistingArchivePath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
@@ -327,7 +326,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "CREATE_NO" "EXCEPTION_YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExistingArchivePath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
@@ -336,7 +335,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%varExtractionLocation%" "varExtractionLocation" "varResult" "YES"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%varExtractionLocation%" "varExtractionLocation" "varResult" "CREATE_DIR" "EXCEPTION_YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
@@ -353,7 +352,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "YES"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%varExistingArchivePath%" "varExistingArchivePath" "varResult" "CREATE_NO" "EXCEPTION_YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExistingArchivePath is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
@@ -376,7 +375,7 @@ set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varSyncFolderLocation%" "varCheck"
 IF !varCheck!==NO (
   set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%varSyncFolderLocation%" "varSyncFolderLocation" "varResult" "NO"
+  CALL ..\fileSystem :checkIfFileOrFolderExist "%varSyncFolderLocation%" "varSyncFolderLocation" "varResult" "CREATE_DIR" "EXCEPTION_YES"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varSyncFolderLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
@@ -559,7 +558,7 @@ IF "%varExtractionLocation%"=="DEFAULT_LOCATION" (
   CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
   IF !varCheck!==NO (
     set "varResult=EMPTY"
-    CALL ..\fileSystem :checkIfFileOrFolderExist "%varExtractionLocation%" "varExtractionLocation" "varResult" "YES"
+    CALL ..\fileSystem :checkIfFileOrFolderExist "%varExtractionLocation%" "varExtractionLocation" "varResult" "CREATE_DIR" "EXCEPTION_YES"
   ) ELSE (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Returnvalue: !varCheck!. [If returnvalue = YES]: Path in varExtractionLocation is an url. Not allowed. [If returnvalue is 'NOT =' YES]: Unexpected error. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )

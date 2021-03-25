@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.1 (25-03-2021)
+REM Version and Github_upload date: 2.2.2 (25-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -18,7 +18,8 @@ REM Param_2: Function_Param_1
 REM Param_3: Function_Param_2
 REM Param_4: Function_Param_3
 REM Param_5: Function_Param_4
-CALL %1 %2 %3 %4 %5
+REM Param_6: Function_Param_5
+CALL %1 %2 %3 %4 %5 %6
 EXIT /B 0
 
 REM Param_1: Path to backupFolder
@@ -219,44 +220,67 @@ REM If EXIST fileName will check for existence of a folder or a file.
 REM Param_1: Path
 REM Param_2: Ini-file option name.
 REM Param_3: returnValue. (YES | NO)
-REM Param_4: Exception on error. (YES | NO)
+REM Param_4: Create the folder if it does not exist. (CREATE_DIR | CREATE_FILE)
+REM Param_5: Throw an exception if the folder does not exist. (EXCEPTION_YES)
 :checkIfFileOrFolderExist
+SET "varCheckIfFileOrFolderExistResult="
 IF [%1]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfFileOrFolderExist - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%1]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfFileOrFolderExist - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[] (
-  CALL ..\logging :Append_To_Screen  ":checkIfDirExist - Parameter 2 missing ini-file option name. Exit" "" "OUTPUT_DEBUG"
+  CALL ..\logging :Append_To_Screen  ":checkIfFileOrFolderExist - Parameter 2 missing ini-file option name. Exit" "" "OUTPUT_DEBUG"
 )
 IF [%2]==[""] (
-  CALL ..\logging :Append_To_Screen  ":checkIfDirExist - Parameter 2 missing ini-file option name. Exit" "" "OUTPUT_DEBUG"
+  CALL ..\logging :Append_To_Screen  ":checkIfFileOrFolderExist - Parameter 2 missing ini-file option name. Exit" "" "OUTPUT_DEBUG"
 )
 IF [%3]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfFileOrFolderExist - Parameter 3 missing. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%3]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 3 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfFileOrFolderExist - Parameter 3 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%4]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 4 missing. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_Screen  ":checkIfFileOrFolderExist - Parameter 4 missing. Create - CREATE_YES. Empty = NO. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%4]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfDirExist - Parameter 4 missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_Screen  ":checkIfFileOrFolderExist - Parameter 4 missing. Create - CREATE_YES. Empty = NO. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%5]==[] (
+  CALL ..\logging :Append_To_Screen  ":checkIfFileOrFolderExist - Parameter 5 missing. Create - EXCEPTION_YES. Empty = NO. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%5]==[""] (
+  CALL ..\logging :Append_To_Screen  ":checkIfFileOrFolderExist - Parameter 5 missing. Create - EXCEPTION_YES. Empty = NO. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF EXIST "%~1" (
-  set "%~3=YES"
+  SET "varCheckIfFileOrFolderExistResult=YES"
+  EXIT /B 0
 ) ELSE (
-  set "%~3=NO"
-  IF "%~4"=="NO" (
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Path defined in %varSettingsFile% %~2 does not exist." "OUTPUT_TO_STDOUT" ""
+  SET "varCheckIfFileOrFolderExistResult=NO"
+  IF "%~4"=="CREATE_DIR" (
+    REM Folder
+    mkdir "%~1"
+    TIMEOUT /T 1
+    IF EXIST "%~1" (
+      SET "varCheckIfFileOrFolderExistResult=YES"
+    )    
+  ) ELSE IF "%~4"=="CREATE_FILE" (
+    REM File
+    type nul > "%~1"
+    TIMEOUT /T 1
+    IF EXIST "%~1" (
+      SET "varCheckIfFileOrFolderExistResult=YES"
+    )
   )
-  IF "%~4"=="YES" (
-    CALL  ..\utility_functions :Exception_End "varTargetLogFile" "Path defined in %varSettingsFile% %~2 does not exist. Exit" "OUTPUT_TO_STDOUT" ""
-  ) 
 )
+
+IF "%varCheckIfFileOrFolderExistResult%"=="NO" IF "%~5"=="EXCEPTION_YES" (
+    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":checkIfFileOrFolderExist - Path in %varSettingsFile% %~2 not found. Exit" "OUTPUT_TO_STDOUT" ""
+)
+SET "%~3=%varCheckIfFileOrFolderExistResult%"
 EXIT /B 0
 
 REM Param_1: FilePath to normalize 
