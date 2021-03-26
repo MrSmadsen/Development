@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.3 (25-03-2021)
+REM Version and Github_upload date: 2.2.4 (26-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -319,4 +319,72 @@ IF "%~1"=="BackupSettings.ini" (
 ) ELSE (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":incrementVerificationVariable - Incrementation error. Check SettingsFile name. Value: "%~1". Exit" "OUTPUT_TO_STDOUT" ""
 )
+EXIT /B 0
+
+:debugIni-file-ParamValues
+REM Settings.ini
+ECHO Value: varFileNameLength %varFileNameLength%
+ECHO Value: varFolderLength %varFolderLength%
+ECHO Value: varPathLength %varPathLength%
+ECHO Value: varShutdownDeviceWhenDone %varShutdownDeviceWhenDone%
+ECHO Value: varSvnPath %varSvnPath%
+ECHO Value: varSvnadminPath %varSvnadminPath%
+ECHO Value: varOutputFormat %varOutputFormat%
+ECHO Value: varArchiveProgram %varArchiveProgram%
+ECHO Value: varCodePage %varCodePage%
+ECHO Value: varEnableDebugLoggingOutput %varEnableDebugLoggingOutput%
+REM BackupSettings.ini
+ECHO Value: varBackupLocation %varBackupLocation%
+ECHO Value: varSyncFolderLocation %varSyncFolderLocation%
+ECHO Value: varFileList %varFileList%
+ECHO Value: varAppFunctionBackupFiles %varAppFunctionBackupFiles%
+ECHO Value: varAppFunctionIntegrityCheck %varAppFunctionIntegrityCheck%
+ECHO Value: varAppFunctionUpdateArchive %varAppFunctionUpdateArchive%
+ECHO Value: varAppFunctionExtractFilestoFolder %varAppFunctionExtractFilestoFolder%
+ECHO Value: varAppFunctionExtractFilesWithFullFilePath %varAppFunctionExtractFilesWithFullFilePath%
+ECHO Value: varAppFunctionVerifyChecksum %varAppFunctionVerifyChecksum%
+ECHO Value: varAppFunctionSyncBackupFolder %varAppFunctionSyncBackupFolder%
+ECHO Value: varExistingArchivePath %varExistingArchivePath%
+ECHO Value: varExistingArchiveFileName %varExistingArchiveFileName%
+ECHO Value: varExistingChecksumFile %varExistingChecksumFile%
+ECHO Value: varExtractionLocation %varExtractionLocation%
+ECHO Value: varPassword %varPassword%
+ECHO Value: varSecretPassword %varSecretPassword%
+ECHO Value: varSplitArchiveFile %varSplitArchiveFile%
+ECHO Value: varEnableFileLogging %varEnableFileLogging%
+ECHO Value: varGenerateSfxArchive%varGenerateSfxArchive%
+ECHO Value: varMoveFolders %varMoveFolders%
+ECHO Value: varMoveFoldersBack %varMoveFoldersBack%
+ECHO Value: varSrcPathFolder01 %varSrcPathFolder01%
+ECHO Value: varSrcPathFolder02 %varSrcPathFolder02%
+ECHO Value: varDstPathFolder01 %varDstPathFolder01%
+ECHO Value: varDstPathFolder02 %varDstPathFolder02%
+ECHO Value: varOverWriteFiles %varOverWriteFiles%
+ECHO Value: varZipUtcMode %varZipUtcMode%
+ECHO Value: varIntegrityTestDuringBackup %varIntegrityTestDuringBackup%
+ECHO Value: varChecksumVerificationDuringBackup %varChecksumVerificationDuringBackup%
+ECHO Value: varChecksumBitlength %varChecksumBitlength%
+ECHO Value: varBackupSynchronizationDuringBackup %varBackupSynchronizationDuringBackup%
+ECHO Value: varDeleteOldBackupFolders %varDeleteOldBackupFolders%
+ECHO Value: varCheckWorkingCopyChanges %varCheckWorkingCopyChanges%
+ECHO Value: varSimpleBackupCheckoutPath %varSimpleBackupCheckoutPath%
+ECHO Value: varExportSvn %varExportSvn%
+ECHO Value: varRepositoryLocation %varRepositoryLocation%
+ECHO Value: varRepositoryDumpLocation %varRepositoryDumpLocation%
+ECHO Value: varSvnRepo1 %varSvnRepo1%
+ECHO Value: varSvnRepo2 %varSvnRepo2%
+ECHO Value: varSyncFolder_DCOPY_FLAGS %varSyncFolder_DCOPY_FLAGS%
+ECHO Value: varSyncFolder_COPY_FLAGS %varSyncFolder_COPY_FLAGS%
+ECHO Value: varMoveFolder_DCOPY_FLAGS %varMoveFolder_DCOPY_FLAGS%
+ECHO Value: varMoveFolder_COPY_FLAGS %varMoveFolder_COPY_FLAGS%
+ECHO Value: varCopyFolder_DCOPY_FLAGS %varCopyFolder_DCOPY_FLAGS%
+ECHO Value: varCopyFolder_COPY_FLAGS %varCopyFolder_COPY_FLAGS%
+ECHO Value: varFormat %varFormat%
+ECHO Value: varCompressionLvl %varCompressionLvl%
+ECHO Value: varThreadAffinity %varThreadAffinity%
+ECHO Value: varSolidMode %varSolidMode%
+ECHO Value: varSplitVolumesize %varSplitVolumesize%
+REM RaspberryPi-BackupSettings.ini
+ECHO Value: varRasperryPi3BPlusSha512Path %varRasperryPi3BPlusSha512Path%
+ECHO Value: varSvnWorkingCopy01 %varSvnWorkingCopy01%
 EXIT /B 0

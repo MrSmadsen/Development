@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.3 (25-03-2021)
+REM Version and Github_upload date: 2.2.4 (26-03-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -257,20 +257,17 @@ IF [%5]==[""] (
 
 IF EXIST "%~1" (
   SET "varCheckIfFileOrFolderExistResult=YES"
-  EXIT /B 0
 ) ELSE (
   SET "varCheckIfFileOrFolderExistResult=NO"
   IF "%~4"=="CREATE_DIR" (
     REM Folder
     mkdir "%~1"
-    TIMEOUT /T 1
     IF EXIST "%~1" (
       SET "varCheckIfFileOrFolderExistResult=YES"
     )    
   ) ELSE IF "%~4"=="CREATE_FILE" (
     REM File
     type nul > "%~1"
-    TIMEOUT /T 1
     IF EXIST "%~1" (
       SET "varCheckIfFileOrFolderExistResult=YES"
     )
@@ -300,29 +297,6 @@ IF [%2]==[""] (
 )
 
 set "%~2=%~f1"
-EXIT /B 0
-
-REM Implement: Local filesystem check: Either partion labeled with drive letter og partition mounted as a volume point (ntfs - folder mount)
-REM Param_1: Path
-REM Param_2: Check variable used to verify fileSystem-type.
-:CheckIfParamIsLocalFileSystem
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsLocalFileSystem - Not implemented yet. Exit" "OUTPUT_TO_STDOUT" ""
-EXIT /B 0
-
-REM Implement: A path is a network path if it is either an unc network path or an url.
-REM We still do not handle every protocol on the planet. so HKPS, svn, etc is ignored.
-REM Param_1: Path
-REM Param_2: Check variable used to verify network-type.
-:CheckIfParamIsNetworkPath
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsNetworkPath - Not implemented yet. Exit" "OUTPUT_TO_STDOUT" ""
-EXIT /B 0
-
-REM Implement: Unc network path (microsoft): \\SERVER\Share-name\Regular-FilePath-Folder1\Regular-FilePath-Folder2
-REM Unc network path (unix): //SERVER/Share-name/Regular-FilePath-Folder1/Regular-FilePath-Folder2
-REM Param_1: Path
-REM Param_2: Check variable used to verify unc network.
-:CheckIfParamIsUncNetworkPath
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUncNetworkPath - Not implemented yet. Exit" "OUTPUT_TO_STDOUT" ""
 EXIT /B 0
 
 REM Param_1: Path
@@ -419,57 +393,6 @@ REM Idea: Implement a regular expression to test all elements of the supplied pa
 REM       This will also be a good solution for svn, ftp or other path protocols.
 EXIT /B 0
 
-REM UNFINISHED FUNCTION - Added not to forget the solution.
-REM Retrieve the last folderName in the path.
-REM Function also trims trailing whitespace.
-:ExtractRightMostFolderNameInPath
-ECHO UNTESTED FUNCTION. TEST AND VERIFY FUNCTIONALITY BEFORE USING IT.
-SET "varTest=c:\Test\Test\Awesome Test"
-setlocal enabledelayedexpansion
-for %%a in ("%varTest:\=" "%") do (
-  set "varLastFolder=%%a"
-)
-setlocal disabledelayedexpansion
-REM Remove brackets from the string.
-set "varLastFolderBracketLess=%varLastFolder:~1,-1%"
-REM Trim trailing whitespace up to 100 chars.
-setlocal enabledelayedexpansion
-for /l %%a in (1,1,100) do if "!varLastFolderBracketLess:~-1!"==" " set "varLastFolderBracketLess=!varLastFolderBracketLess:~0,-1!"
-setlocal disabledelayedexpansion  
-ECHO varLastFolderBracketLess: %varLastFolderBracketLess%
-endlocal
-EXIT /B 0
-
-REM UNFINISHED FUNCTION - Added not to forget the solution.
-REM Param_1 Parameter to check.
-REM Param_2 ReturnValue with new string.
-:AddTrailingSlash
-ECHO UNTESTED FUNCTION. TEST AND VERIFY FUNCTIONALITY BEFORE USING IT.
-SET "varTmpParamStr=%~1"
-set "varTmpParamStr=%varTmpParamStr:~-1%"
-if '%varTmpParamStr% NEQ '\ set "varTmpParamStr=%varTmpParamStr%\"
-EXIT /B 0
-
-REM Param_1 File path
-:CheckFileReadAccess
-REM ECHO TODO: Implement!
-EXIT /B 0
-
-REM Param_1 File path
-:CheckFileWriteAccess
-REM ECHO TODO: Implement!
-EXIT /B 0
-
-REM Param_1 Folder path
-:CheckFolderReadAccess
-REM ECHO TODO: Implement!
-EXIT /B 0
-
-REM Param_1 Folder path
-:CheckFolderWriteAccess
-REM ECHO TODO: Implement!
-EXIT /B 0
-
 REM Param_1: Path and fileName to the file to create on the filesystem.
 REM Param_2: If file exists. "USE_EXISTING_FILE" OR "OVERWRITE_EXISTING_FILE"
 REM Param_3: Verbose_Mode - "V"
@@ -520,36 +443,52 @@ IF "%~3"=="V" ( CALL  ..\logging :Append_To_Screen "Deleted file %1." "OUTPUT_TO
 IF "%~3"=="v" ( CALL  ..\logging :Append_To_Screen "Deleted file %1." "OUTPUT_TO_STDOUT" "" )
 EXIT /B 0
 
-REM deleteFolder param1:Path to folder
-:deleteFolder
-ECHO TODO: Implement!
+REM Param_1: Path
+REM Param_2: file name.
+:createRobocopyLogFile
+  IF "%varEnableFileLogging%"=="NO" (
+    CALL  ..\logging :Append_To_Screen ":createRobocopyLogFile FileLogging is disabled." "OUTPUT_TO_STDOUT" ""
+    EXIT /B 1
+  )
+  
+  REM IF EXIST "%varTargetRoboCopyLogFile%" (
+  IF EXIST "%~1\%~2" (
+    REM ensure flags are set.
+    CALL :setRobocopyLogFileFlags "%~1\%~2"
+    EXIT /B 1
+  )
+
+  REM Create robocopy logfile.
+  SET "varTargetRoboCopyLogFileName=%~2"
+  SET "varTargetRoboCopyLogFile=%~1\%~2"
+  
+  CALL ..\logging :createLogFile "%varTargetRoboCopyLogFile%" ""
+  CALL :setRobocopyLogFileFlags "%~1\%~2"
+) 
 EXIT /B 0
 
-:createRobocopyLogFile
-  REM Create robocopy logfile.
-  SET "varTargetRoboCopyLogFileName=%varDate%-RoboCopyLogfile.txt"  
-  IF "%varMode%"=="s1" (
-    SET "varTargetRoboCopyLogFile=%varBackupLocation%\%varTargetLogFileName%"
-  ) ELSE IF "%varMode%"=="s2" (
-    SET "varTargetRoboCopyLogFile=%varBackupLocation%\%varTargetLogFileName%"
-  ) ELSE (
-    SET "varTargetRoboCopyLogFile=%varTargetBackupfolder%\%varTargetLogFileName%"
-  )
+REM Param_1: Full path to file. You must use double brackets "" to encapsulate the parameter.
+:setRobocopyLogFileFlags
+IF %varCodePage% NEQ 65001 (
+  SET "varRoboCopyLogFlags=/tee /log+:%1"
+) ELSE IF %varCodePage% EQU 65001 (
+  SET "varRoboCopyLogFlags=/tee /unilog+:%1"
+) ELSE (
+  SET "varRoboCopyLogFlags="
+)
+EXIT /B 0
 
-  IF "%varEnableFileLogging%"==YES (
-    REM The '+' in /log+: means append. /log without the '+' will overwrite an existing logfile.
-    IF "%varCodePage%"=="65001" (
-      SET "varRoboCopyLogFlags=/tee /unilog+:"
-    )
-    IF NOT "%varCodePage%"=="65001" (
-      SET "varRoboCopyLogFlags=/tee /log+:"
-    )
-  ) ELSE (
-    SET "varRoboCopyLogFlags="
-  )
-  IF  NOT EXIST "%varTargetRoboCopyLogFile%" (
-    CALL ..\logging :createLogFile "%varTargetRoboCopyLogFile%" ""
-  )
+:setRobocopyGenericFlags
+SET "varRobocopyGenericFlags="
+IF "%varCodePage%"=="65001" (
+  SET "varRobocopyGenericFlags=/unicode"
+)
+
+IF %varThreadAffinity:~2,5% GTR 1 (
+  SET "varRoboCopyThreadAffinity=/MT"
+) ELSE (
+  SET "varRoboCopyThreadAffinity="
+)
 EXIT /B 0
 
 REM Param_1:SourcePath
@@ -558,8 +497,8 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
 :synchronizeFolder
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   IF NOT EXIST "%~2" (
-    mkdir %2
-    IF %ERRORLEVEL% NEQ 0 (      
+    mkdir "%~2"
+    IF NOT EXIST "%~2" (
       CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" :Append_To_Screen "Error: :synchronizeFolder: Destination-Path %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
       EXIT /B 1
     )
@@ -568,7 +507,7 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Error: :synchronizeFolder: Source-Path %1 does not exist.Return" "OUTPUT_TO_STDOUT" ""
     EXIT /B 1
   )
-
+  
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "---------- Synchronization to external storage ----------" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing folder from: %~1" "OUTPUT_TO_STDOUT" ""
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "                       to: %~2" "OUTPUT_TO_STDOUT" ""
@@ -578,6 +517,8 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   REM overwrites the destination directory security settings.
   REM /xx - https://ss64.com/nt/robocopy.html eXclude "eXtra" files and dirs (present in destination but not source)
   
+  CALL :setRobocopyGenericFlags
+  
   SET "varSyncFlags= "
   IF "%~3"=="PURGE_ENABLED" (
     SET "varSyncFlags= /DCOPY:%varSyncFolder_DCOPY_FLAGS% /COPY:%varSyncFolder_COPY_FLAGS% /e /mir"
@@ -585,14 +526,6 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
     SET "varSyncFlags= /DCOPY:%varSyncFolder_DCOPY_FLAGS% /COPY:%varSyncFolder_COPY_FLAGS% /e"
   )
 
-  REM CALL :createRobocopyLogFile
-  
-  IF %varThreadAffinity:~2,5% GTR 1 (
-    SET "varRoboCopyThreadAffinity=/MT"
-  ) ELSE (
-    SET "varRoboCopyThreadAffinity="
-  )
-  
   REM /copy:DATS - file properties:       D:Data, A:Attributes, T:Time stamps, S:NTFS access control list (ACL)
   REM /dcopy:DAT - directory  properties: D:Data, A:Attributes, T:Time stamps
   REM /zb   Uses restartable mode. If access is denied, this option uses Backup mode. (Requires: Backup and Restore Files user rights)
@@ -619,13 +552,11 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   REM O - Offline
   
   REM Exclude google backup and sync folder: /xd "%~1\.tmp.drivedownload"
-  
+
   IF %varElevatedAdminPriviligies%==YES (
-    REM robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /zb /r:2 /w:10
-    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /zb /r:2 /w:10
+    robocopy "%~1" "%~2" %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% %varRobocopyGenericFlags% %varRoboCopyLogFlags% /zb /r:2 /w:10
   ) ELSE (
-    REM robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /r:2 /w:10
-    robocopy %~1 %~2 %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% /r:2 /w:10
+    robocopy "%~1" "%~2" %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% %varRobocopyGenericFlags% %varRoboCopyLogFlags% /r:2 /w:10    
   )
 
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
@@ -639,45 +570,8 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
     if %ERRORLEVEL% EQU 10 CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: FAIL + XTRA. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
     if %ERRORLEVEL% EQU 9  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Fatal_Error: :synchronizeFolder: OKCOPY + FAIL. ERRORLEVEL: %ERRORLEVEL%.Exit" "OUTPUT_TO_STDOUT" ""
   )  
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing to external storage done." "OUTPUT_TO_STDOUT" ""
-    
-  IF "%varBackupSynchronizationDuringBackup%"=="YES" (
-    CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
-    REM CALL :copyLogfilesToExternalStorage
-  )
-  IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
-    CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
-    REM CALL :copyLogfilesToExternalStorage
-  )
-
-  CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile done." "OUTPUT_TO_STDOUT" ""
-  CALL ..\logging :Append_To_Screen "Synchronizing to external storage done." "OUTPUT_TO_STDOUT" ""    
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronizing to external storage done." "OUTPUT_TO_STDOUT" ""    
   ECHO.
-EXIT /B 0
-
-:copyLogfilesToExternalStorage
-IF "%varMode%"=="s1" (
-  IF EXIST "%varTargetLogFile%" (
-    CALL :copyFile "%varBackupLocation%" "%varTargetLogFileName%" "%varSyncFolderLocation%"
-  )
-  IF EXIST "%varTargetRoboCopyLogFile%" (
-    CALL :copyFile "%varBackupLocation%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%"
-  )
-) ELSE IF "%varMode%"=="s2" (
-  IF EXIST "%varTargetLogFile%" (
-    CALL :copyFile "%varBackupLocation%" "%varTargetLogFileName%" "%varSyncFolderLocation%"
-  )
-  IF EXIST "%varTargetRoboCopyLogFile%" (
-    CALL :copyFile "%varBackupLocation%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%"
-  )
-) ELSE (
-  IF EXIST "%varTargetLogFile%" (
-    CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
-  )
-  IF EXIST "%varTargetRoboCopyLogFile%" (
-    CALL :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
-  )
-)
 EXIT /B 0
 
 REM Param_1:SourcePath
@@ -685,8 +579,8 @@ REM Param_2:Filename of the file to be copied.
 REM Param_3:DestinationPath
 :copyFile
   IF NOT EXIST "%~3" (
-    mkdir %3
-    IF %ERRORLEVEL% NEQ 0 (
+    mkdir "%~3"
+    IF NOT EXIST "%~3" (
       CALL ..\logging :Append_To_Screen "Error: :copyFile: Destination-Path %3 does not exist.Return" "OUTPUT_TO_STDOUT" ""
       EXIT /B 1
     )
@@ -697,20 +591,13 @@ REM Param_3:DestinationPath
     EXIT /B 1
   )
   
-  CALL :createRobocopyLogFile
-  
-  IF %varThreadAffinity:~2,5% GTR 1 (
-    SET "varRoboCopyThreadAffinity=/MT"
-  ) ELSE (
-    SET "varRoboCopyThreadAffinity="
-  )
+  CALL :setRobocopyGenericFlags
   
   ECHO Copying file: %~1\%~2
   ECHO           to: %~3
 
   SET "varCopyFlags= /DCOPY:%varCopyFolder_DCOPY_FLAGS% /COPY:%varCopyFolder_COPY_FLAGS% /e"
-  REM robocopy %~1 %~3 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /r:2 /w:10
-  robocopy %~1 %~3 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% /r:2 /w:10
+  robocopy "%~1" "%~3" "%~2" %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% %varRobocopyGenericFlags% %varRoboCopyLogFlags% /r:2 /w:10
   
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
   IF %ERRORLEVEL% GEQ 8 (
@@ -733,8 +620,8 @@ REM Param_2:DestinationPath
   SET "varMoveFolder=NOT_VERIFIED"
   
   IF NOT EXIST "%~2" (
-    mkdir %2
-    IF %ERRORLEVEL% NEQ 0 (
+    mkdir "%~2"
+    IF NOT EXIST "%~2" (
       SET "varMoveFolder=NO"
       CALL ..\logging :Append_To_Screen "Error: :moveFolder: Destination-Path %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
       EXIT /B 1
@@ -753,17 +640,10 @@ REM Param_2:DestinationPath
     ECHO Moving folder from: %~1
     ECHO                 to: %~2
 
-  CALL :createRobocopyLogFile
-
-  IF %varThreadAffinity:~2,5% GTR 1 (
-      SET "varRoboCopyThreadAffinity=/MT"
-    ) ELSE (
-      SET "varRoboCopyThreadAffinity="
-    )
+    CALL :setRobocopyGenericFlags
     
     SET "varMoveFlags= /DCOPY:%varMoveFolder_DCOPY_FLAGS% /COPY:%varMoveFolder_COPY_FLAGS% /e"
-    REM robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /MOVE /r:2 /w:10
-    robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% /MOVE /r:2 /w:10
+    robocopy "%~1" "%~2" %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% %varRobocopyGenericFlags% %varRoboCopyLogFlags% /MOVE /r:2 /w:10
 
     REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
     IF %ERRORLEVEL% GEQ 8 ( 
@@ -792,8 +672,8 @@ REM Param_1:SourcePath
 REM Param_2:DestinationPath
 :copyFolder
   IF NOT EXIST "%~2" (
-    mkdir %2
-    IF %ERRORLEVEL% NEQ 0 (      
+    mkdir "%~2"
+    IF NOT EXIST "%~2" (
       CALL ..\logging :Append_To_Screen "Error: :copyFolder: Destination-Path %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
       EXIT /B 1
     )
@@ -807,17 +687,10 @@ REM Param_2:DestinationPath
   ECHO Copying folder from: %~1
   ECHO                  to: %~2
 
-  CALL :createRobocopyLogFile
-
-  IF %varThreadAffinity:~2,5% GTR 1 (
-    SET "varRoboCopyThreadAffinity=/MT"
-  ) ELSE (
-    SET "varRoboCopyThreadAffinity="
-  )
+  CALL :setRobocopyGenericFlags
 
   SET "varCopyFlags= /DCOPY:%varCopyFolder_DCOPY_FLAGS% /COPY:%varCopyFolder_COPY_FLAGS% /e"
-  REM robocopy %~1 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /r:2 /w:10
-  robocopy %~1 %~2 %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% /r:2 /w:10
+  robocopy "%~1" "%~2" %varOutputFormat% %varCopyFlags% %varRoboCopyThreadAffinity% %varRobocopyGenericFlags% %varRoboCopyLogFlags% /r:2 /w:10
 
   REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
   IF %ERRORLEVEL% GEQ 8 (
@@ -840,8 +713,8 @@ REM Param_2:DestinationPath
   SET "varMoveFolder=NOT_VERIFIED"
   
   IF NOT EXIST "%~2" (
-    mkdir %2
-    IF %ERRORLEVEL% NEQ 0 (
+    mkdir "%~2"
+    IF NOT EXIST "%~2" (
       SET "varMoveFolder=NO"
       CALL ..\logging :Append_To_Screen "Error: :moveFolder: Destination-Path %2 does not exist.Return" "OUTPUT_TO_STDOUT" ""
       EXIT /B 1
@@ -857,20 +730,13 @@ REM Param_2:DestinationPath
   set "varMoveFolder=YES"
   
   IF [%varMoveFolder%]==[YES] (
-    CALL :createRobocopyLogFile
-
-    IF %varThreadAffinity:~2,5% GTR 1 (
-      SET "varRoboCopyThreadAffinity=/MT"
-    ) ELSE (
-      SET "varRoboCopyThreadAffinity="
-    )
+    CALL :setRobocopyGenericFlags
 
     ECHO Moving folder from: %~1
     ECHO                 to: %~2
     
     SET "varMoveFlags= /DCOPY:%varMoveFolder_DCOPY_FLAGS% /COPY:%varMoveFolder_COPY_FLAGS% /e"
-    REM robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% %varRoboCopyLogFlags%"%varTargetRoboCopyLogFile%" /MOVE /r:2 /w:10
-    robocopy %~1 %~2 %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% /MOVE /r:2 /w:10
+    robocopy "%~1" "%~2" %varOutputFormat% %varMoveFlags% %varRoboCopyThreadAffinity% %varRobocopyGenericFlags% %varRoboCopyLogFlags% /MOVE /r:2 /w:10
 
       REM https://ss64.com/nt/robocopy-exit.html (An Exit Code of 0-7 is success and any value >= 8 indicates that there was at least one failure during the copy operation.)
     IF %ERRORLEVEL% GEQ 8 (
