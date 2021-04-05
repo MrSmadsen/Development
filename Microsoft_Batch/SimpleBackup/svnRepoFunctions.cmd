@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.5 (05-04-2021)
+REM Version and Github_upload date: 2.2.6 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -28,10 +28,10 @@ REM Param_1: Svn repository check out to update
 setlocal enabledelayedexpansion
 set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF !varCheck!==NO (
+IF "!varCheck!"=="NO" (
   set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF !varResult!==NO (
+  IF "!varResult!"=="NO" (
     EXIT /B 1
   )
 ) ELSE (
@@ -60,10 +60,10 @@ REM Param_3: Optional flags to pass to svn.exe.
 setlocal enabledelayedexpansion
 set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF !varCheck!==NO (
+IF "!varCheck!"=="NO" (
   set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF !varResult!==NO (
+  IF "!varResult!"=="NO" (
     EXIT /B 1
   )
 ) ELSE (
@@ -73,10 +73,10 @@ IF !varCheck!==NO (
 
 set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~2" "varCheck"
-IF !varCheck!==NO (
+IF "!varCheck!"=="NO" (
   set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~2" "" "varResult" "CREATE_DIR" "EXCEPTION_NO"
-  IF !varResult!==NO (
+  IF "!varResult!"=="NO" (
     EXIT /B 1
   )
 ) ELSE (
@@ -160,10 +160,10 @@ REM Param_3: Throw exception if out of date. (YES | NO)
 setlocal enabledelayedexpansion
 set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF !varCheck!==NO (
+IF "!varCheck!"=="NO" (
   set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF !varResult!==NO (
+  IF "!varResult!"=="NO" (
     EXIT /B 1
   )
 ) ELSE (
@@ -210,10 +210,10 @@ REM Param_3: Optional flags to pass to svn.exe. Example: --no-ignore to check fo
 setlocal enabledelayedexpansion
 set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF !varCheck!==NO (
+IF "!varCheck!"=="NO" (
   set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF !varResult!==NO (
+  IF "!varResult!"=="NO" (
     EXIT /B 1
   )
 ) ELSE (
@@ -244,10 +244,10 @@ REM Param_3: Optional flags to pass to svn.exe.
 setlocal enabledelayedexpansion
 set "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF !varCheck!==NO (
+IF "!varCheck!"=="NO" (
   set "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF !varResult!==NO (
+  IF "!varResult!"=="NO" (
     EXIT /B 1
   )
 ) ELSE (

@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.5 (05-04-2021)
+REM Version and Github_upload date: 2.2.6 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -25,10 +25,10 @@ REM Param_1: Path and fileName to the logfile to create on the filesystem.
 REM Param_2: Verbose_Mode - "V"
 :createLogFile
 REM Create empty file.
-IF %varEnableFileLogging%==NO (
+IF "%varEnableFileLogging%"=="NO" (
   IF "%~2"=="V" ( ECHO Skipping file creation: varEnableFileLogging - %varEnableFileLogging%. )
   IF "%~2"=="v" ( ECHO Skipping file creation: varEnableFileLogging - %varEnableFileLogging%. )
-) ELSE IF %varEnableFileLogging%==YES (
+) ELSE IF "%varEnableFileLogging%"=="YES" (
   REM This is done to avoid overwriting existing archive logfiles. Instead we append to the existing logfile if it is found.
   IF "%~2"=="v" ( ECHO :createLogFile existence check )
   IF EXIST "%~1" (
@@ -64,13 +64,13 @@ IF ["%~1"]==[""] (
   IF ["%~3"]==["OUTPUT_DEBUG"] ECHO No message provided for STD_OUT.
   SET "varLogToSTDOUTOK=NO"
 )
-IF %varLogToSTDOUTOK%==NOT_DEFINED IF ["%~2"]==["OUTPUT_TO_STDOUT"] (
+IF "%varLogToSTDOUTOK%"=="NOT_DEFINED" IF ["%~2"]==["OUTPUT_TO_STDOUT"] (
   SET "varLogToSTDOUTOK=YES"
 )
 
 REM if %1 has double quotes around it, %~1 will strip the quote signs.
 REM "%~1" ensures we always echo to a quoted filePath.
-IF %varLogToSTDOUTOK%==YES  (
+IF "%varLogToSTDOUTOK%"=="YES"  (
   ECHO %~1
 )
 Exit /B 0
@@ -105,10 +105,10 @@ IF "%varBackupSettingsFileRead%"=="NO" (
   SET "varEnableFileLogging=NO"
 )
 
-IF %varLogToFileOK%==NOT_DEFINED (
-  IF %varEnableFileLogging%==NO (
+IF "%varLogToFileOK%"=="NOT_DEFINED" (
+  IF "%varEnableFileLogging%"=="NO" (
     SET "varLogToFileOK=NO"
-  ) ELSE IF %varEnableFileLogging%==YES (
+  ) ELSE IF "%varEnableFileLogging%"=="YES" (
     SET "varLogToFileOK=YES"
   ) ELSE (
     SET "varLogToFileOK=NO"
@@ -118,8 +118,8 @@ IF %varLogToFileOK%==NOT_DEFINED (
 
 REM if %1 has double quotes around it, %~1 will strip the quote signs.
 REM "%~1" ensures we always echo to a quoted filePath.
-IF %varLogToSTDOUTOK%==YES ECHO.
-IF %varLogToFileOK%==YES   ECHO.>>"%~1"
+IF "%varLogToSTDOUTOK%"=="YES" ECHO.
+IF "%varLogToFileOK%"=="YES"   ECHO.>>"%~1"
 Exit /B 0
 
 REM Messages for logfile Should be suppplied in "Message 1" brackets.
@@ -163,22 +163,22 @@ IF "%varBackupSettingsFileRead%"=="NO" (
   SET "varEnableFileLogging=NO"
 )
 
-IF %varLogToFileOK%==NOT_DEFINED (
-  IF %varEnableFileLogging%==NO (
+IF "%varLogToFileOK%"=="NOT_DEFINED" (
+  IF "%varEnableFileLogging%"=="NO" (
     SET "varLogToFileOK=NO"
-  ) ELSE IF %varEnableFileLogging%==YES (
+  ) ELSE IF "%varEnableFileLogging%"=="YES" (
     SET "varLogToFileOK=YES"
   ) ELSE (
     SET "varLogToFileOK=NO"
     ECHO varEnableLogging is configured incorrectly, varEnableFileLogging: %varEnableFileLogging%.
   )
 )
-IF %varLogToSTDOUTOK%==NOT_DEFINED IF ["%~3"]==["OUTPUT_TO_STDOUT"] (
+IF "%varLogToSTDOUTOK%"=="NOT_DEFINED" IF ["%~3"]==["OUTPUT_TO_STDOUT"] (
   SET "varLogToSTDOUTOK=YES"
 )
 
 REM if %1 has double quotes around it, %~1 will strip the quote signs.
 REM "%~1" ensures we always echo to a quoted filePath.
-IF %varLogToSTDOUTOK%==YES ECHO %~2
-IF %varLogToFileOK%==YES   ECHO %~2>>"%~1"
+IF "%varLogToSTDOUTOK%"=="YES" ECHO %~2
+IF "%varLogToFileOK%"=="YES"   ECHO %~2>>"%~1"
 Exit /B 0

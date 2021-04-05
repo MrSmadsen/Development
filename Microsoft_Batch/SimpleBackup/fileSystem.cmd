@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.5 (05-04-2021)
+REM Version and Github_upload date: 2.2.6 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -121,61 +121,61 @@ for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
   SET /A "varNoOfFilesInTotal+=1"
   
   echo %%F|findstr /i /b "!varSrcStr1!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpBackupFile=%~1\%~2\%%F"
   )
   
   echo %%F|findstr /i /b "!varSrcStr2!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpChecksumFile=%~1\%~2\%%F"
   )
   
   echo %%F|findstr /i /b "!varSrcStr3!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpLogFile=%~1\%~2\%%F"
   )
 
   echo %%F|findstr /i /b "!varSrcStr4!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpRoboCopyLogFile=%~1\%~2\%%F"
   )
 
   echo %%F|findstr /i /b "!varSrcStr5!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpUpdateArchiveLogFile=%~1\%~2\%%F"
   )
 
   echo %%F|findstr /i /b "!varSrcStr6!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpExtractToFolderLogFile=%~1\%~2\%%F"
   )
   
   echo %%F|findstr /i /b "!varSrcStr7!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpExtractFullPathLogFile=%~1\%~2\%%F"
   )
 
   echo %%F|findstr /i /b "!varSrcStr8!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpIntegrityTestLogFile=%~1\%~2\%%F"
   )
 
   echo %%F|findstr /i /b "!varSrcStr9!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpVerifyChecksumLogFile=%~1\%~2\%%F"
   )
   
   echo %%F|findstr /i /b "!varSrcStr10!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
     SET "varTmpBackupSfxFile=%~1\%~2\%%F"
   )
@@ -553,7 +553,7 @@ REM Param_3: Destinationfolder purge ("PURGE_ENABLED" | "PURGE_DISABLED").
   
   REM Exclude google backup and sync folder: /xd "%~1\.tmp.drivedownload"
 
-  IF %varElevatedAdminPriviligies%==YES (
+  IF "%varElevatedAdminPriviligies%"=="YES" (
     robocopy "%~1" "%~2" %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% %varRobocopyGenericFlags% %varRoboCopyLogFlags% /zb /r:2 /w:10
   ) ELSE (
     robocopy "%~1" "%~2" %varOutputFormat% /xd "%~1\.tmp.drivedownload" /xa:SHT %varSyncFlags% %varRoboCopyThreadAffinity% %varRobocopyGenericFlags% %varRoboCopyLogFlags% /r:2 /w:10    

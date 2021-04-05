@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.5 (05-04-2021)
+REM Version and Github_upload date: 2.2.6 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -49,9 +49,9 @@ REM If running as elevated admin, member of local and/or domain admin groups. Se
 CALL :reset_errorlevel
 SET "varElevatedAdminPriviligies=NO"
 whoami /groups | find "S-1-16-12288" > nul 2>&1
-IF %ERRORLEVEL%==0 (
+IF "%ERRORLEVEL%"=="0" (
   SET "varElevatedAdminPriviligies=YES"
-) ELSE IF %ERRORLEVEL%==1 (
+) ELSE IF "%ERRORLEVEL%"=="1" (
   SET "varElevatedAdminPriviligies=NO"
 ) ELSE (
   CALL :Exception_End "%varTargetLogFile%" "Unhandled exception in function :is_cmd_running_with_admin_priviligies_using_whoami - Elevations_Part" "OUTPUT_TO_STDOUT" "OUTPUT_DEBUG"
@@ -60,9 +60,9 @@ IF %ERRORLEVEL%==0 (
 CALL :reset_errorlevel
 SET "varUserInLocalAdministratorsGroup=NO"
 whoami /groups | find "S-1-5-32-544" > nul 2>&1
-IF %ERRORLEVEL%==0 (
+IF "%ERRORLEVEL%"=="0" (
   SET "varUserInLocalAdministratorsGroup=YES"
-) ELSE IF %ERRORLEVEL%==1 (
+) ELSE IF "%ERRORLEVEL%"=="1" (
   SET "varUserInLocalAdministratorsGroup=NO"
 ) ELSE (
   CALL :Exception_End "%varTargetLogFile%" "Unhandled exception in function :is_cmd_running_with_admin_priviligies_using_whoami - Local Admin Part" "OUTPUT_TO_STDOUT" "OUTPUT_DEBUG"
@@ -71,9 +71,9 @@ IF %ERRORLEVEL%==0 (
 CALL :reset_errorlevel
 SET "varUserInDomainAdministratorsGroup=NO"
 whoami /groups | find "-512" > nul 2>&1
-IF %ERRORLEVEL%==0 (
+IF "%ERRORLEVEL%"=="0" (
   SET "varUserInDomainAdministratorsGroup=YES"
-) ELSE IF %ERRORLEVEL%==1 (
+) ELSE IF "%ERRORLEVEL%"=="1" (
   SET "varUserInDomainAdministratorsGroup=NO"
 ) ELSE (
   CALL :Exception_End "%varTargetLogFile%" "Unhandled exception in function :is_cmd_running_with_admin_priviligies_using_whoami - Domain Admin Part" "OUTPUT_TO_STDOUT" "OUTPUT_DEBUG"
@@ -758,7 +758,7 @@ IF EXIST "%varTargetBackupfolder%" (
 
   IF "%~1"=="CLEANUP_ENABLED" (
     rmdir /Q /S "%varTargetBackupfolder%"
-    IF %ERRORLEVEL%==0 (
+    IF "%ERRORLEVEL%"=="0" (
       CALL ..\logging :Append_To_Screen "CLEANUP_ENABLED: Deleted folder %varTargetBackupfolder%" "OUTPUT_TO_STDOUT" ""
     )
   ) ELSE IF "%~1%"=="CLEANUP_DISABLED" (
@@ -766,7 +766,7 @@ IF EXIST "%varTargetBackupfolder%" (
   ) ELSE IF "%~1%"=="CLEANUP_ASK" (
     CALL ..\logging :Append_To_Screen "Delete folder %varTargetBackupfolder%?" "OUTPUT_TO_STDOUT" ""
     rmdir /S "%varTargetBackupfolder%"
-    IF %ERRORLEVEL%==0 (
+    IF "%ERRORLEVEL%"=="0" (
       CALL ..\logging :Append_To_Screen "CLEANUP_ASK: Cleanup done on folder %varTargetBackupfolder%." "OUTPUT_TO_STDOUT" ""
     )
   ) ELSE (

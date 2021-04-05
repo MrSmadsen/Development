@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.5 (05-04-2021)
+REM Version and Github_upload date: 2.2.6 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -80,11 +80,11 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "------------ Performing PostBackup user functions ------------" "OUTPUT_TO_STDOUT" ""
 
 CALL :copyChecksumFile
-IF %ERRORLEVEL%==1 (
+IF "%ERRORLEVEL%"=="1" (
   EXIT /B 1
 )
 CALL :CommitChecksumFileToSvn
-IF %ERRORLEVEL%==1 (
+IF "%ERRORLEVEL%"=="1" (
   EXIT /B 1
 )
 CALL :CleanupImagefolder

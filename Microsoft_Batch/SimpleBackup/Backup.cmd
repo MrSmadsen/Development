@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.5 (05-04-2021)
+REM Version and Github_upload date: 2.2.6 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -57,9 +57,9 @@ EXIT /B 0
 
 REM This function is meant as an option to do file system stuff in elevated user mode (if UAC is enabled).
 :PerformAdministrativePreconditionals
-IF %varElevatedAdminPriviligies%==NO (
+IF "%varElevatedAdminPriviligies%"=="NO" (
   echo Cmd session is NOT running as elevated Administrator.
-) ELSE IF %varElevatedAdminPriviligies%==YES (
+) ELSE IF "%varElevatedAdminPriviligies%"=="YES" (
   echo Cmd session is running as elevated Administrator.
 )
 EXIT /B 0
@@ -68,48 +68,48 @@ EXIT /B 0
 SET /a "varCount=0"
 SET "varMode=NO_APPLICATION_FUNCTION_DEFINED"
 SET "varApplicationFunctionText=NO_APPLICATION_FUNCTION_DEFINED"
-IF %varAppFunctionBackupFiles%==YES (
+IF "%varAppFunctionBackupFiles%"=="YES" (
 SET "varMode=a"
 SET "varApplicationFunctionText=Archive files"
 SET /a "varCount+=1"
 )
-IF %varAppFunctionUpdateArchive%==YES (
+IF "%varAppFunctionUpdateArchive%"=="YES" (
 SET "varMode=u"
 SET "varApplicationFunctionText=Update Existing archive"
 SET /a "varCount+=1"
 )
-IF %varAppFunctionIntegrityCheck%==YES (
+IF "%varAppFunctionIntegrityCheck%"=="YES" (
 SET "varMode=t"
 SET "varApplicationFunctionText=Archive Integrity Test"
 SET /a "varCount+=1"
 )
-IF %varAppFunctionExtractFilestoFolder%==YES (
+IF "%varAppFunctionExtractFilestoFolder%"=="YES" (
 SET "varMode=e"
 SET "varApplicationFunctionText=Extract archive to folder"
 SET /a "varCount+=1"
 )
-IF %varAppFunctionExtractFilesWithFullFilePath%==YES (
+IF "%varAppFunctionExtractFilesWithFullFilePath%"=="YES" (
 SET "varMode=x"
 SET "varApplicationFunctionText=Extract archive with full paths"
 SET /a "varCount+=1"
 )
-IF %varAppFunctionVerifyChecksum%==YES (
+IF "%varAppFunctionVerifyChecksum%"=="YES" (
 SET "varMode=v"
 SET "varApplicationFunctionText=Verify the archive checksum"
 SET /a "varCount+=1"
 )
-IF %varAppFunctionSyncBackupFolder%==YES (
+IF "%varAppFunctionSyncBackupFolder%"=="YES" (
   SET "varMode=s1"
   SET "varApplicationFunctionText=Synchronize folder to external storage."
   SET /a "varCount+=1"
 )
-IF %varAppFunctionSyncBackupFolder%==YES_PURGE_DST (
+IF "%varAppFunctionSyncBackupFolder%"=="YES_PURGE_DST" (
   SET "varMode=s2"
   SET "varApplicationFunctionText=Synchronize folder to external storage - Purge enabled."
   SET /a "varCount+=1"
 )
 
-IF %varMode%==NO_APPLICATION_FUNCTION_DEFINED (
+IF "%varMode%"=="NO_APPLICATION_FUNCTION_DEFINED" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Error in Application function configuration. Please check Application Function options in varSettingsFile. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
@@ -125,25 +125,25 @@ EXIT /B 0
 :PreconditionalChecks
 CALL :PerformGenericPreconditionalChecks
 
-IF %varAppFunctionBackupFiles%==YES (
+IF "%varAppFunctionBackupFiles%"=="YES" (
   CALL :PerformBackupPreconditionalChecks
 )
-IF %varAppFunctionUpdateArchive%==YES (
+IF "%varAppFunctionUpdateArchive%"=="YES" (
   CALL :PerformUpdatePreconditionalChecks
 )
-IF %varAppFunctionIntegrityCheck%==YES (
+IF "%varAppFunctionIntegrityCheck%"=="YES" (
   CALL :PerformIntegrityCheckPreconditionalChecks
 )
-IF %varAppFunctionExtractFilestoFolder%==YES (
+IF "%varAppFunctionExtractFilestoFolder%"=="YES" (
   CALL :PerformExtractFilesPreconditionalChecks
 )
-IF %varAppFunctionExtractFilesWithFullFilePath%==YES (
+IF "%varAppFunctionExtractFilesWithFullFilePath%"=="YES" (
   CALL :PerformExtractFilesPreconditionalChecks
 )
-IF %varAppFunctionVerifyChecksum%==YES (
+IF "%varAppFunctionVerifyChecksum%"=="YES" (
   CALL :PerformVerifyChecksumPreconditionalChecks
 )
-IF %varAppFunctionSyncBackupFolder%==YES (
+IF "%varAppFunctionSyncBackupFolder%"=="YES" (
   CALL :PerformSyncBackupFolderPreconditionalChecks
 )
 EXIT /B 0
@@ -157,11 +157,11 @@ IF "%varExportSvn%"=="YES" (
   SET "varCheck=TRUE"
 )
 
-IF %varCheck%==TRUE (
+IF "%varCheck%"=="TRUE" (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSvnadminPath%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnadminPath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -171,7 +171,7 @@ IF %varCheck%==TRUE (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSvnPath%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnPath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -190,17 +190,17 @@ IF NOT EXIST "%varArchiveProgram%" (
 )
 
 SET "varCheck=FALSE"
-IF %varMoveFolders%==YES (
+IF "%varMoveFolders%"=="YES" (
   SET "varCheck=TRUE"
 )
-IF %varMoveFoldersBack%==YES (
+IF "%varMoveFoldersBack%"=="YES" (
   SET "varCheck=TRUE"
 )
-IF %varCheck%==TRUE (  
+IF "%varCheck%"=="TRUE" (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSvnadminPath%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnadminPath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -210,7 +210,7 @@ IF %varCheck%==TRUE (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder01%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSrcPathFolder01 is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -220,7 +220,7 @@ IF %varCheck%==TRUE (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder02%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSrcPathFolder02 is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -230,7 +230,7 @@ IF %varCheck%==TRUE (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder01%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varDstPathFolder01 is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -240,7 +240,7 @@ IF %varCheck%==TRUE (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varDstPathFolder02 is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -253,22 +253,22 @@ EXIT /B 0
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varBackupLocation%" "varCheck"
-IF !varCheck!==YES (
+IF "!varCheck!"=="YES" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varBackupLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 SET "varResult=EMPTY"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%varBackupLocation%" "varBackupLocation" "varResult" "CREATE_DIR" "EXCEPTION_YES"
 
-IF %varBackupSynchronization%==YES (
+IF "%varBackupSynchronization%"=="YES" (
   CALL :PerformSyncBackupFolderPreconditionalChecks
 )
 
-IF %varBackupSynchronization%==YES_PURGE_DST (
+IF "%varBackupSynchronization%"=="YES_PURGE_DST" (
   CALL :PerformSyncBackupFolderPreconditionalChecks
 )
 
-IF %varExportSvn%==YES (
+IF "%varExportSvn%"=="YES" (
   IF NOT EXIST "%varSvnadminPath%" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "SvnAdmin.exe not found. %varSvnadminPath%" "OUTPUT_TO_STDOUT" ""
   )
@@ -276,7 +276,7 @@ IF %varExportSvn%==YES (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryLocation%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varRepositoryLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -286,7 +286,7 @@ IF %varExportSvn%==YES (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varRepositoryDumpLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -314,7 +314,7 @@ REM The script just continues from the line it has reached.
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
-IF !varCheck!==YES (
+IF "!varCheck!"=="YES" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -342,7 +342,7 @@ EXIT /B 0
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
-IF !varCheck!==YES (
+IF "!varCheck!"=="YES" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -352,7 +352,7 @@ CALL ..\fileSystem :checkIfFileOrFolderExist "%varExistingArchivePath%" "varExis
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
-IF !varCheck!==YES (
+IF "!varCheck!"=="YES" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExtractionLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -368,7 +368,7 @@ EXIT /B 0
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
-IF !varCheck!==YES (
+IF "!varCheck!"=="YES" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -384,7 +384,7 @@ EXIT /B 0
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
 CALL ..\filesystem :CheckIfParamIsUrl "%varSyncFolderLocation%" "varCheck"
-IF !varCheck!==YES (
+IF "!varCheck!"=="YES" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSyncFolderLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -494,10 +494,10 @@ EXIT /B 0
 REM Do not change the texts used to generate files names etc. It will most certainly break the functionality in other functions.
 :CreateNewArchiveFiles
 ECHO Creating new archive files.
-IF %varGenerateSfxArchive%==NO (
+IF "%varGenerateSfxArchive%"=="NO" (
   SET "varTargetBackupSet=%varTargetBackupfolder%\%varDate%-backup.%varFormat%"
   SET "varTargetFileName=%varDate%-backup.%varFormat%"
-) ELSE IF %varGenerateSfxArchive%==YES (
+) ELSE IF "%varGenerateSfxArchive%"=="YES" (
   IF "%varFormat%"=="7z" (  
     SET "varTargetBackupSet=%varTargetBackupfolder%\%varDate%-backup.exe"
     SET "varTargetFileName=%varDate%-backup.exe"
@@ -538,19 +538,19 @@ EXIT /B 0
 SET "varTargetBackupSet=%varTargetBackupfolder%\%varExistingArchiveFileName%"
 SET "varTargetFileName=%varExistingArchiveFileName%"
 
-IF %varMode%==u (
+IF "%varMode%"=="u" (
   SET "varTargetLogFileName=%varDate%-UpdateArchive-logfile.txt"
   SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-UpdateArchive-logfile.txt"
-) ELSE IF %varMode%==e (
+) ELSE IF "%varMode%"=="e" (
   SET "varTargetLogFileName=%varDate%-ExtractToFolder-logfile.txt"
   SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-ExtractToFolder-logfile.txt"
-) ELSE IF %varMode%==x (
+) ELSE IF "%varMode%"=="x" (
   SET "varTargetLogFileName=%varDate%-ExtractFullPath-logfile.txt"
   SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-ExtractFullPath-logfile.txt"
-) ELSE IF %varMode%==t (
+) ELSE IF "%varMode%"=="t" (
   SET "varTargetLogFileName=%varDate%-IntegrityTest-logfile.txt"
   SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-IntegrityTest-logfile.txt"
-) ELSE IF %varMode%==v (
+) ELSE IF "%varMode%"=="v" (
   SET "varTargetLogFileName=%varDate%-VerifyChecksum-logfile.txt"
   SET "varTargetLogFile=%varTargetBackupfolder%\%varDate%-VerifyChecksum-logfile.txt"
 ) ELSE (
@@ -569,7 +569,7 @@ IF "%varExtractionLocation%"=="DEFAULT_LOCATION" (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
   CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
-  IF !varCheck!==YES (
+  IF "!varCheck!"=="YES" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExtractionLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
@@ -714,7 +714,7 @@ IF "%varMode%"=="a" (
 EXIT /B 0
 
 :GenerateBackupArchive
-IF %varExportSvn%==YES (
+IF "%varExportSvn%"=="YES" (
   CALL ..\svnRepoFunctions :generateSvnRepositoryDump
 )
 
@@ -790,14 +790,14 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "UpdateFlags:           
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:    %varIntegrityTest%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum verification:     %varChecksumVerification%" "OUTPUT_TO_STDOUT" ""
 IF "%varBackupSynchronization%"=="YES" (  
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      YES, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:   YES, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
 ) ELSE IF "%varBackupSynchronization%"=="YES_PURGE_DST" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      YES_WITH_PURGE, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:   YES_WITH_PURGE, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
 ) ELSE (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      NO" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:   NO" "OUTPUT_TO_STDOUT" ""
 )
-IF %varZipUtcMode%==YES (
-  IF %varFormat%==zip (
+IF "%varZipUtcMode%"=="YES" (
+  IF "%varFormat%"=="zip" (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Zip Utc mode:                      %varZipUtcMode%" "OUTPUT_TO_STDOUT" ""
   )
 )
@@ -893,7 +893,7 @@ IF "%varMode%"=="s2" (
 EXIT /B 0
 
 :MoveMultipleFolders
-IF %varMoveFolders%==YES (
+IF "%varMoveFolders%"=="YES" (
   CALL ..\fileSystem :moveFolder "%varSrcPathFolder01%" "%varDstPathFolder01%"
   IF %ERRORLEVEL% NEQ 0 (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Error moving folder: %varSrcPathFolder01%. Continuing backup procedure." "OUTPUT_TO_STDOUT" ""
@@ -903,7 +903,7 @@ IF %varMoveFolders%==YES (
   IF %ERRORLEVEL% NEQ 0 (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Error moving folder: %varSrcPathFolder02%. Continuing backup procedure." "OUTPUT_TO_STDOUT" ""
   )
-) ELSE IF %varMoveFolders%==NO (
+) ELSE IF "%varMoveFolders%"=="NO" (
    ECHO.
 ) ELSE (
    ECHO ERROR in %varSettingsFile%. Is varMoveFolders setup correctly?
@@ -913,7 +913,7 @@ IF %varMoveFolders%==YES (
 EXIT /B 0
 
 :MoveMultipleFoldersBack
-IF %varMoveFoldersBack%==YES (
+IF "%varMoveFoldersBack%"=="YES" (
   CALL ..\fileSystem :moveFolder %varDstPathFolder01% %varSrcPathFolder01%
   IF %ERRORLEVEL% NEQ 0 (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Error moving folder: %varDstPathFolder01%. Continuing backup procedure." "OUTPUT_TO_STDOUT" ""
@@ -923,7 +923,7 @@ IF %varMoveFoldersBack%==YES (
   IF %ERRORLEVEL% NEQ 0 (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Error moving folder: %varDstPathFolder02%. Continuing backup procedure." "OUTPUT_TO_STDOUT" ""
   )
-) ELSE IF %varMoveFoldersBack%==NO (
+) ELSE IF "%varMoveFoldersBack%"=="NO" (
    ECHO.
 ) ELSE (
    ECHO ERROR in %varSettingsFile%. Is varMoveFoldersBack setup correctly?
@@ -934,26 +934,26 @@ EXIT /B 0
 
 :SetSplitFlag
 SET "varSplitFlag= "
-IF %varSplitArchiveFile%==YES (
-  IF %varSplitVolumesize%==-v1m (
+IF "%varSplitArchiveFile%"=="YES" (
+  IF "%varSplitVolumesize%"=="-v1m" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v2m (
+  ) ELSE IF "%varSplitVolumesize%"=="-v2m" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v5m (
+  ) ELSE IF "%varSplitVolumesize%"=="-v5m" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v10m (
+  ) ELSE IF "%varSplitVolumesize%"=="-v10m" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v100m (
+  ) ELSE IF "%varSplitVolumesize%"=="-v100m" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v1g (
+  ) ELSE IF "%varSplitVolumesize%"=="-v1g" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v2g (
+  ) ELSE IF "%varSplitVolumesize%"=="-v2g" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v5g (
+  ) ELSE IF "%varSplitVolumesize%"=="-v5g" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v10g (
+  ) ELSE IF "%varSplitVolumesize%"=="-v10g" (
     SET "varSplitFlag=%varSplitVolumesize%"
-  ) ELSE IF %varSplitVolumesize%==-v100g (
+  ) ELSE IF "%varSplitVolumesize%"=="-v100g" (
     SET "varSplitFlag=%varSplitVolumesize%"
   ) ELSE (
     ECHO.
@@ -974,11 +974,11 @@ CALL :SetupLinkFlags
 REM Default is on.
 SET "varSolidModeFlag= "
 
-IF %varFormat%==7z (
-  IF %varSolidMode%==YES (
+IF "%varFormat%"=="7z" (
+  IF "%varSolidMode%"=="YES" (
     SET "varSolidModeFlag=-ms=on"
   )
-  IF %varSolidMode%==NO (
+  IF "%varSolidMode%"=="NO" (
     SET "varSolidModeFlag=-ms=off"
   )
 )
@@ -999,8 +999,8 @@ EXIT /B 0
 
 :SetupUtcMode
 SET "varUtcFlag= "
-IF %varZipUtcMode%==YES (
-  IF %varFormat%==zip (
+IF "%varZipUtcMode%"=="YES" (
+  IF "%varFormat%"=="zip" (
     SET "varUtcFlag=-mtc"
   )
 )
@@ -1008,7 +1008,7 @@ EXIT /B 0
 
 :SetupSfxFlag
 SET "varSfxFlag= "
-IF %varGenerateSfxArchive%==YES (
+IF "%varGenerateSfxArchive%"=="YES" (
     ECHO SETTING Sfx MODE.
     SET "varSfxFlag=-sfx"
 )
@@ -1017,7 +1017,7 @@ EXIT /B 0
 :SetupPasswordFlag
 SET "varPasswordFlag= "
 
-IF %varPassword%==YES (
+IF "%varPassword%"=="YES" (
   IF NOT %varSecretPassword%==NO (
   REM ECHO varPassword = YES, varSecretPassword = 'Password'
   SET "varPasswordFlag=-p%varSecretPassword%"
@@ -1061,7 +1061,7 @@ REM Fallback value is SKIP__EXISTING_FILES
 SET "varOverWriteFilesFlag=-aos"
 SET "varSetOverWriteFlag=EMPTY"
 
-IF %varSetOverWriteFlag%==YES (
+IF "%varSetOverWriteFlag%"=="YES" (
   REM Assume yes to overwrite.
   IF "%varOverWriteFiles%"=="OVERWRITE_EXISTING_FILES" (
     SET "varOverWriteFilesFlag=-aoa"
@@ -1087,7 +1087,7 @@ CALL :Evaluation %varAppErrorCode%
 EXIT /B 0
 
 :DoUpdateArchive
-IF %varFormat%%==7z (
+IF "%varFormat%"=="7z" (
   "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varSolidModeFlag% %varUpdateFlags%
 ) ELSE (
   "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varUtcFlag%
@@ -1106,17 +1106,17 @@ SET "varCheckForSplitFile=NO"
 
 REM Find the split file if it exists.
 REM All other cases the file is defined in the ini-file.
-IF %varAppFunctionBackupFiles%==YES (
-  IF %varSplitArchiveFile%==YES (
+IF "%varAppFunctionBackupFiles%"=="YES" (
+  IF "%varSplitArchiveFile%"=="YES" (
     SET "varCheckForSplitFile=YES"
   )
 )
 
-IF %varCheckForSplitFile%==YES (
+IF "%varCheckForSplitFile%"=="YES" (
   REM Shows only files in the directory %varDir% in simple output format.
   for /f "delims=" %%F in ('dir "%varDir%" /b /a-d') do (
     echo %%F|findstr /i /b "!varSearchString!.001">nul
-    IF !ERRORLEVEL!==0 (
+    IF "!ERRORLEVEL!"=="0" (
       SET "varSearchString=!varSearchString!.001"
     )
   )
@@ -1161,7 +1161,7 @@ SET /a "varFileCount=0"
 REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
 for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
   echo %%F|findstr /i /b "!varSearchString!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /a "varFileCount+=1"
   )
 )
@@ -1180,7 +1180,7 @@ REM Shows only files in the directory %varTargetBackupfolder% in simple output f
 for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
   cd /d "%originalDir%"
   echo %%A|findstr /i /b "!varSearchString!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating %varChecksumBitlength% checksum for file: %%A" "OUTPUT_TO_STDOUT" ""
     cd /d "%varTargetBackupfolder%"
     
@@ -1254,7 +1254,7 @@ IF NOT EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
   REM Shows only files in the directory %varDir% in simple output format.
   for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
     echo %%F|findstr /i /b "!varTmpStr!">nul
-    IF !ERRORLEVEL!==0 (
+    IF "!ERRORLEVEL!"=="0" (
       SET "varTargetChecksumFile=%varTargetBackupfolder%\%%F"
     )
   )
@@ -1286,7 +1286,7 @@ SET /a "varFileCount=0"
 REM Shows only files in the directory %varTargetBackupfolder% in simple output format.
 for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
   echo %%F|findstr /i /b "!varSearchString!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     SET /a "varFileCount+=1"
   )
 )
@@ -1308,7 +1308,7 @@ REM Shows only files in the directory %varTargetBackupfolder% in simple output f
 for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
   cd /d "%originalDir%"
   echo %%A|findstr /i /b "!varSearchString!">nul
-  IF !ERRORLEVEL!==0 (
+  IF "!ERRORLEVEL!"=="0" (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating !varSHABitLength! checksum for file: %%A" "OUTPUT_TO_STDOUT" ""
     cd /d "%varTargetBackupfolder%"
     
@@ -1342,7 +1342,7 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
         
         FOR /f "usebackq tokens=* delims==" %%x in ("%varTargetChecksumFile%") do (
           echo %%x|findstr /i /b "%%A">nul
-          IF !ERRORLEVEL!==0 (
+          IF "!ERRORLEVEL!"=="0" (
             FOR /f "tokens=2 delims==" %%y in ("%%x") do (
               SET "varSHA512ChecksumFromFile=%%y"
               CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "From file:  !varSHA512ChecksumFromFile!" "OUTPUT_TO_STDOUT" ""
@@ -1374,22 +1374,22 @@ EXIT /B 0
 
 REM Param_1: Errorlevel provided. The errorlevel is saved just after 7zip execution. to avoid other functions overwriting errorlevel.
 :Evaluation
-if %1==0 (
+if "%1"=="0" (
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: %1" "OUTPUT_TO_STDOUT" ""
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: No error - Processing ok" "OUTPUT_TO_STDOUT" ""
-) else if %1==1 (
+) else if "%1"=="1" (
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: %1" "OUTPUT_TO_STDOUT" ""
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: Warning-Non fatal error. But something went wrong" "OUTPUT_TO_STDOUT" ""
-) else if %1==2 (
+) else if "%1"=="2" (
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: %1" "OUTPUT_TO_STDOUT" ""
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: Fatal error" "OUTPUT_TO_STDOUT" ""
-) else if %1==7 (
+) else if "%1"=="7" (
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: %1" "OUTPUT_TO_STDOUT" ""
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: Command line error - Backup failed" "OUTPUT_TO_STDOUT" ""
-) else if %1==8 (
+) else if "%1"=="8" (
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: %1" "OUTPUT_TO_STDOUT" ""
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: Not enough memory for operation - Backup failed" "OUTPUT_TO_STDOUT" ""
-) else if %1==255 (
+) else if "%1"=="255" (
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: %1" "OUTPUT_TO_STDOUT" ""
    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ERRORLEVEL: User stopped the process - Backup failed" "OUTPUT_TO_STDOUT" ""
 ) else (
