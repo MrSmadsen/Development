@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.4 (26-03-2021)
+REM Version and Github_upload date: 2.2.5 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -260,11 +260,11 @@ SETLOCAL disabledelayedexpansion & ENDLOCAL
 SET "varResult=EMPTY"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%varBackupLocation%" "varBackupLocation" "varResult" "CREATE_DIR" "EXCEPTION_YES"
 
-IF %varBackupSynchronizationDuringBackup%==YES (
+IF %varBackupSynchronization%==YES (
   CALL :PerformSyncBackupFolderPreconditionalChecks
 )
 
-IF %varBackupSynchronizationDuringBackup%==YES_PURGE_DST (
+IF %varBackupSynchronization%==YES_PURGE_DST (
   CALL :PerformSyncBackupFolderPreconditionalChecks
 )
 
@@ -582,14 +582,14 @@ EXIT /B 0
 IF "%varMode%"=="a" (  
   CALL :GenerateBackupArchive
   
-  IF "%varIntegrityTestDuringBackup%"=="YES" (
+  IF "%varIntegrityTest%"=="YES" (
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing Integrity test of file: %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
     CALL :DoIntegrityTest
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
 
-  IF "%varChecksumVerificationDuringBackup%"=="YES" (
+  IF "%varChecksumVerification%"=="YES" (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
     CALL :VerifyFileChecksum
@@ -603,51 +603,94 @@ IF "%varMode%"=="a" (
   CALL :End
   
   REM :End is called before sync'ing to be able to copy the entire logFile to external storage.
-  IF "%varBackupSynchronizationDuringBackup%"=="YES" IF EXIST "%varSyncFolderLocation%" (
+  IF "%varBackupSynchronization%"=="YES" IF EXIST "%varSyncFolderLocation%" (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
   )
   
-  IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" IF EXIST "%varSyncFolderLocation%" (
+  IF "%varBackupSynchronization%"=="YES_PURGE_DST" IF EXIST "%varSyncFolderLocation%" (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
   )
   
-  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronizationDuringBackup%"=="YES"           ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )
-  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )  
+  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES"           ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )
+  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES_PURGE_DST" ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )  
   
 ) ELSE IF "%varMode%"=="u" (
   CALL :UpdateBackupArchive
+  
+  IF "%varIntegrityTest%"=="YES" (
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing Integrity test of file: %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
+    CALL :DoIntegrityTest
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  )
+
+  IF "%varChecksumVerification%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    CALL :VerifyFileChecksum
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  )
+  
   CALL :End  
   REM :End is called before sync'ing to be able to copy the entire logFile to external storage.
-  IF "%varBackupSynchronizationDuringBackup%"=="YES" IF EXIST "%varSyncFolderLocation%" (
+  IF "%varBackupSynchronization%"=="YES" IF EXIST "%varSyncFolderLocation%" (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
   )
 
-  IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" IF EXIST "%varSyncFolderLocation%" (
+  IF "%varBackupSynchronization%"=="YES_PURGE_DST" IF EXIST "%varSyncFolderLocation%" (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
   )
 
-  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronizationDuringBackup%"=="YES"           ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )
-  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )  
+  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES"           ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )
+  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES_PURGE_DST" ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )  
 
 ) ELSE IF "%varMode%"=="t" (
   CALL :TestBackupArchiveIntegrity
   CALL :End
 ) ELSE IF "%varMode%"=="e" (
+  IF "%varIntegrityTest%"=="YES" (
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing Integrity test of file: %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
+    CALL :DoIntegrityTest
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  )
+
+  IF "%varChecksumVerification%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    CALL :VerifyFileChecksum
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  )
+  
   CALL :ExtractBackupArchive
   CALL :End
 ) ELSE IF "%varMode%"=="x" (
+  IF "%varIntegrityTest%"=="YES" (
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing Integrity test of file: %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
+    CALL :DoIntegrityTest
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  )
+
+  IF "%varChecksumVerification%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+    CALL :VerifyFileChecksum
+    CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  )
+  
   CALL :ExtractBackupArchive
   CALL :End
 ) ELSE IF "%varMode%"=="v" (
@@ -693,8 +736,8 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "CompressionLevel:      
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                       %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Split archive into volumes:           %varSplitArchiveFile%, VolumeSizeSwitch: %varSplitVolumesize%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Password protect the archive file:    %varPassword%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:       %varIntegrityTestDuringBackup%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum verification:        %varChecksumVerificationDuringBackup%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:       %varIntegrityTest%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum verification:        %varChecksumVerification%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checksum algorithm used:              %varChecksumBitlength%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders:                         %varMoveFolders%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders back:                    %varMoveFoldersBack%" "OUTPUT_TO_STDOUT" ""
@@ -704,9 +747,9 @@ IF "%varDeleteOldBackupFolders%"=="YES" (
 ) ELSE (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Delete old backups                    NO" "OUTPUT_TO_STDOUT" ""
 )
-IF "%varBackupSynchronizationDuringBackup%"=="YES" (  
+IF "%varBackupSynchronization%"=="YES" (  
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      YES, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
-) ELSE IF "%varBackupSynchronizationDuringBackup%"=="YES_PURGE_DST" (
+) ELSE IF "%varBackupSynchronization%"=="YES_PURGE_DST" (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      YES_WITH_PURGE, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
 ) ELSE (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      NO" "OUTPUT_TO_STDOUT" ""
@@ -744,6 +787,15 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "UpdateFlags:                       %varUpdateFlags%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:    %varIntegrityTest%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum verification:     %varChecksumVerification%" "OUTPUT_TO_STDOUT" ""
+IF "%varBackupSynchronization%"=="YES" (  
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      YES, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
+) ELSE IF "%varBackupSynchronization%"=="YES_PURGE_DST" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      YES_WITH_PURGE, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
+) ELSE (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:      NO" "OUTPUT_TO_STDOUT" ""
+)
 IF %varZipUtcMode%==YES (
   IF %varFormat%==zip (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Zip Utc mode:                      %varZipUtcMode%" "OUTPUT_TO_STDOUT" ""
@@ -790,6 +842,8 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                  
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Overwrite Mode:                    %varOverWriteFiles% - Flags: %varOverWriteFilesFlag%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                       %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Extract to:                        %varExtractionLocation%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:    %varIntegrityTest%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum verification:     %varChecksumVerification%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         YES, Mode: %varShutdownDeviceWhenDone%" "OUTPUT_TO_STDOUT" ""

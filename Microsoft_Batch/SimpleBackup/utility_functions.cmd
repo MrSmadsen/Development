@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.4 (26-03-2021)
+REM Version and Github_upload date: 2.2.5 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -342,10 +342,10 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   ) ELSE IF "%%i"=="varZipUtcMode" (
     CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
     SET "%%i=%%j"
-  ) ELSE IF "%%i"=="varIntegrityTestDuringBackup" (
+  ) ELSE IF "%%i"=="varIntegrityTest" (
     CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
     SET "%%i=%%j"
-  ) ELSE IF "%%i"=="varChecksumVerificationDuringBackup" (
+  ) ELSE IF "%%i"=="varChecksumVerification" (
     CALL ..\parameterVerification.cmd :verifyParameter_YES-NO "%~1" "%%j" "%%i"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varCheckWorkingCopyChanges" (
@@ -369,7 +369,7 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   ) ELSE IF "%%i"=="varAppFunctionSyncBackupFolder" (
     CALL ..\parameterVerification.cmd :verifyParameter_YES_PURGE_DST-YES-NO "%~1" "%%j" "%%i"
     SET "%%i=%%j"
-  ) ELSE IF "%%i"=="varBackupSynchronizationDuringBackup" (
+  ) ELSE IF "%%i"=="varBackupSynchronization" (
     CALL ..\parameterVerification.cmd :verifyParameter_YES_PURGE_DST-YES-NO "%~1" "%%j" "%%i"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varSplitVolumesize" (

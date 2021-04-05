@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.4 (26-03-2021)
+REM Version and Github_upload date: 2.2.5 (05-04-2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -27,7 +27,7 @@ SET "itemList_YES-NO[1]=NO"
 
 REM (YES_PURGE_DST | YES | NO) List
 REM varAppFunctionSyncBackupFolder
-REM varBackupSynchronizationDuringBackup
+REM varBackupSynchronization
 SET "itemList_YES_PURGE_DST-YES-NO[0]=YES_PURGE_DST"
 SET "itemList_YES_PURGE_DST-YES-NO[1]=YES"
 SET "itemList_YES_PURGE_DST-YES-NO[2]=NO"
@@ -361,10 +361,10 @@ ECHO Value: varDstPathFolder01 %varDstPathFolder01%
 ECHO Value: varDstPathFolder02 %varDstPathFolder02%
 ECHO Value: varOverWriteFiles %varOverWriteFiles%
 ECHO Value: varZipUtcMode %varZipUtcMode%
-ECHO Value: varIntegrityTestDuringBackup %varIntegrityTestDuringBackup%
-ECHO Value: varChecksumVerificationDuringBackup %varChecksumVerificationDuringBackup%
+ECHO Value: varIntegrityTest %varIntegrityTest%
+ECHO Value: varChecksumVerification %varChecksumVerification%
 ECHO Value: varChecksumBitlength %varChecksumBitlength%
-ECHO Value: varBackupSynchronizationDuringBackup %varBackupSynchronizationDuringBackup%
+ECHO Value: varBackupSynchronization %varBackupSynchronization%
 ECHO Value: varDeleteOldBackupFolders %varDeleteOldBackupFolders%
 ECHO Value: varCheckWorkingCopyChanges %varCheckWorkingCopyChanges%
 ECHO Value: varSimpleBackupCheckoutPath %varSimpleBackupCheckoutPath%
