@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.8 (07 of March 2021)
+REM Version and Github_upload date: 2.2.9 (07 of March 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -97,7 +97,7 @@ SET "varDir=%varBackupLocation%\%varDate%"
 SET "varDestination=%varRasperryPi3BPlusSha512Path%\%varDate%"
 
 mkdir "%varDestination%"
-IF %ERRORLEVEL% NEQ 0 (
+IF NOT EXIST "%varDestination%" (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "RaspberryBackup-copyChecksumFile. mkdir failed. Exitting." "OUTPUT_TO_STDOUT" ""
   EXIT /B 1
 )

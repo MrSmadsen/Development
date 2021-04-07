@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.8 (07 of March 2021)
+REM Version and Github_upload date: 2.2.9 (07 of March 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -730,6 +730,12 @@ IF "%varShutdownDeviceWhenDone%"=="PowerOff" (
 ) ELSE (
   CALL :Exception_End "NO_FILE_HANDLE" ":shutdownDevice - Unsupported option chosen. Exit" "OUTPUT_TO_STDOUT" ""
 )
+EXIT /B 0
+
+REM Param_1: Return value
+:CurrentTimeSimpleBackupFormat
+SET "varCurrentTimeSimpleBackupFormat=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%"
+SET "%~1=%varCurrentTimeSimpleBackupFormat: =0%"
 EXIT /B 0
 
 REM Exits the script and writes the error message provided.

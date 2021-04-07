@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.8 (07 of March 2021)
+REM Version and Github_upload date: 2.2.9 (07 of March 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality

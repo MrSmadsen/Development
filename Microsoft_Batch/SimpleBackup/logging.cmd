@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.8 (07 of March 2021)
+REM Version and Github_upload date: 2.2.9 (07 of March 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -73,6 +73,16 @@ REM "%~1" ensures we always echo to a quoted filePath.
 IF "%varLogToSTDOUTOK%"=="YES"  (
   ECHO %~1
 )
+Exit /B 0
+
+REM Messages for screen should be suppplied in "Message 1" brackets.
+REM Param_1: Message
+REM Param_2: OUTPUT_TO_STDOUT  -  The function will also echo the message to stdout.
+REM Param_3: OUTPUT_DEBUG      - Outputs the error messages in this function.
+:Append_To_Screen_With_TimeStamp
+CALL ..\utility_functions :CurrentTimeSimpleBackupFormat "varAppend_To_Screen_With_TimeStamp_CurrentTime"
+REM ECHO :Append_To_Screen_With_TimeStamp_Time: %varAppend_To_Screen_With_TimeStamp_CurrentTime%
+CALL :Append_To_Screen "[%varAppend_To_Screen_With_TimeStamp_CurrentTime%]: %~1" "%~2" "%~3"
 Exit /B 0
 
 REM Param_1: FileHandle
@@ -182,3 +192,17 @@ REM "%~1" ensures we always echo to a quoted filePath.
 IF "%varLogToSTDOUTOK%"=="YES" ECHO %~2
 IF "%varLogToFileOK%"=="YES"   ECHO %~2>>"%~1"
 Exit /B 0
+
+REM Messages for logfile Should be suppplied in "Message 1" brackets.
+REM Param_1: FileHandle
+REM Param_2: Message
+REM Param_3: OUTPUT_TO_STDOUT  -  The function will also echo the message to stdout.
+REM Param_4: OUTPUT_DEBUG      - Outputs the error messages in this function.
+:Append_To_LogFile_With_TimeStamp
+CALL ..\utility_functions :CurrentTimeSimpleBackupFormat "varAppend_To_LogFile_With_TimeStamp_CurrentTime"
+REM ECHO :Append_To_LogFile_With_TimeStamp_Time: %varAppend_To_LogFile_With_TimeStamp_CurrentTime%
+CALL :Append_To_LogFile "%~1" "[%varAppend_To_LogFile_With_TimeStamp_CurrentTime%]: %~2" "%~3" "%~4"
+Exit /B 0
+
+
+
