@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.7 (07 of March 2021)
+REM Version and Github_upload date: 2.2.8 (07 of March 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -1164,7 +1164,7 @@ for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
 
 IF "%varUseExistingChecksumfile%"=="NO" (
   SET "varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt"
-  CALL ..\fileSystem :createFile "%varTargetChecksumFile%" "OVER_WRITE_FILE" "V"
+  CALL ..\fileSystem :createFile "%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt" "OVER_WRITE_FILE" "V"
 )
 
 IF "%varUseExistingChecksumfile%"=="YES" (
@@ -1305,9 +1305,10 @@ IF EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
       SET "varTargetChecksumFile=%varTargetBackupfolder%\%%F"
     )
   )
-  IF NOT EXIST "!varTargetChecksumFile!" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Checksumfile %varTargetChecksumFile% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
-  )
+)
+
+IF NOT EXIST "!varTargetChecksumFile!" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Checksumfile %varTargetChecksumFile% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 REM Find the used bitLength by reading the first word on the first line of the checksum file.
