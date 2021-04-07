@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.9 (07 of March 2021)
+REM Version and Github_upload date: 2.2.10 (07 of March 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -425,6 +425,9 @@ REM Param_1: Path and fileName to the file to delete on the filesystem.
 REM Param_2: RegularMode "" or QuietMode: "USE_QUIET_MODE".
 REM Param_3: Verbose_Mode - "V"
 :deleteFile
+IF NOT EXIST "%~1" (
+  EXIT /B 1
+)
 IF "%~2"=="USE_QUIET_MODE" (
   SET "varDeleteMode=/Q"
 )
@@ -432,8 +435,8 @@ del %varDeleteMode% "%~1"
 IF %ERRORLEVEL% NEQ 0 (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "deleteFile: Could not delete file. Exit" "OUTPUT_TO_STDOUT" ""
 )
-IF "%~3"=="V" ( CALL  ..\logging :Append_To_Screen "Deleted file %1." "OUTPUT_TO_STDOUT" "" )
-IF "%~3"=="v" ( CALL  ..\logging :Append_To_Screen "Deleted file %1." "OUTPUT_TO_STDOUT" "" )
+IF "%~3"=="V" ( ECHO Deleted file %1. )
+IF "%~3"=="v" ( ECHO Deleted file %1. )
 EXIT /B 0
 
 REM Param_1: Path

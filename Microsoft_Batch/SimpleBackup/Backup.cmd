@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.9 (07 of March 2021)
+REM Version and Github_upload date: 2.2.10 (07 of March 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -1097,9 +1097,9 @@ EXIT /B 0
 
 :DoUpdateArchive
 IF "%varFormat%"=="7z" (
-  "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varSolidModeFlag% %varUpdateFlags%
+  "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" %varThreadAffinity% %varSolidModeFlag% %varUpdateFlags%
 ) ELSE (
-  "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" -xr!thumbs.db %varThreadAffinity% %varUtcFlag%
+  "%varArchiveProgram%" %varMode% "%varTargetBackupSet%" @"%varFileList%" %varThreadAffinity% %varUtcFlag%
 )
 SET "varAppErrorCode=%ERRORLEVEL%"
 REM The evaluation function does not work properly when called from within SETLOCAL
@@ -1153,6 +1153,8 @@ REM This function uses certutil to calculate the checksum.
 REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 file.extension.
 :CalculateFileChecksum
 SETLOCAL enabledelayedexpansion
+SET "varTargetChecksumFile=NOT_DEFINED"
+
 IF NOT "%varUseExistingChecksumfile%"=="NO" IF NOT "%varUseExistingChecksumfile%"=="YES" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CalculateFileChecksum: Option varUseExistingChecksumfile error. Check value. Exit." "OUTPUT_TO_STDOUT" ""
 )
@@ -1164,9 +1166,7 @@ for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
 
 IF "%varUseExistingChecksumfile%"=="NO" (
   SET "varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt"
-  CALL ..\fileSystem :createFile "%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt" "OVER_WRITE_FILE" "V"
 )
-
 IF "%varUseExistingChecksumfile%"=="YES" (
   IF EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
     SET "varTargetChecksumFile=%varTargetBackupfolder%\%varExistingChecksumFile%"
@@ -1181,12 +1181,19 @@ IF "%varUseExistingChecksumfile%"=="YES" (
       IF "!ERRORLEVEL!"=="0" (
         SET "varTargetChecksumFile=%varTargetBackupfolder%\%%F"
       )
-    )    
+    )
   )
 )
 
+IF "!varTargetChecksumFile!"=="NOT_DEFINED" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CalculateFileChecksum: No checksum file found in folder: %varTargetBackupfolder%. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+REM Overwrite the file to avoid the old checksum(s).
+CALL ..\fileSystem :createFile "!varTargetChecksumFile!" "OVERWRITE_EXISTING_FILE" "V"
+
 IF NOT EXIST "!varTargetChecksumFile!" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Checksumfile %varTargetChecksumFile% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Checksumfile %varTargetChecksumFile% does not exist. CreateFile failed. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
@@ -1267,9 +1274,8 @@ IF !varProcessedFileCount! EQU !varFileCount! (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating %varChecksumBitlength% checksum for !varProcessedFileCount! of !varFileCount! file/files. Checksum generation succeeded." "OUTPUT_TO_STDOUT" ""
 ) ELSE (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating %varChecksumBitlength% checksum for !varFailedFileCount! of !varFileCount! file/files." "OUTPUT_TO_STDOUT" ""
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checksum calculation failed." "OUTPUT_TO_STDOUT" ""
   SETLOCAL disabledelayedexpansion & ENDLOCAL
-  EXIT /B 1
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CalculateFileChecksum: Checksum calculation failed. Exit." "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 EXIT /B 0
@@ -1278,6 +1284,8 @@ REM This function uses certutil to calculate the checksum.
 REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 file.extension.
 :VerifyFileChecksum
 SETLOCAL enabledelayedexpansion
+SET "varTargetChecksumFile=NOTE_DEFINED"
+
 IF NOT "%varUseExistingChecksumfile%"=="NO" IF NOT "%varUseExistingChecksumfile%"=="YES" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: Option varUseExistingChecksumfile error. Check value. Exit." "OUTPUT_TO_STDOUT" ""  
 )
@@ -1288,23 +1296,43 @@ for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
 )
 
 IF "%varUseExistingChecksumfile%"=="NO" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: varUseExistingChecksumfile = No. Error, verifyChecksum should always look for an existing checksum file. Exit." "OUTPUT_TO_STDOUT" ""
+  IF NOT "%varMode%"=="a" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: varUseExistingChecksumfile = No. Error, verifyChecksum should always look for an existing checksum file, if varMode != a. Exit." "OUTPUT_TO_STDOUT" ""
+  )  
+  SET "varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt"
 )
 
-IF EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
-  SET "varTargetChecksumFile=%varTargetBackupfolder%\%varExistingChecksumFile%"
-) ELSE (
-  REM Retrieve the dataTime part of the TargetFilename. We use it to find the checksum file.
-  for /f "tokens=1-4 delims=-" %%F in ("!varSearchString!") do (
-    SET "varTmpStr=%%F-%%G-%%H-%%I-Checksum-*"
+IF "%varUseExistingChecksumfile%"=="YES" IF "%varMode%"=="a" (  
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: critical error 1, Mode not supported. Incorrected setup in ActivateApplicationFunction. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%varUseExistingChecksumfile%"=="YES" IF "%varMode%"=="u" (
+  IF EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
+    SET "varTargetChecksumFile=%varTargetBackupfolder%\%varExistingChecksumFile%"
   )
-  REM Shows only files in the directory %varDir% in simple output format.
-  for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
-    echo %%F|findstr /i /b "!varTmpStr!">nul
-    IF "!ERRORLEVEL!"=="0" (
-      SET "varTargetChecksumFile=%varTargetBackupfolder%\%%F"
+)
+
+IF "%varUseExistingChecksumfile%"=="YES" IF NOT "%varMode%"=="u" (
+  IF EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
+    SET "varTargetChecksumFile=%varTargetBackupfolder%\%varExistingChecksumFile%"
+  )
+  IF NOT EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
+    REM Retrieve the dataTime part of the TargetFilename. We use it to find the checksum file.
+    for /f "tokens=1-4 delims=-" %%F in ("!varSearchString!") do (
+      SET "varTmpStr=%%F-%%G-%%H-%%I-Checksum-*"
+    )
+    REM Shows only files in the directory %varDir% in simple output format.
+    for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
+      echo %%F|findstr /i /b "!varTmpStr!">nul
+      IF "!ERRORLEVEL!"=="0" (
+        SET "varTargetChecksumFile=%varTargetBackupfolder%\%%F"
+      )
     )
   )
+)
+
+IF NOT DEFINED varTargetChecksumFile (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: critical error 2, varTargetChecksumFile not defined. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 IF NOT EXIST "!varTargetChecksumFile!" (
@@ -1411,9 +1439,8 @@ IF !varProcessedFileCount! EQU !varFileCount! (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating !varSHABitLength! checksum for !varProcessedFileCount! of !varFileCount! file/files. Checksum verification succeeded." "OUTPUT_TO_STDOUT" ""
 ) ELSE (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Reading checksum from %varTargetChecksumFile% failed for !varFailedFileCount! of !varFileCount! file/files." "OUTPUT_TO_STDOUT" ""
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checksum verification failed." "OUTPUT_TO_STDOUT" ""
   SETLOCAL disabledelayedexpansion & ENDLOCAL
-  EXIT /B 1
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: Checksum calculation failed. Exit." "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 EXIT /B 0
