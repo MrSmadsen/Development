@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.6 (05-04-2021)
+REM Version and Github_upload date: 2.2.7 (07 of March 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -443,34 +443,42 @@ EXIT /B 0
 IF "%varMode%"=="a" (
   CALL :CreateNewFolderWithDate
   CALL :CreateNewArchiveFiles
+  SET "varUseExistingChecksumfile=NO"
 )
 IF "%varMode%"=="u" (
   CALL :UseExistingFolderWithDate
   CALL :SetupExistingArchiveFiles
+  SET "varUseExistingChecksumfile=YES"
 )
 IF "%varMode%"=="t" (
   CALL :UseExistingFolderWithDate
   CALL :SetupExistingArchiveFiles
+  SET "varUseExistingChecksumfile=YES"
 )
 IF "%varMode%"=="e" (
   CALL :UseExistingFolderWithDate
   CALL :SetupExistingArchiveFiles
+  SET "varUseExistingChecksumfile=YES"
   CALL :PrepareExtraction
 )
 IF "%varMode%"=="x" (
   CALL :UseExistingFolderWithDate
   CALL :SetupExistingArchiveFiles
+  SET "varUseExistingChecksumfile=YES"
   CALL :PrepareExtraction
 )
 IF "%varMode%"=="v" (
   CALL :UseExistingFolderWithDate
   CALL :SetupExistingArchiveFiles
+  SET "varUseExistingChecksumfile=YES"
 )
 IF "%varMode%"=="s1" (
   CALL :CreateSyncLogFile
+  SET "varUseExistingChecksumfile=NO"
 )
 IF "%varMode%"=="s2" (
   CALL :CreateSyncLogFile
+  SET "varUseExistingChecksumfile=NO"
 )
 EXIT /B 0
 
@@ -810,6 +818,7 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:           
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
 CALL :DoUpdateArchive
+CALL :CalculateFileChecksum
 EXIT /B 0
 
 :TestBackupArchiveIntegrity
@@ -1144,17 +1153,46 @@ REM This function uses certutil to calculate the checksum.
 REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 file.extension.
 :CalculateFileChecksum
 SETLOCAL enabledelayedexpansion
+IF NOT "%varUseExistingChecksumfile%"=="NO" IF NOT "%varUseExistingChecksumfile%"=="YES" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":CalculateFileChecksum: Option varUseExistingChecksumfile error. Check value. Exit." "OUTPUT_TO_STDOUT" ""
+)
 
+REM Generate the searchPattern to find archive files and checksum file (If varUseExistingChecksumfile==YES).
 for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
   SET "varSearchString=%%F.%%G"
+)
+
+IF "%varUseExistingChecksumfile%"=="NO" (
+  SET "varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt"
+  CALL ..\fileSystem :createFile "%varTargetChecksumFile%" "OVER_WRITE_FILE" "V"
+)
+
+IF "%varUseExistingChecksumfile%"=="YES" (
+  IF EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
+    SET "varTargetChecksumFile=%varTargetBackupfolder%\%varExistingChecksumFile%"
+  ) ELSE (
+    REM Retrieve the dataTime part of the TargetFilename. We use it to find the checksum file.
+    for /f "tokens=1-4 delims=-" %%F in ("!varSearchString!") do (
+      SET "varTmpStr=%%F-%%G-%%H-%%I-Checksum-*"
+    )
+    REM Shows only files in the directory %varDir% in simple output format.
+    for /f "delims=" %%F in ('dir "%varTargetBackupfolder%" /b /a-d') do (
+      echo %%F|findstr /i /b "!varTmpStr!">nul
+      IF "!ERRORLEVEL!"=="0" (
+        SET "varTargetChecksumFile=%varTargetBackupfolder%\%%F"
+      )
+    )    
+  )
+)
+
+IF NOT EXIST "!varTargetChecksumFile!" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Checksumfile %varTargetChecksumFile% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%varChecksumBitlength% checksums will be calculated for archive files in the backup destination folder." "OUTPUT_TO_STDOUT" ""
 
-SET "varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt"
-CALL ..\fileSystem :createFile "%varTargetChecksumFile%" "OVER_WRITE_FILE" "V"
-
+REM Find the archive files to base the calculations on.
 SET /a "varProcessedFileCount=0"
 SET /a "varFailedFileCount=0"
 SET /a "varFileCount=0"
@@ -1240,13 +1278,22 @@ REM This function uses certutil to calculate the checksum.
 REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 file.extension.
 :VerifyFileChecksum
 SETLOCAL enabledelayedexpansion
-REM SET "varIsSplitFile=NO"
+IF NOT "%varUseExistingChecksumfile%"=="NO" IF NOT "%varUseExistingChecksumfile%"=="YES" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: Option varUseExistingChecksumfile error. Check value. Exit." "OUTPUT_TO_STDOUT" ""  
+)
 
+REM Generate the searchPattern to find archive files and checksum file if the existing checksum file does not exist.
 for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
   SET "varSearchString=%%F.%%G"
 )
 
-IF NOT EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
+IF "%varUseExistingChecksumfile%"=="NO" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: varUseExistingChecksumfile = No. Error, verifyChecksum should always look for an existing checksum file. Exit." "OUTPUT_TO_STDOUT" ""
+)
+
+IF EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
+  SET "varTargetChecksumFile=%varTargetBackupfolder%\%varExistingChecksumFile%"
+) ELSE (
   REM Retrieve the dataTime part of the TargetFilename. We use it to find the checksum file.
   for /f "tokens=1-4 delims=-" %%F in ("!varSearchString!") do (
     SET "varTmpStr=%%F-%%G-%%H-%%I-Checksum-*"
@@ -1258,12 +1305,9 @@ IF NOT EXIST "%varTargetBackupfolder%\%varExistingChecksumFile%" (
       SET "varTargetChecksumFile=%varTargetBackupfolder%\%%F"
     )
   )
-
   IF NOT EXIST "!varTargetChecksumFile!" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Checksumfile %varTargetChecksumFile% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
   )
-) ELSE (
-  SET "varTargetChecksumFile=%varTargetBackupfolder%\%varExistingChecksumFile%"
 )
 
 REM Find the used bitLength by reading the first word on the first line of the checksum file.
@@ -1280,6 +1324,7 @@ IF "!varSHABitLength!"=="SHA000" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "VerifyFileChecksum: SHA bitlength revtrieval error. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
+REM Find the archive files to base the calculations on.
 SET /a "varProcessedFileCount=0"
 SET /a "varFailedFileCount=0"
 SET /a "varFileCount=0"
