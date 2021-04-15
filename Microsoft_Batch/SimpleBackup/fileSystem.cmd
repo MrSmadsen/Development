@@ -1,5 +1,5 @@
 @echo off
-REM Version 2.3 (Github_upload date:15th of April 2021)
+REM Version 2.5 (Github_upload date:15th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -297,6 +297,7 @@ EXIT /B 0
 REM Param_1: Path
 REM Param_2: Allow url. (YES | NO). If the path is an url and allow == NO the function will call Exception_End.
 REM Param_3: Returnvalue. (YES | NO).
+REM Param_4: ExceptionOnError. (EXCEPTION_ON_ERR_YES | EXCEPTION_ON_ERR_NO).
 :CheckIfParamIsUrl_RegEx
 IF [%1]==[] (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
@@ -316,40 +317,236 @@ IF [%3]==[] (
 IF [%3]==[""] (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
+IF [%4]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - No ExceptionOnError variable supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - Empty ExceptionOnError variable supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
 
 SET "varIsUrl=NOT_DEFINED"
+SET "varUrlSearchResult=NOT_DEFINED"
 SET "varAcceptUrl=%~2"
 REM https://en.wikipedia.org/wiki/URL
 REM Since I haven't figured out how to add optional string content to regEx patterns this algorithm accepts http(s)://EVERYTHING.
 SET "varUrlSearchString_1=^http://.*$"
 SET "varUrlSearchString_2=^https://.*$"
 
-REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
-echo %~1|findstr /i /r /c:"%varUrlSearchString_1%">nul
-IF "%ERRORLEVEL%"=="0" (
+CALL :ValidateString_RegEx "%~1" "%varUrlSearchString_1%" "IGNORE_CASE_SENSITIVITY_YES" "varUrlSearchResult"
+IF "%varUrlSearchResult%"=="YES" (
   SET "varIsUrl=YES"
 )
-REM Check further if no url has been found.
-echo %~1|findstr /i /r /c:"%varUrlSearchString_2%">nul
-IF "%ERRORLEVEL%"=="0" (
+SET "varUrlSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varUrlSearchString_2%" "IGNORE_CASE_SENSITIVITY_YES" "varUrlSearchResult"
+IF "%varUrlSearchResult%"=="YES" (
   SET "varIsUrl=YES"
 )
+
 IF NOT "%varIsUrl%"=="YES" (
   SET "varIsUrl=NO"
 )
 
 IF "%varIsUrl%"=="YES" IF "%varAcceptUrl%"=="NO" (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx: %~1 is an URL. Urls are not accepted as paths. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx: Result: %varIsUrl%. %~1 is an URL. Urls are not accepted by param_2. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%varIsUrl%"=="NO" IF "%~4"=="EXCEPTION_ON_ERR_YES" (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx. Path -%~1- is not an url. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 SET "%~3=%varIsUrl%"
+EXIT /B 0
+
+REM Param_1: Path
+REM Param_2: Allow url. (YES | NO). If the path is an url and allow == NO the function will call Exception_End.
+REM Param_3: Returnvalue. (YES | NO).
+REM Description: This function makes a very basic check if the supplied path is a local or mapped file system. It won't accept http, ftp or other protocols.
+REM              It checks if the path matches the pattern: <driveLetter>:\.*. It does not check the correctness of the actual folder names.
+:CheckIfParamIsFileSystemPath_RegEx
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx - No AllowUrl variable supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx - Empty AllowUrl variable supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx - No ExceptionOnError variable supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx - Empty ExceptionOnError variable supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+SET "varIsFileSystemPath=NOT_DEFINED"
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+SET "varAcceptUrl=%~2"
+REM https://en.wikipedia.org/wiki/URL
+REM Since I haven't figured out how to add optional string content to regEx patterns this algorithm accepts <driveLetter>:\EVERYTHING.
+REM The mkdir command will handle errors regarding incorrect folder names elsewhere in the script.
+REM SET "varFilePathSearchString_1=^[abcdefghijklmnopqrstuvwxyz]:\\[a-z0-9\\]*$" - Folder name check: Did not test OK.
+SET "varFilePathSearchString_1=^[abcdefghijklmnopqrstuvwxyz]:\\.*$"
+REM SET "varFilePathSearchString_2=^[\.\\]*.*$"                                  -  Did not test OK.
+REM SET "varFilePathSearchString_3=^[\.\.\\]*.*$"                                -  Did not test OK.
+
+REM Support for relative paths are added in this primitive and relatively absolute way hehe.
+REM BackNavagation paths larger than 10 steps back will fail to validate.
+REM The Generic solution above in the comments did not test ok.
+SET "varFilePathSearchString_2=^\.\\.*$"
+SET "varFilePathSearchString_3=^\.\.\\*.*$"
+SET "varFilePathSearchString_4=^\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_5=^\.\.\\\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_6=^\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_7=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_8=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_9=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_10=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_11=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_12=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
+
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_1%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_2%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_3%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_4%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_5%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_6%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_7%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_8%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_9%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_10%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_11%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_12%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+
+IF NOT "%varIsFileSystemPath%"=="YES" (
+  SET "varIsFileSystemPath=NO"
+)
+
+IF "%varIsFileSystemPath%"=="YES" IF "%varAcceptUrl%"=="NO" (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx: Result: %varIsFileSystemPath%. %~1 is a file system path. File system paths are not accepted by param_2. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%varIsFileSystemPath%"=="NO" IF "%~4"=="EXCEPTION_ON_ERR_YES" (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx. Path -%~1- is not an url. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+SET "%~3=%varIsFileSystemPath%"
+EXIT /B 0
+
+REM Param_1: SrcString. The string that requires to be verified.
+REM Param_2: SearchPattern. This is the regular expression used as the string filter. Must be a valid findStr regular expression WITHOUT begin and End sign.
+REM          Example: c:\    -    SET "varFilePathSearchString=^c:\\.*$". The use findstr /i /r /c:"%2"
+REM Param_3: Ignore case sensitivity? (IGNORE_CASE_SENSITIVITY_YES | IGNORE_CASE_SENSITIVITY_NO). Default is IGNORE_CASE_SENSITIVITY_YES.
+REM Param_4: Returnvalue. Does the srcString match the searchPattern in Param_2. (YES | NO).
+:ValidateString_RegEx
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - No srcString supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - No searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - No ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+SET "varRegExpressionSearchString=%~2"
+IF "%~3"=="IGNORE_CASE_SENSITIVITY_NO" (
+  SET "varIgnoreCaseSensitivity= "
+) ELSE (
+  SET "varIgnoreCaseSensitivity=/i"
+)
+
+REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
+echo %~1|findstr %varIgnoreCaseSensitivity% /r /c:"%2">nul
+IF "%ERRORLEVEL%"=="0" (
+  SET "%~4=YES"
+) ELSE (
+  SET "%~4=NO"
+)
 EXIT /B 0
 
 REM Param_1: Path and fileName to the file to create on the filesystem.
 REM Param_2: If file exists. "USE_EXISTING_FILE" OR "OVERWRITE_EXISTING_FILE"
 REM Param_3: Verbose_Mode - "V"
 :createFile
-CALL :CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
+CALL :CheckIfParamIsFileSystemPath_RegEx "%~1" "YES" "varCreateFilePathcheck" "EXCEPTION_ON_ERR_NO"
+IF "%varCreateFilePathcheck%"=="NO" (
+  ECHO "%~1"
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "createFile: Path is not a valid file system path. Exit." "OUTPUT_TO_STDOUT" ""
+)
 
 REM Use existing file
 IF EXIST "%~1" (
@@ -363,7 +560,7 @@ IF EXIST "%~1" (
     CALL :deleteFile "%~1" "" "%~3"
     REM Proceed through the code to reach fil creation.
   ) ELSE (
-    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "createFile: Please specify Param_2: REM Param_2: "USE_EXISTING_FILE" OR "OVERWRITE_EXISTING_FILE. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "createFile: Please specify Param_2: USE_EXISTING_FILE OR OVERWRITE_EXISTING_FILE. Exit" "OUTPUT_TO_STDOUT" ""
   )
 )
 IF NOT EXIST "%~1" (

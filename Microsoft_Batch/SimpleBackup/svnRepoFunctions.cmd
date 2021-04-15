@@ -1,5 +1,5 @@
 @echo off
-REM Version 2.3 (Github_upload date:15th of April 2021)
+REM Version 2.5 (Github_upload date:15th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -25,7 +25,6 @@ EXIT /B 0
 
 REM Param_1: Svn repository check out to update
 :svnUpdate
-CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
 SET "varResult=EMPTY"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
 IF "%varResult%"=="NO" (
@@ -50,14 +49,12 @@ REM Param_1: Path to svn repository on server.
 REM Param_2: Path to destination folder to check repo out to.
 REM Param_3: Optional flags to pass to svn.exe.
 :svnCheckout
-CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
 SET "varResult=EMPTY"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
 IF "%varResult%"=="NO" (
   EXIT /B 1
 )
 
-CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~2" "NO" "NOT_USED"
 SET "varResult=EMPTY"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%~2" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
 IF "%varResult%"=="NO" (
@@ -137,7 +134,6 @@ REM Param_1: Svn repository check out to get status from
 REM Param_2: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
 REM Param_3: Throw exception if out of date. (YES | NO)
 :svnStatus
-CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
 SET "varResult=EMPTY"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
 IF "%varResult%"=="NO" (
@@ -179,7 +175,6 @@ REM Param_1: Path to destination folder in the repo.
 REM Param_2: Path to file to add.
 REM Param_3: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
 :svnAdd
-CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
 SET "varResult=EMPTY"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
 IF "%varResult%"=="NO" (
@@ -205,7 +200,6 @@ REM Param_1: Path to destination folder in the repo.
 REM Param_2: Message
 REM Param_3: Optional flags to pass to svn.exe.
 :svnCommitAlreadyAddedContent
-CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
 SET "varResult=EMPTY"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
 IF "%varResult%"=="NO" (

@@ -1,5 +1,5 @@
 @echo off
-REM Version 2.3 (Github_upload date:15th of April 2021)
+REM Version 2.5 (Github_upload date:15th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -225,7 +225,7 @@ REM If the path argument %~1 in FOR /F is encapsulated in "" the for loop will t
 REM Therefore the relative path is used instead of the absolute path %~f1 to avoid problems with spaces.
 FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   IF ["%%j"]==[""] (
-    CALL :Exception_End "%varTargetLogFile%" "Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
+    CALL :Exception_End "%varTargetLogFile%" ":readBackupSettingsFile. Empty variable found in file: %~f1. Exit." "OUTPUT_TO_STDOUT" ""
   )
   
   REM The counters must be initialized outside this functions scope to work properly.
@@ -241,66 +241,82 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
 
   IF "%%i"=="varBackupLocation" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSyncFolderLocation" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varExistingArchivePath" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varExtractionLocation" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSrcPathFolder01" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSrcPathFolder02" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varDstPathFolder01" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varDstPathFolder02" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSimpleBackupCheckoutPath" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varRepositoryLocation" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varRepositoryDumpLocation" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSvnPath" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSvnadminPath" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varArchiveProgram" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varRasperryPi3BPlusSha512Path" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varSvnWorkingCopy01" (
     CALL :strLength "%%j" %varPathLength% "YES" ""
+    CALL ..\filesystem :CheckIfParamIsFileSystemPath_RegEx "%%j" "YES" "varCheck" "EXCEPTION_ON_ERR_YES"
     CALL ..\fileSystem :NormalizeFilePath "%%j\." %%i
     CALL ..\parameterVerification.cmd :incrementVerificationCounters "%~1"
   ) ELSE IF "%%i"=="varAppFunctionBackupFiles" (
