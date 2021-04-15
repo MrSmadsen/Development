@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.10 (07 of March 2021)
+REM Version 2.3 (Github_upload date:15th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -123,6 +123,8 @@ REM Shows only files in the directory %varDir% in simple output format.
 for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
   SET /A "varNoOfFilesInTotal+=1"
   
+  
+  REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
   echo %%F|findstr /r /c:"!varSrcStr1!">nul
   IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
@@ -293,105 +295,61 @@ set "%~2=%~f1"
 EXIT /B 0
 
 REM Param_1: Path
-REM Param_2: Check variable used to verify url-type.
-:CheckIfParamIsUrl
-set "varParam1=%~1"
-set "varParam1=%varParam1:~0,7%"
-set "varParam1_2=%~1"
-set "varParam1_2=%varParam1_2:~0,8%"
-
-REM ECHO varParam1: %varParam_1%
-IF "%varParam1%"=="http://" (
-  REM ECHO SET TO YES
-  set "%~2=YES"
-) ELSE IF "%varParam1%"=="HTTP://" (
-  REM ECHO SET TO YES
-  set "%~2=YES"
-) ELSE IF "%varParam1_2%"=="https://" (
-REM ECHO SET TO YES
-set "%~2=YES"
-) ELSE IF "%varParam1_2%"=="HTTPS://" (
-  REM ECHO SET TO YES
-  set "%~2=YES"
-) ELSE (
-  REM ECHO SET TO NO
-  set "%~2=NO"
-)
-REM Idea: Implement a regular expression to test all elements of the supplied parameter.
-REM       This will also be a good solution for svn, ftp or other path protocols.
-EXIT /B 0
-
-REM Param_1: Path
 REM Param_2: Allow url. (YES | NO). If the path is an url and allow == NO the function will call Exception_End.
-:CheckIfParamIsUrl_2
-set "varIsUrl=NOT_VERIFIED"
-set "varParam1=%~1"
-set "varParam1=%varParam1:~0,7%"
-set "varParam1_2=%~1"
-set "varParam1_2=%varParam1_2:~0,8%"
-
-REM ECHO varParam_1: %varParam_1%
-IF "%varParam1%"=="http://" (
-  REM ECHO SET TO YES
-  set "varIsUrl=YES"
-) ELSE IF "%varParam1%"=="HTTP://" (
-  REM ECHO SET TO YES
-  set "varIsUrl=YES"
-) ELSE IF "%varParam1_2%"=="https://" (
-  REM ECHO SET TO YES
-  set "varIsUrl=YES"
-) ELSE IF "%varParam1_2%"=="HTTPS://" (
-  REM ECHO SET TO YES
-  set "varIsUrl=YES"
-) ELSE (
-  REM ECHO SET TO NO
-  set "varIsUrl=NO"
+REM Param_3: Returnvalue. (YES | NO).
+:CheckIfParamIsUrl_RegEx
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - No path supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - No AllowUrl variable supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - Empty AllowUrl variable supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
-IF "varIsUrl"=="NOT_VERIFIED" (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl - Error-1 in the function implementation. Exit" "OUTPUT_TO_STDOUT" ""
+SET "varIsUrl=NOT_DEFINED"
+SET "varAcceptUrl=%~2"
+REM https://en.wikipedia.org/wiki/URL
+REM Since I haven't figured out how to add optional string content to regEx patterns this algorithm accepts http(s)://EVERYTHING.
+SET "varUrlSearchString_1=^http://.*$"
+SET "varUrlSearchString_2=^https://.*$"
+
+REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
+echo %~1|findstr /i /r /c:"%varUrlSearchString_1%">nul
+IF "%ERRORLEVEL%"=="0" (
+  SET "varIsUrl=YES"
+)
+REM Check further if no url has been found.
+echo %~1|findstr /i /r /c:"%varUrlSearchString_2%">nul
+IF "%ERRORLEVEL%"=="0" (
+  SET "varIsUrl=YES"
+)
+IF NOT "%varIsUrl%"=="YES" (
+  SET "varIsUrl=NO"
 )
 
-REM If allow url:
-IF "%~2"=="NO" (
-  IF "%varIsUrl%"=="YES" (
-    REM Do not accept url - Default behaviour.
-    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "%~1 is an URL. Urls are not accepted as paths. Exit" "OUTPUT_TO_STDOUT" ""
-  )
-  IF "%varIsUrl%"=="NO" (
-    ECHO.
-    REM PASSTHROUGH - Allow all paths that are not urls.
-  )
-  IF "%varIsUrl%"=="NOT_VERIFIED" (
-    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl - Error-2 in the function implementation. Exit" "OUTPUT_TO_STDOUT" ""
-  )
-) ELSE IF "%~2"=="YES" (
-
-  IF "%varIsUrl%"=="YES" (
-    ECHO.
-    REM PASSTHROUGH - Allow urls.
-  )
-  IF "%varIsUrl%"=="NO" (
-    ECHO.
-    REM PASSTHROUGH - Allow urls.
-  )
-  IF "%varIsUrl%"=="NOT_VERIFIED" (
-    CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl - Error-3 in the function implementation. Exit" "OUTPUT_TO_STDOUT" ""
-  )
-) ELSE (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "Param_2 is incorrect. Use either value "YES" or value "NO". Exit" "OUTPUT_TO_STDOUT" ""
+IF "%varIsUrl%"=="YES" IF "%varAcceptUrl%"=="NO" (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsUrl_RegEx: %~1 is an URL. Urls are not accepted as paths. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
-REM Idea: Implement a regular expression to test all elements of the supplied parameter.
-REM       This will also be a good solution for svn, ftp or other path protocols.
+SET "%~3=%varIsUrl%"
 EXIT /B 0
 
 REM Param_1: Path and fileName to the file to create on the filesystem.
 REM Param_2: If file exists. "USE_EXISTING_FILE" OR "OVERWRITE_EXISTING_FILE"
 REM Param_3: Verbose_Mode - "V"
 :createFile
-REM The function :CheckIfParamIsUrl exits if path is an url
-CALL :CheckIfParamIsUrl_2 "%~1" "NO"
+CALL :CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
 
 REM Use existing file
 IF EXIST "%~1" (

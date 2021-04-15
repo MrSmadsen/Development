@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.10 (07 of March 2021)
+REM Version 2.3 (Github_upload date:15th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -25,20 +25,13 @@ EXIT /B 0
 
 REM Param_1: Svn repository check out to update
 :svnUpdate
-setlocal enabledelayedexpansion
-set "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF "!varCheck!"=="NO" (
-  set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF "!varResult!"=="NO" (
-    EXIT /B 1
-  )
-) ELSE (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
+CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
+IF "%varResult%"=="NO" (
   EXIT /B 1
 )
-setlocal disabledelayedexpansion
+
 set "execPath=%varSvnPath%"
 
 REM Oberservation:
@@ -57,33 +50,20 @@ REM Param_1: Path to svn repository on server.
 REM Param_2: Path to destination folder to check repo out to.
 REM Param_3: Optional flags to pass to svn.exe.
 :svnCheckout
-setlocal enabledelayedexpansion
-set "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF "!varCheck!"=="NO" (
-  set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF "!varResult!"=="NO" (
-    EXIT /B 1
-  )
-) ELSE (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
+CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
+IF "%varResult%"=="NO" (
   EXIT /B 1
 )
 
-set "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%~2" "varCheck"
-IF "!varCheck!"=="NO" (
-  set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~2" "" "varResult" "CREATE_DIR" "EXCEPTION_NO"
-  IF "!varResult!"=="NO" (
-    EXIT /B 1
-  )
-) ELSE (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 2 is an url. Return." "OUTPUT_TO_STDOUT" ""
+CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~2" "NO" "NOT_USED"
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~2" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
+IF "%varResult%"=="NO" (
   EXIT /B 1
 )
-setlocal disabledelayedexpansion
+
 set "execPath=%varSvnPath%"
 set "varFlags=%~3"
 
@@ -157,20 +137,12 @@ REM Param_1: Svn repository check out to get status from
 REM Param_2: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
 REM Param_3: Throw exception if out of date. (YES | NO)
 :svnStatus
-setlocal enabledelayedexpansion
-set "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF "!varCheck!"=="NO" (
-  set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF "!varResult!"=="NO" (
-    EXIT /B 1
-  )
-) ELSE (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
+CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
+IF "%varResult%"=="NO" (
   EXIT /B 1
 )
-setlocal disabledelayedexpansion
 
 REM SET "varReturnDir=%CD%"
 REM cd /d "%~1"
@@ -207,20 +179,12 @@ REM Param_1: Path to destination folder in the repo.
 REM Param_2: Path to file to add.
 REM Param_3: Optional flags to pass to svn.exe. Example: --no-ignore to check for unversioned files, --quiet to ignore the unversioned files.
 :svnAdd
-setlocal enabledelayedexpansion
-set "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF "!varCheck!"=="NO" (
-  set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF "!varResult!"=="NO" (
-    EXIT /B 1
-  )
-) ELSE (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
+CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
+IF "%varResult%"=="NO" (
   EXIT /B 1
 )
-setlocal disabledelayedexpansion
 
 SET "varReturnDir=%CD%"
 cd /d "%~1"
@@ -241,20 +205,12 @@ REM Param_1: Path to destination folder in the repo.
 REM Param_2: Message
 REM Param_3: Optional flags to pass to svn.exe.
 :svnCommitAlreadyAddedContent
-setlocal enabledelayedexpansion
-set "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%~1" "varCheck"
-IF "!varCheck!"=="NO" (
-  set "varResult=EMPTY"
-  CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
-  IF "!varResult!"=="NO" (
-    EXIT /B 1
-  )
-) ELSE (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "Path in param 1 is an url. Return." "OUTPUT_TO_STDOUT" ""
+CALL ..\filesystem ::CheckIfParamIsUrl_RegEx "%~1" "NO" "NOT_USED"
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_NO"
+IF "%varResult%"=="NO" (
   EXIT /B 1
 )
-setlocal disabledelayedexpansion
 
 SET "varReturnDir=%CD%"
 cd /d "%~1"

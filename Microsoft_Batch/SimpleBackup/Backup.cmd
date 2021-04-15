@@ -1,5 +1,5 @@
 @echo off
-REM Version and Github_upload date: 2.2.10 (07 of March 2021)
+REM Version 2.3 (Github_upload date:15th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -160,9 +160,9 @@ IF "%varExportSvn%"=="YES" (
 IF "%varCheck%"=="TRUE" (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varSvnadminPath%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varSvnadminPath%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnadminPath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnadminPath is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
@@ -170,9 +170,9 @@ IF "%varCheck%"=="TRUE" (
   
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varSvnPath%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varSvnPath%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnPath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnPath is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
@@ -199,9 +199,9 @@ IF "%varMoveFoldersBack%"=="YES" (
 IF "%varCheck%"=="TRUE" (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varSvnadminPath%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varSvnadminPath%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnadminPath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSvnadminPath is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
@@ -209,9 +209,9 @@ IF "%varCheck%"=="TRUE" (
   
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder01%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varSrcPathFolder01%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSrcPathFolder01 is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSrcPathFolder01 is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
@@ -219,9 +219,9 @@ IF "%varCheck%"=="TRUE" (
   
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varSrcPathFolder02%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varSrcPathFolder02%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSrcPathFolder02 is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSrcPathFolder02 is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
@@ -229,9 +229,9 @@ IF "%varCheck%"=="TRUE" (
 
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder01%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varDstPathFolder01%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varDstPathFolder01 is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varDstPathFolder01 is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
@@ -239,9 +239,9 @@ IF "%varCheck%"=="TRUE" (
 
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varDstPathFolder02%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varDstPathFolder02%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varDstPathFolder02 is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varDstPathFolder02 is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
@@ -252,9 +252,9 @@ EXIT /B 0
 :PerformBackupPreconditionalChecks
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%varBackupLocation%" "varCheck"
+CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varBackupLocation%" "YES" "varCheck"
 IF "!varCheck!"=="YES" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varBackupLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varBackupLocation is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 SET "varResult=EMPTY"
@@ -275,19 +275,19 @@ IF "%varExportSvn%"=="YES" (
   
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryLocation%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varRepositoryLocation%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varRepositoryLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varRepositoryLocation is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
   CALL ..\fileSystem :checkIfFileOrFolderExist "%varRepositoryLocation%" "varRepositoryLocation" "varResult" "CREATE_NO" "EXCEPTION_YES"
   
   SETLOCAL enabledelayedexpansion
-  SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varRepositoryDumpLocation%" "varCheck"
+  SET "varCheck=EMPTY"  
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varRepositoryDumpLocation%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varRepositoryDumpLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varRepositoryDumpLocation is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
@@ -313,9 +313,9 @@ REM The script just continues from the line it has reached.
 :PerformIntegrityCheckPreconditionalChecks
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
+CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varExistingArchivePath%" "YES" "varCheck"
 IF "!varCheck!"=="YES" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 SET "varResult=EMPTY"
@@ -341,9 +341,9 @@ EXIT /B 0
 :PerformExtractFilesPreconditionalChecks
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
+CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varExistingArchivePath%" "YES" "varCheck"
 IF "!varCheck!"=="YES" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 SET "varResult=EMPTY"
@@ -351,9 +351,9 @@ CALL ..\fileSystem :checkIfFileOrFolderExist "%varExistingArchivePath%" "varExis
 
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
+CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varExtractionLocation%" "YES" "varCheck"
 IF "!varCheck!"=="YES" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExtractionLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExtractionLocation is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 SET "varResult=EMPTY"
@@ -367,9 +367,10 @@ EXIT /B 0
 :PerformVerifyChecksumPreconditionalChecks
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%varExistingArchivePath%" "varCheck"
+CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varExistingArchivePath%" "YES" "varCheck"
+varSyncFolderLocation
 IF "!varCheck!"=="YES" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExistingArchivePath is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 SET "varResult=EMPTY"
@@ -383,9 +384,9 @@ EXIT /B 0
 :PerformSyncBackupFolderPreconditionalChecks
 SETLOCAL enabledelayedexpansion
 SET "varCheck=EMPTY"
-CALL ..\filesystem :CheckIfParamIsUrl "%varSyncFolderLocation%" "varCheck"
+CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varSyncFolderLocation%" "YES" "varCheck"
 IF "!varCheck!"=="YES" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSyncFolderLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varSyncFolderLocation is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 SET "varResult=EMPTY"
@@ -576,9 +577,9 @@ IF "%varExtractionLocation%"=="DEFAULT_LOCATION" (
 ) ELSE (
   SETLOCAL enabledelayedexpansion
   SET "varCheck=EMPTY"
-  CALL ..\filesystem :CheckIfParamIsUrl "%varExtractionLocation%" "varCheck"
+  CALL ..\filesystem :CheckIfParamIsUrl_RegEx "%varExtractionLocation%" "YES" "varCheck"
   IF "!varCheck!"=="YES" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExtractionLocation is an url. Not allowed. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Path in varExtractionLocation is an url. Not Allowed. Exit" "OUTPUT_TO_STDOUT" ""
   )
   SETLOCAL disabledelayedexpansion & ENDLOCAL
   SET "varResult=EMPTY"
