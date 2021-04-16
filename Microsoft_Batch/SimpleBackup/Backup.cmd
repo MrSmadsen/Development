@@ -1,5 +1,5 @@
 @echo off
-REM Version 2.5 (Github_upload date:15th of April 2021)
+REM Version 2.5.1 (Github_upload date:16th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -376,7 +376,7 @@ EXIT /B 0
 :CreateNewFolderWithDate
 ECHO.
 SET "varTargetBackupfolder=%varBackupLocation%\%varDate%"
-CALL ..\fileSystem :NormalizeFilePath "%varTargetBackupfolder%\." varTargetBackupfolder
+CALL ..\fileSystem :NormalizeFilePath "%varTargetBackupfolder%\." "varTargetBackupfolder"
 
 REM This creates the backup folder with date.
 IF EXIST "%varTargetBackupfolder%" (
@@ -429,8 +429,12 @@ EXIT /B 0
 :UseExistingFolderWithDate
 ECHO Use existing archive files.
 SET "varTargetBackupfolder=%varExistingArchivePath%"
-CALL ..\fileSystem :NormalizeFilePath "%varTargetBackupfolder%\." varTargetBackupfolder
+CALL ..\fileSystem :NormalizeFilePath "%varTargetBackupfolder%\." "varTargetBackupfolder"
 ECHO Using Existing folder at: %varTargetBackupfolder%.
+
+REM Retrieve existing date timestamp.
+CALL ..\fileSystem :getSimpleBackup_DateFolderFromPath "%varTargetBackupfolder%" varExistingDate
+ECHO Restrieved timeStamp: %varExistingDate%
 EXIT /B 0
 
 :SetupExistingArchiveFiles
@@ -531,17 +535,17 @@ IF "%varMode%"=="a" (
   
   CALL :End  
   REM :End is called before sync'ing to be able to copy the entire logFile to external storage.
-  IF "%varBackupSynchronization%"=="YES" IF EXIST "%varSyncFolderLocation%" (
+  IF "%varBackupSynchronization%"=="YES" IF EXIST "%varSyncFolderLocation%" IF DEFINED varExistingDate (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
-    CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
-    CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
+    CALL ..\fileSystem :copyFile "%varBackupLocation%\%varExistingDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varExistingDate%"
+    CALL ..\fileSystem :copyFile "%varBackupLocation%\%varExistingDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varExistingDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
   )
 
-  IF "%varBackupSynchronization%"=="YES_PURGE_DST" IF EXIST "%varSyncFolderLocation%" (
+  IF "%varBackupSynchronization%"=="YES_PURGE_DST" IF EXIST "%varSyncFolderLocation%" IF DEFINED varExistingDate (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
-    CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
-    CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
+    CALL ..\fileSystem :copyFile "%varBackupLocation%\%varExistingDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varExistingDate%"
+    CALL ..\fileSystem :copyFile "%varBackupLocation%\%varExistingDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varExistingDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
   )
 

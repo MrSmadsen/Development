@@ -1,5 +1,5 @@
 @echo off
-REM Version 2.5 (Github_upload date:15th of April 2021)
+REM Version 2.5.1 (Github_upload date:16th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -79,6 +79,8 @@ CALL ..\utility_functions :strLength2 "%varDate%" "varResultStrLength2"
 REM The expected length is the length of varDate string, which is the name of the backupFolder-subfolder for a specific configuration backup.
 SET "varExpectedFolderLength=%varResultStrLength2%"
 
+REM To improve folder checking ADD FOLDER STRING PATTERN TEST HERE! Checkout function: :getSimpleBackup_DateFolderFromPath
+
 REM Calculate the length of the folder to be verified.
 SET "varResultStrLength2=NOT_DEFINED"
 CALL ..\utility_functions :strLength2 "%~2" "varResultStrLength2"
@@ -88,6 +90,17 @@ IF "%varResultStrLength2%"=="NOT_DEFINED" (
   REM Folder does not have the expected length.
   EXIT /B 1
 )
+
+REM Checking if the folder to check matches the expected format of the dateTime timestamp used for folderNaming.
+SET "varDateFolderPattern=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]$"
+SET "varDateFolderStringPatternMatchPathResult="
+CALL :ValidateString_RegEx "%~2" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
+  REM Folder does not match the expected string pattern.
+  SET "varDateFolderStringPatternMatchPathResult="
+  EXIT /B 1
+)
+SET "varDateFolderStringPatternMatchPathResult="
 
 REM Check for directories. If any are found return and do not delete. The backup-script do not make subdirs.
 FOR /f "tokens=*" %%a in ('DIR "%~1\%~2" /a:d /b') DO (      
@@ -910,6 +923,61 @@ REM Param_2:DestinationPath
     EXIT /B 1
   )
   ECHO.
+EXIT /B 0
+
+REM Param_1: Path
+REM Param_2: ReturnValue
+:getSimpleBackup_DateFolderFromPath
+SET "varTmpNormalizedPathValue="
+CALL :NormalizeFilePath "%~1\." "varTmpNormalizedPathValue"
+
+IF "%varTmpNormalizedPathValue%"=="" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":getSimpleBackup_DateFolderFromPath. Normalizing path failed. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%varTmpNormalizedPathValue:~-1%"=="\" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":getSimpleBackup_DateFolderFromPath. This function requires a normalized path provided by function :NormalizeFilePath. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF "%varTmpNormalizedPathValue:~-1%"=="." (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":getSimpleBackup_DateFolderFromPath. This function requires a normalized path provided by function :NormalizeFilePath. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+REM The expected folderLength is based on the standard format of variable varDate, which is used to name backup-subfolders.
+REM I haven't found a good way to avoid having a hardcoded folderLength embedded in this function code without introducing
+REM SETLOCAL scope, which would make it impossible to return the found folderName without saving it in a file.
+SET "varExpectedFolderLength=NOT_DEFINED"
+CALL ..\utility_functions :strLength2 "%varDate%" "varExpectedFolderLength"
+
+IF NOT %varExpectedFolderLength% EQU 16 (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":getSimpleBackup_DateFolderFromPath. Backup SubFolder length check failed. Expected format is 16 in length. Check script code. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+SET /a index=%varExpectedFolderLength%+1
+REM This function will throw an exception if a slash is not found.
+CALL :LookForSlashChar "%varTmpNormalizedPathValue%" "%index%"
+
+SET "varDateFolderFromPath=%varTmpNormalizedPathValue:~-16%"
+SET "varDateFolderPattern=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]$"
+CALL :ValidateString_RegEx "%varDateFolderFromPath%" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+IF "%varDateFolderStringPatternMatchPathResult%"=="YES" (
+  SET "%~2=%varDateFolderFromPath%"
+) ELSE (
+  SET "%~2="
+)
+EXIT /B 0
+
+REM PARAM_1: String to getSubString from.
+REM Param_2: Index value of slash char.
+:LookForSlashChar
+SETLOCAL ENABLEDELAYEDEXPANSION
+SET /A varIndex=%~2
+SET "varLookForSlashCharTmpTestStr=%~1"
+SET "varLookForSlashCharTmpTestStr=!varLookForSlashCharTmpTestStr:~-%varIndex%!
+
+IF NOT "!varLookForSlashCharTmpTestStr:~0,1!"=="\" (
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":LookForSlashChar. Folder does not match the expected folder format of variable varDate. Exit" "OUTPUT_TO_STDOUT" ""
+)
+SETLOCAL DISABLEDELAYEDEXPANSION
 EXIT /B 0
 
 REM Param_1: Path

@@ -1,5 +1,5 @@
 @echo off
-REM Version 2.5 (Github_upload date:15th of April 2021)
+REM Version 2.5.1 (Github_upload date:16th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -271,8 +271,8 @@ set "DUMP_PATH=%varRepositoryDumpLocation%"
 set "REPOSITORIES_BASE=%varRepositoryLocation%"
 
 REM "\." is added to non-file paths to normalize the paths correctly.
-CALL ..\fileSystem :NormalizeFilePath "%DUMP_PATH%\." DUMP_PATH
-CALL ..\fileSystem :NormalizeFilePath "%REPOSITORIES_BASE%\." REPOSITORIES_BASE
+CALL ..\fileSystem :NormalizeFilePath "%DUMP_PATH%\." "DUMP_PATH"
+CALL ..\fileSystem :NormalizeFilePath "%REPOSITORIES_BASE%\." "REPOSITORIES_BASE"
 
 SET "varTmpFileName=Svn_export_%TIME_STAMP%-logfile.txt"
 set "varTargetLogFile1=%DUMP_PATH%\%varTmpFileName%"
@@ -283,13 +283,13 @@ set "varTargetFile1=%DUMP_PATH%\%REPO01_DUMP_NAME%"
 set "varTargetRepo2=%REPOSITORIES_BASE%\%REPO02%"
 set "varTargetFile2=%DUMP_PATH%\%REPO02_DUMP_NAME%"
 
-CALL ..\fileSystem :NormalizeFilePath "%varTargetLogFile1%" varTargetLogFile1
-CALL ..\fileSystem :NormalizeFilePath "%varTargetFile1%" varTargetFile1
-CALL ..\fileSystem :NormalizeFilePath "%varTargetFile2%" varTargetFile2
+CALL ..\fileSystem :NormalizeFilePath "%varTargetLogFile1%" "varTargetLogFile1"
+CALL ..\fileSystem :NormalizeFilePath "%varTargetFile1%" "varTargetFile1"
+CALL ..\fileSystem :NormalizeFilePath "%varTargetFile2%" "varTargetFile2"
 
 REM "\." is added to non-file paths to normalize the paths correctly.
-CALL ..\fileSystem :NormalizeFilePath "%varTargetRepo1%\." varTargetRepo1
-CALL ..\fileSystem :NormalizeFilePath "%varTargetRepo2%\." varTargetRepo2
+CALL ..\fileSystem :NormalizeFilePath "%varTargetRepo1%\." "varTargetRepo1"
+CALL ..\fileSystem :NormalizeFilePath "%varTargetRepo2%\." "varTargetRepo2"
 
 REM ECHO varTargetLogFile1 - %varTargetLogFile1%
 REM ECHO varTargetFile1 - %varTargetFile1%
