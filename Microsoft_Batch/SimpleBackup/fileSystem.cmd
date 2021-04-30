@@ -1,5 +1,5 @@
 @echo off
-REM Version 2.5.1 (Github_upload date:16th of April 2021)
+REM Version 2.5.2 (Github_upload date:30th of April 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -84,15 +84,16 @@ REM To improve folder checking ADD FOLDER STRING PATTERN TEST HERE! Checkout fun
 REM Calculate the length of the folder to be verified.
 SET "varResultStrLength2=NOT_DEFINED"
 CALL ..\utility_functions :strLength2 "%~2" "varResultStrLength2"
-IF "%varResultStrLength2%"=="NOT_DEFINED" (  
+IF "%varResultStrLength2%"=="NOT_DEFINED" (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" "Error: :deleteFolderIfItIsAnOldBackup: Unexpected error in ..\utility_functions :strLength2. Exit" "OUTPUT_TO_STDOUT" ""
 ) ELSE IF %varResultStrLength2% NEQ %varExpectedFolderLength% (
+  REM %~2: varResultStrLength2-%varResultStrLength2% ____ varExpectedFolderLength: %varExpectedFolderLength%
   REM Folder does not have the expected length.
   EXIT /B 1
 )
 
 REM Checking if the folder to check matches the expected format of the dateTime timestamp used for folderNaming.
-SET "varDateFolderPattern=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]$"
+SET "varDateFolderPattern=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]$"
 SET "varDateFolderStringPatternMatchPathResult="
 CALL :ValidateString_RegEx "%~2" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
@@ -103,32 +104,32 @@ IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
 SET "varDateFolderStringPatternMatchPathResult="
 
 REM Check for directories. If any are found return and do not delete. The backup-script do not make subdirs.
-FOR /f "tokens=*" %%a in ('DIR "%~1\%~2" /a:d /b') DO (      
+FOR /f "tokens=*" %%a in ('DIR "%~1\%~2" /a:d /b') DO (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "FOUND UNEXPECTED FOLDER^(s^) in folder: %~1\%~2. Might be user folder. Do not delete folder. Return." "OUTPUT_TO_STDOUT" ""
   EXIT /B 1
 )
 
 SET "varIsValidFolder=NOT_DEFINED"
 REM 2021-03-17_15-20-backup.zip.001
-SET "varSrcStr1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-backup\.zip.*$"
+SET "varSrcStr1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.%varFormat%.*$"
 REM 2021-03-17_15-20-Checksum-SHA512.txt
-SET "varSrcStr2=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-Checksum-.*\.txt$"
+SET "varSrcStr2=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-Checksum-.*\.txt$"
 REM 2021-03-17_15-20-logfile.txt
-SET "varSrcStr3=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-logfile\.txt$"
+SET "varSrcStr3=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-logfile\.txt$"
 REM 2021-03-17_15-20-RoboCopyLogfile.txt"
-SET "varSrcStr4=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-RoboCopyLogfile\.txt$"
+SET "varSrcStr4=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-RoboCopyLogfile\.txt$"
 REM 2021-03-17_15-20-UpdateArchive-logfile.txt"
-SET "varSrcStr5=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-UpdateArchive-logfile\.txt$"
+SET "varSrcStr5=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-UpdateArchive-logfile\.txt$"
 REM 2021-03-17_15-20-ExtractToFolder-logfile.txt"
-SET "varSrcStr6=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-ExtractToFolder-logfile\.txt$"
+SET "varSrcStr6=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractToFolder-logfile\.txt$"
 REM 2021-03-17_15-20-ExtractFullPath-logfile.txt"
-SET "varSrcStr7=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-ExtractFullPath-logfile\.txt$"
+SET "varSrcStr7=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractFullPath-logfile\.txt$"
 REM 2021-03-17_15-20-IntegrityTest-logfile.txt"
-SET "varSrcStr8=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-IntegrityTest-logfile\.txt$"
+SET "varSrcStr8=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-IntegrityTest-logfile\.txt$"
 REM 2021-03-17_15-20-VerifyChecksum-logfile.txt"
-SET "varSrcStr9=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-VerifyChecksum-logfile\.txt$"
+SET "varSrcStr9=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-VerifyChecksum-logfile\.txt$"
 REM 2021-03-17_15-20-backup.exe"
-SET "varSrcStr10=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]-backup\.exe$"
+SET "varSrcStr10=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.exe$"
 
 SET /A "varNoOfFilesInTotal=0"
 SET /A "varNoOfExpectedFilesInTotal=0"
@@ -214,7 +215,7 @@ IF  "%varIsValidFolder%"=="NO" (
 IF "%varIsValidFolder%"=="YES" (
 REM Delete folder without user confirmation.
   IF NOT "%~1"=="%varBackupLocation%" (
-    ECHO %~1 is not the current configuration backupfolder. Exit without deleting folder.
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "%~1 is not the current configuration backupfolder. Exit without deleting folder." "OUTPUT_TO_STDOUT" ""
     Setlocal disabledelayedexpansion
     EXIT /B 1
   )
@@ -498,15 +499,15 @@ IF "%varIsFileSystemPath%"=="YES" IF "%varAcceptUrl%"=="NO" (
 )
 
 IF "%varIsFileSystemPath%"=="NO" IF "%~4"=="EXCEPTION_ON_ERR_YES" (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx. Path -%~1- is not an url. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":CheckIfParamIsFileSystemPath_RegEx. Path -%~1- is not a file system path. Not allowed. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 SET "%~3=%varIsFileSystemPath%"
 EXIT /B 0
 
 REM Param_1: SrcString. The string that requires to be verified.
-REM Param_2: SearchPattern. This is the regular expression used as the string filter. Must be a valid findStr regular expression WITHOUT begin and End sign.
-REM          Example: c:\    -    SET "varFilePathSearchString=^c:\\.*$". The use findstr /i /r /c:"%2"
+REM Param_2: SearchPattern. This is the regular expression used as the string filter. Must be a valid findStr regular expression.
+REM          Example: c:\    -    SET "varFilePathSearchString=^c:\\.*$". Then use findstr /i /r /c:"%2"
 REM Param_3: Ignore case sensitivity? (IGNORE_CASE_SENSITIVITY_YES | IGNORE_CASE_SENSITIVITY_NO). Default is IGNORE_CASE_SENSITIVITY_YES.
 REM Param_4: Returnvalue. Does the srcString match the searchPattern in Param_2. (YES | NO).
 :ValidateString_RegEx
@@ -535,7 +536,6 @@ IF [%4]==[""] (
   CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
-SET "varRegExpressionSearchString=%~2"
 IF "%~3"=="IGNORE_CASE_SENSITIVITY_NO" (
   SET "varIgnoreCaseSensitivity= "
 ) ELSE (
@@ -957,7 +957,7 @@ REM This function will throw an exception if a slash is not found.
 CALL :LookForSlashChar "%varTmpNormalizedPathValue%" "%index%"
 
 SET "varDateFolderFromPath=%varTmpNormalizedPathValue:~-16%"
-SET "varDateFolderPattern=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][1-9]_[0-9][0-9]-[0-9][0-9]$"
+SET "varDateFolderPattern=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]$"
 CALL :ValidateString_RegEx "%varDateFolderFromPath%" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="YES" (
   SET "%~2=%varDateFolderFromPath%"
