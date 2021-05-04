@@ -486,7 +486,7 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
 )
 EXIT /B 0
 
-REM Param_1: Path to .Version file.
+REM Param_1: Path to Version.info file.
 :readVersionInfo
 IF NOT EXIST "%~f1" (
   CALL :Exception_End "%varTargetLogFile%" "File %~f1 does not exist. Exit." "OUTPUT_TO_STDOUT" ""

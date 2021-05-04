@@ -1,4 +1,13 @@
 @echo off
+REM Author/Developer: Søren Madsen
+REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
+REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
+REM             provided by standard archiving programs such as 7zip.
+REM             It has been developed for my personal setup and my own use case.
+REM Documentation: Checkout the file: Howto_Description.pdf
+REM Test_Disclaimer: This script has been tested on: Microsoft Windows 10 64bit home (Danish).
+REM                  Feel free to use this script/software at your own risk.
+REM File Encoding: utf-8
 
 SET "varMultipleBackups=YES"
 SET "varGeneralSettingsFile=..\Settings.ini"
@@ -15,19 +24,10 @@ REM Initializing the lists used for ini-file parameter validation.
 CALL .\ParameterValidation :initParameterListValues
 
 REM  Enable this to backup the latest raspberry pi 3b+ image before the general backup.
-REM CALL :backupRaspberryPiImage
-
-REM  Enable this to backup everything except big binary blop folders.
-CALL :fullBackupNoPictures
-
-REM  Enable this to backup my user folder.
-CALL :backupUser
-
-REM  Enable this to backup pictures from current year.
-REM CALL :backupBilleder_CurrentYear_and_various_folders
+CALL :backupRaspberryPiImage
 
 REM  Most complete backup I have defined.
-REM CALL :fullBackup
+CALL :fullBackup
 
 IF "%varMultipleBackups%"=="YES" (
   IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
@@ -53,36 +53,6 @@ IF "%varSettingsFileRead%"=="NO" (
   CALL :readGeneralSettingsFile
 )
 call RaspberryBackup.cmd
-TIMEOUT /T 2
-cd ".."
-EXIT /B 0
-
-:fullBackupNoPictures
-cd ".\FullBackupNoPictures"
-IF "%varSettingsFileRead%"=="NO" (
-  CALL :readGeneralSettingsFile
-)
-call BackupFolders.cmd
-TIMEOUT /T 2
-cd ".."
-EXIT /B 0
-
-:backupUser
-cd ".\BackupUser"
-IF "%varSettingsFileRead%"=="NO" (
-  CALL :readGeneralSettingsFile
-)
-call BackupFolders.cmd
-TIMEOUT /T 2
-cd ".."
-EXIT /B 0
-
-:backupBilleder_CurrentYear_and_various_folders
-cd ".\BackupBilleder_CurrentYear_and_various_folders"
-IF "%varSettingsFileRead%"=="NO" (
-  CALL :readGeneralSettingsFile
-)
-call BackupFolders.cmd
 TIMEOUT /T 2
 cd ".."
 EXIT /B 0

@@ -35,7 +35,7 @@ REM Initializing the global application errorcode variable.
 SET "varAppErrorCode=0"
 
 REM Get SimpleBackup Version info.
-SET "varVersionFile=..\.Version"
+SET "varVersionFile=..\Version.info"
 CALL ..\fileSystem :checkIfFileOrFolderExist "%varVersionFile%" "varVersionFile" "varResult" "CREATE_NO" "EXCEPTION_NO"
 IF "%varResult%"=="YES" (
   SET /a "varVersionInfoSettingsValidated=0"
@@ -314,7 +314,7 @@ SET "varSettingsIni=Settings.ini"
 SET "varSvnRepoFunctionsCmd=svnRepoFunctions.cmd"
 SET "varUtilityFunctionsCmd=utility_functions.cmd"
 SET "varParameterValidationCmd=ParameterValidation.cmd"
-SET "varVersionInfofile=.Version"
+SET "varVersionInfofile=Version.info"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checking SimpleBackup working copy files for changes:" "OUTPUT_TO_STDOUT" ""

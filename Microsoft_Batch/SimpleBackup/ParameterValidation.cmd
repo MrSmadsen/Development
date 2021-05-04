@@ -322,7 +322,7 @@ EXIT /B 0
 
 REM Param_1: Path to settingsfile.
 :incrementVersionInfoCounters
-IF "%~1"=="..\.Version" (
+IF "%~1"=="..\Version.info" (
   SET /a "varVersionInfoSettingsValidated+=1"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":incrementVersionInfoCounterVariable - Incrementation error. Check SettingsFile name. Value: "%~1". Exit" "OUTPUT_TO_STDOUT" ""

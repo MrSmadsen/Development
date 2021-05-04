@@ -11,7 +11,7 @@ IF "%1"=="" (
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "No path found. Usage: PrepareForCommit.bat "Path_To_Svn_Folder". Exit" "OUTPUT_TO_STDOUT" ""
 )
 
-SET "varVersionFile=..\.Version"
+SET "varVersionFile=..\Version.info"
 SET "varSvnCheckOut=%~1"
 
 REM Get Release Info from SVN.
