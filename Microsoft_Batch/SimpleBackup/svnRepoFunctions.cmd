@@ -1,5 +1,4 @@
 @echo off
-REM Version 2.6 (Github_upload date:3th of May 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -159,8 +158,8 @@ REM HEAD is the latest revision in the repository.
 REM BASE is the last revision you have obtained from the repository.
 REM They are the same after a successful commit or update.
 REM When you make changes, your files differ from the BASE copies
-for /F "tokens=1,2" %%I in ('"%execPath%" info -r HEAD %~1') do if "%%I"=="Revision:" set vHEAD=%%J
-for /F "tokens=1,2" %%I in ('"%execPath%" info -r BASE %~1') do if "%%I"=="Revision:" set vBASE=%%J
+for /F "tokens=1,2" %%I in ('"%execPath%" info -r HEAD %~1') do if "%%I"=="Revision:" set "vHEAD=%%J"
+for /F "tokens=1,2" %%I in ('"%execPath%" info -r BASE %~1') do if "%%I"=="Revision:" set "vBASE=%%J"
 
 IF NOT "%vBASE%"=="%vHEAD%" (
   IF "%~3"=="YES" (
@@ -169,6 +168,276 @@ IF NOT "%vBASE%"=="%vHEAD%" (
     CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" "The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
   )
 )
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Revision number.
+:svnGetRevision
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetRevision - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetRevision - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vHEAD%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Path.
+:svnGetPath
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Path:" SET vPATH=%%J
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetPath - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetPath - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vPATH%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - URL.
+:svnGetURL
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="URL:" SET vURL=%%J
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetURL - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetURL - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vURL%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Relative URL.
+:svnGetRelativeURL
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=1,2 delims=:" %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Relative URL" SET "vRelativeURL=%%J"
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetRelativeURL - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetRelativeURL - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+REM Remove the leading space - :~1%.
+SET "%~3=%vRelativeURL:~1%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Repository Root.
+:svnGetRepositoryRoot
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=2-3 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Root:" SET "vRepositoryRoot=%%J"
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetRepositoryRoot - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetRepositoryRoot - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vRepositoryRoot%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Repository UUID.
+:svnGetRepositoryUUID
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=1,2 delims=:" %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Repository UUID" SET "vRepositoryUUID=%%J"
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetRepositoryUUID - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetRepositoryUUID - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vRepositoryUUID:~1%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Node Kind.
+:svnGetNodeKind
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=1,2 delims=:" %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Node Kind" SET "vNodeKind=%%J"
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetNodeKind - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetNodeKind - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vNodeKind:~1%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Last Changed Author.
+:svnGetLastChangedAuthor
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=1,2 delims=:" %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Last Changed Author" SET "vLastChangedAuthor=%%J"
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetLastChangedAuthor - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetLastChangedAuthor - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vLastChangedAuthor:~1%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Last Changed Rev.
+:svnGetLastChangedRev
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=1,2 delims=:" %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Last Changed Rev" SET "vLastChangedRev=%%J"
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetLastChangedRev - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetLastChangedRev - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vLastChangedRev:~1%"
+EXIT /B 0
+
+REM Param_1: Svn repository to get revision from.
+REM Param_2: Throw exception if out of date. (YES | NO)
+REM Param_3: returnValue - Last Changed Date.
+:svnGetLastChangedDate
+SET "varResult=EMPTY"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%~1" "" "varResult" "CREATE_NO" "EXCEPTION_YES"
+
+SET "execPath=%varSvnPath%"
+
+REM HEAD is the latest revision in the repository.
+REM BASE is the last revision you have obtained from the repository.
+REM They are the same after a successful commit or update.
+REM When you make changes, your files differ from the BASE copies
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Revision:" SET "vHEAD=%%J"
+FOR /F "tokens=1,2 delims= " %%I IN ('"%execPath%" info -r BASE %~1') DO IF "%%I"=="Revision:" SET "vBASE=%%J"
+FOR /F "tokens=3-10 delims= " %%I IN ('"%execPath%" info -r HEAD %~1') DO IF "%%I"=="Date:" SET "vLastChangedDate=%%J %%K %%L %%M %%N %%O %%P"
+
+IF NOT "%vBASE%"=="%vHEAD%" (
+  IF "%~2"=="YES" (
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":svnGetLastChangedDate - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%. Exit." "OUTPUT_TO_STDOUT" ""
+  ) ELSE (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile1%" ":svnGetLastChangedDate - The checked out files are not up to date. Revision is: %vBASE%. Revision should be: %vHEAD%." "OUTPUT_TO_STDOUT" ""
+  )
+)
+SET "%~3=%vLastChangedDate%"
 EXIT /B 0
 
 REM Param_1: Path to destination folder in the repo.

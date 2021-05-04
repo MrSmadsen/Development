@@ -1,5 +1,4 @@
 @echo off
-REM Version 2.6 (Github_upload date:3th of May 2021)
 REM Author/Developer: Søren Madsen
 REM Github url: https://github.com/MrSmadsen/Development/tree/main/Microsoft_Batch/SimpleBackup
 REM Desciption: This is a Microsoft Batch script to automate backup and archive functionality
@@ -34,6 +33,17 @@ REM This is to ensure that the logFile-variable isn't containing anything from a
 SET "varTargetLogFile="
 REM Initializing the global application errorcode variable.
 SET "varAppErrorCode=0"
+
+REM Get SimpleBackup Version info.
+SET "varVersionFile=..\.Version"
+CALL ..\fileSystem :checkIfFileOrFolderExist "%varVersionFile%" "varVersionFile" "varResult" "CREATE_NO" "EXCEPTION_NO"
+IF "%varResult%"=="YES" (
+  SET /a "varVersionInfoSettingsValidated=0"
+  CALL ..\utility_functions :readVersionInfo "%varVersionFile%"
+) ELSE (
+  SET "varReleaseVersion=No VersionInfo Available."
+)
+
 REM Determine privilige level.
 CALL ..\utility_functions :is_cmd_running_with_admin_priviligies_using_whoami
 CALL :SetupApplicationMode
@@ -89,9 +99,9 @@ SET "varMode=x"
 SET "varApplicationFunctionText=Extract archive with full paths"
 SET /a "varCount+=1"
 )
-IF "%varAppFunctionVerifyChecksum%"=="YES" (
+IF "%varAppFunctionValidateChecksum%"=="YES" (
 SET "varMode=v"
-SET "varApplicationFunctionText=Verify the archive checksum"
+SET "varApplicationFunctionText=Validate the archive checksum"
 SET /a "varCount+=1"
 )
 IF "%varAppFunctionSyncBackupFolder%"=="YES" (
@@ -136,7 +146,7 @@ IF "%varAppFunctionExtractFilestoFolder%"=="YES" (
 IF "%varAppFunctionExtractFilesWithFullFilePath%"=="YES" (
   CALL :PerformExtractFilesPreconditionalChecks
 )
-IF "%varAppFunctionVerifyChecksum%"=="YES" (
+IF "%varAppFunctionValidateChecksum%"=="YES" (
   CALL :PerformVerifyChecksumPreconditionalChecks
 )
 IF "%varAppFunctionSyncBackupFolder%"=="YES" (
@@ -220,9 +230,9 @@ IF "%varExportSvn%"=="YES" (
   CALL ..\fileSystem :checkIfFileOrFolderExist "%varRepositoryDumpLocation%" "varRepositoryDumpLocation" "varResult" "CREATE_DIR" "EXCEPTION_YES"
 )
 
-REM Verify the paths in varFileList
+REM Validate the paths in varFileList
 IF EXIST ".\%varFileList%" (
-  REM Verify the paths in varFileList
+  REM Validate the paths in varFileList
   FOR /f "usebackq delims=" %%x in ("%varFileList%") do (
     IF NOT EXIST "%%x" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The path %%x from %varFileList% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
@@ -248,7 +258,7 @@ IF "%varMode%"=="u" (
   IF NOT EXIST ".\%varFileList%" (
     CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The file %varFileList% not found." "OUTPUT_TO_STDOUT" ""
   )
-  REM Verify the paths in varFileList
+  REM Validate the paths in varFileList
   FOR /f "usebackq delims=" %%x in ("%varFileList%") do (
     IF NOT EXIST "%%x" (
       CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "The path %%x from %varFileList% does not exist. Exit." "OUTPUT_TO_STDOUT" ""
@@ -303,7 +313,8 @@ SET "varLoggingCmd=logging.cmd"
 SET "varSettingsIni=Settings.ini"
 SET "varSvnRepoFunctionsCmd=svnRepoFunctions.cmd"
 SET "varUtilityFunctionsCmd=utility_functions.cmd"
-SET "varParameterVerificationCmd=ParameterVerification.cmd"
+SET "varParameterValidationCmd=ParameterValidation.cmd"
+SET "varVersionInfofile=.Version"
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checking SimpleBackup working copy files for changes:" "OUTPUT_TO_STDOUT" ""
@@ -313,7 +324,8 @@ CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPa
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSettingsIni%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varSvnRepoFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
 CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varUtilityFunctionsCmd%" "--quiet" "YES" "YES" "YES" 0
-CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varParameterVerificationCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varParameterValidationCmd%" "--quiet" "YES" "YES" "YES" 0
+CALL ..\svnRepoFunctions :CheckWorkingCopyForChanges "%varSimpleBackupCheckoutPath%\%varVersionInfofile%" "--quiet" "YES" "YES" "YES" 0
 
 REM To count the number of changes inside the file use svn diff. Should be able to do just that.
 REM That way we can have a higher certainty that only our accepted changes are what we will find in the file.
@@ -485,10 +497,10 @@ IF "%varMode%"=="a" (
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
 
-  IF "%varChecksumVerification%"=="YES" (
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+  IF "%varChecksumValidation%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum validation of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-    CALL :VerifyFileChecksum
+    CALL :ValidateFileChecksum
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
 
@@ -526,10 +538,10 @@ IF "%varMode%"=="a" (
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
 
-  IF "%varChecksumVerification%"=="YES" (
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+  IF "%varChecksumValidation%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum validation of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-    CALL :VerifyFileChecksum
+    CALL :ValidateFileChecksum
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
   
@@ -563,10 +575,10 @@ IF "%varMode%"=="a" (
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
 
-  IF "%varChecksumVerification%"=="YES" (
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+  IF "%varChecksumValidation%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum validation of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-    CALL :VerifyFileChecksum
+    CALL :ValidateFileChecksum
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
   
@@ -580,10 +592,10 @@ IF "%varMode%"=="a" (
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
 
-  IF "%varChecksumVerification%"=="YES" (
-    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum verification of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
+  IF "%varChecksumValidation%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Performing checksum validation of file: %varTargetChecksumFile%" "OUTPUT_TO_STDOUT" ""
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-    CALL :VerifyFileChecksum
+    CALL :ValidateFileChecksum
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
   
@@ -625,6 +637,7 @@ FOR /f "usebackq delims=" %%x in ("%varFileList%") do (
 )
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Simplebackup:                         %varReleaseVersion%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:                 %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                                 %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Format:                               %varFormat%" "OUTPUT_TO_STDOUT" ""
@@ -633,7 +646,7 @@ CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:        
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Split archive into volumes:           %varSplitArchiveFile%, VolumeSizeSwitch: %varSplitVolumesize%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Password protect the archive file:    %varPassword%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:       %varIntegrityTest%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum verification:        %varChecksumVerification%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum validation:          %varChecksumValidation%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Checksum algorithm used:              %varChecksumBitlength%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders:                         %varMoveFolders%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Move Folders back:                    %varMoveFoldersBack%" "OUTPUT_TO_STDOUT" ""
@@ -677,14 +690,15 @@ EXIT /B 0
 :UpdateBackupArchive
 CALL :SetupUpdateFlags
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Starting to update the archive: Time of ArchiveUpdate %varDate%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Starting to update the archive:    Time of ArchiveUpdate %varDate%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Simplebackup:                      %varReleaseVersion%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "UpdateFlags:                       %varUpdateFlags%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:    %varIntegrityTest%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum verification:     %varChecksumVerification%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum validation:       %varChecksumValidation%" "OUTPUT_TO_STDOUT" ""
 IF "%varBackupSynchronization%"=="YES" (  
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronize to external storage:   YES, (%varSyncFolderLocation%)" "OUTPUT_TO_STDOUT" ""
 ) ELSE IF "%varBackupSynchronization%"=="YES_PURGE_DST" (
@@ -714,6 +728,7 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Starting to check integrity of the archive: Time of IntegrityTest %varDate%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Simplebackup:                      %varReleaseVersion%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                    %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
@@ -734,13 +749,14 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Starting to extract archive: Time of FileExtraction %varDate%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Simplebackup:                      %varReleaseVersion%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Overwrite Mode:                    %varOverWriteFiles% - Flags: %varOverWriteFilesFlag%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Backup-File:                       %varTargetBackupSet%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Extract to:                        %varExtractionLocation%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include archive integrity test:    %varIntegrityTest%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum verification:     %varChecksumVerification%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Include checksum validation:       %varChecksumValidation%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Shutdown device when done:         YES, Mode: %varShutdownDeviceWhenDone%" "OUTPUT_TO_STDOUT" ""
@@ -753,9 +769,10 @@ EXIT /B 0
 
 :VerifyChecksum
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
-CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Starting to verify the checksum/checksums of the archive: Time of checksum verification %varDate%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Starting to validate the checksum/checksums of the archive: Time of checksum validation %varDate%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Simplebackup:                      %varReleaseVersion%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:              %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                              %varMode%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "ThreadAffinity:                    %varThreadAffinity%" "OUTPUT_TO_STDOUT" ""
@@ -766,11 +783,12 @@ IF NOT "%varShutdownDeviceWhenDone%"=="NO" (
 )
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Log-File:                          %varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 
-CALL :VerifyFileChecksum
+CALL :ValidateFileChecksum
 EXIT /B 0
 
 :SyncBackupFolder
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Simplebackup:                         %varReleaseVersion%" "OUTPUT_TO_STDOUT" ""
 CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Application function:                 %varApplicationFunctionText%" "OUTPUT_TO_STDOUT" ""
 IF "%varMode%"=="s1" (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Mode:                                 %varMode% - PURGE_DISABLED" "OUTPUT_TO_STDOUT" ""
@@ -1170,12 +1188,12 @@ EXIT /B 0
 
 REM This function uses certutil to calculate the checksum.
 REM 7zip actually also supports checksum calculation. Example: 7z h -scrcsha256 file.extension.
-:VerifyFileChecksum
+:ValidateFileChecksum
 SETLOCAL enabledelayedexpansion
 SET "varTargetChecksumFile=NOTE_DEFINED"
 
 IF NOT "%varUseExistingChecksumfile%"=="NO" IF NOT "%varUseExistingChecksumfile%"=="YES" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: Option varUseExistingChecksumfile error. Check value. Exit." "OUTPUT_TO_STDOUT" ""  
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":ValidateFileChecksum: Option varUseExistingChecksumfile error. Check value. Exit." "OUTPUT_TO_STDOUT" ""  
 )
 
 REM Generate the searchPattern to find archive files and checksum file if the existing checksum file does not exist.
@@ -1185,13 +1203,13 @@ for /f "tokens=1-2 delims=." %%F in ("!varTargetFileName!") do (
 
 IF "%varUseExistingChecksumfile%"=="NO" (
   IF NOT "%varMode%"=="a" (
-    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: varUseExistingChecksumfile = No. Error, verifyChecksum should always look for an existing checksum file, if varMode != a. Exit." "OUTPUT_TO_STDOUT" ""
+    CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":ValidateFileChecksum: varUseExistingChecksumfile = No. Error, verifyChecksum should always look for an existing checksum file, if varMode != a. Exit." "OUTPUT_TO_STDOUT" ""
   )  
   SET "varTargetChecksumFile=%varTargetBackupfolder%\%varDate%-Checksum-%varChecksumBitlength%.txt"
 )
 
 IF "%varUseExistingChecksumfile%"=="YES" IF "%varMode%"=="a" (  
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: critical error 1, Mode not supported. Incorrected setup in ActivateApplicationFunction. Exit." "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":ValidateFileChecksum: critical error 1, Mode not supported. Incorrected setup in ActivateApplicationFunction. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 IF "%varUseExistingChecksumfile%"=="YES" IF "%varMode%"=="u" (
@@ -1220,7 +1238,7 @@ IF "%varUseExistingChecksumfile%"=="YES" IF NOT "%varMode%"=="u" (
 )
 
 IF NOT DEFINED varTargetChecksumFile (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: critical error 2, varTargetChecksumFile not defined. Exit." "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":ValidateFileChecksum: critical error 2, varTargetChecksumFile not defined. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 IF NOT EXIST "!varTargetChecksumFile!" (
@@ -1238,7 +1256,7 @@ FOR /f "usebackq tokens=1 delims= " %%x in ("%varTargetChecksumFile%") do (
   )
 )
 IF "!varSHABitLength!"=="SHA000" (
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "VerifyFileChecksum: SHA bitlength revtrieval error. Exit." "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "ValidateFileChecksum: SHA bitlength revtrieval error. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 REM Find the archive files to base the calculations on.
@@ -1324,11 +1342,11 @@ for /f "delims=" %%A in ('dir "%varTargetBackupfolder%" /b /a-d') do (
 cd /d "%originalDir%"
 SET /a "varFailedFileCount=(!varFileCount!-!varProcessedFileCount!)"
 IF !varProcessedFileCount! EQU !varFileCount! (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating !varSHABitLength! checksum for !varProcessedFileCount! of !varFileCount! file/files. Checksum verification succeeded." "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Calculating !varSHABitLength! checksum for !varProcessedFileCount! of !varFileCount! file/files. Checksum validation succeeded." "OUTPUT_TO_STDOUT" ""
 ) ELSE (
   CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Reading checksum from %varTargetChecksumFile% failed for !varFailedFileCount! of !varFileCount! file/files." "OUTPUT_TO_STDOUT" ""
   SETLOCAL disabledelayedexpansion & ENDLOCAL
-  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":VerifyFileChecksum: Checksum calculation failed. Exit." "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "%varTargetLogFile%" ":ValidateFileChecksum: Checksum calculation failed. Exit." "OUTPUT_TO_STDOUT" ""
 )
 SETLOCAL disabledelayedexpansion & ENDLOCAL
 EXIT /B 0
