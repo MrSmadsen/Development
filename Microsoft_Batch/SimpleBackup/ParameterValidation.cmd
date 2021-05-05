@@ -99,6 +99,13 @@ SET "itemList_varShutdownDeviceWhenDone[4]=Restart"
 SET "itemList_varShutdownDeviceWhenDone[5]=Restart_F"
 SET "itemList_varShutdownDeviceWhenDone[6]=Hybrid"
 SET "itemList_varShutdownDeviceWhenDone[7]=Hybrid_F"
+
+REM (NO (Default) | SleepOff | HibernationOff | SleepAndHibernationOff)
+REM varShutdownDeviceWhenDone
+SET "itemList_varTemporarilyDisablePowerDown[0]=NO"
+SET "itemList_varTemporarilyDisablePowerDown[1]=SleepOff"
+SET "itemList_varTemporarilyDisablePowerDown[2]=HibernationOff"
+SET "itemList_varTemporarilyDisablePowerDown[3]=SleepAndHibernationOff"
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
@@ -306,6 +313,28 @@ IF "%~2"=="NO" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_ShutdownDeviceWhenDone - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
+)
+EXIT /B 0
+
+REM Param_1: Path to settingsfile.
+REM Param_2: Variable value
+REM Param_3: Variable name
+:validateParameter_TemporarilyDisablePowerDown
+IF NOT DEFINED itemList_varTemporarilyDisablePowerDown[0] (
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_TemporarilyDisablePowerDown - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+REM # Config mode. (NO (Default) | SleepOff | HibernationOff | SleepAndHibernationOff)
+IF "%~2"=="NO" (
+  CALL :incrementValidationCounters "%~1"
+) ELSE IF "%~2"=="SleepOff" (
+  CALL :incrementValidationCounters "%~1"
+) ELSE IF "%~2"=="HibernationOff" (
+  CALL :incrementValidationCounters "%~1"
+) ELSE IF "%~2"=="SleepAndHibernationOff" (
+  CALL :incrementValidationCounters "%~1"
+) ELSE (
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_TemporarilyDisablePowerDown - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 

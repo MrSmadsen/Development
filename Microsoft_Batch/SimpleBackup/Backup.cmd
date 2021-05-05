@@ -49,7 +49,7 @@ CALL ..\utility_functions :is_cmd_running_with_admin_priviligies_using_whoami
 CALL :SetupApplicationMode
 CALL :PreconditionalChecks
 CALL :SetupTimeAndDate
-CALL :PerformAdministrativePreconditionals
+CALL :PerformSystemConfigPreconditionals
 CALL :CreateBackupDestinationFolderAndFiles
 SET "varPreparationSucccesful=YES"
 EXIT /B 0
@@ -61,13 +61,19 @@ SET "varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%"
 SET "varDate=%varDate: =0%"
 EXIT /B 0
 
-REM This function is meant as an option to do file system stuff in elevated user mode (if UAC is enabled).
-:PerformAdministrativePreconditionals
+:PerformSystemConfigPreconditionals
+CALL ..\utility_functions :windows_powercfg_DisablePowerDown "%varTemporarilyDisablePowerDown%"
+
+REM This is meant as an option to do file system stuff in elevated user mode (if UAC is enabled).
 IF "%varElevatedAdminPriviligies%"=="NO" (
   echo Cmd session is NOT running as elevated Administrator.
 ) ELSE IF "%varElevatedAdminPriviligies%"=="YES" (
   echo Cmd session is running as elevated Administrator.
 )
+EXIT /B 0
+
+:PerformSystemConfigPostconditionals
+CALL ..\utility_functions :windows_powercfg_EnablePowerDown "%varTemporarilyDisablePowerDown%" "%varSleepTimeout%" "%varHibernationTimeout%"
 EXIT /B 0
 
 :SetupApplicationMode
@@ -510,9 +516,12 @@ IF "%varMode%"=="a" (
   
   CALL :End
   
+  IF "%varBackupSynchronization%"=="NO" ( CALL :PerformSystemConfigPostconditionals )
+  
   REM :End is called before sync'ing to be able to copy the entire logFile to external storage.
   IF "%varBackupSynchronization%"=="YES" IF EXIST "%varSyncFolderLocation%" (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
+    CALL :PerformSystemConfigPostconditionals
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
@@ -520,14 +529,20 @@ IF "%varMode%"=="a" (
   
   IF "%varBackupSynchronization%"=="YES_PURGE_DST" IF EXIST "%varSyncFolderLocation%" (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
+    CALL :PerformSystemConfigPostconditionals
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
   )
   
-  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES"           ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )
-  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES_PURGE_DST" ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )  
-  
+  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" ""
+    CALL :PerformSystemConfigPostconditionals
+  )
+  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES_PURGE_DST" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" ""
+    CALL :PerformSystemConfigPostconditionals
+  )
 ) ELSE IF "%varMode%"=="u" (
   CALL :UpdateBackupArchive
   
@@ -545,10 +560,14 @@ IF "%varMode%"=="a" (
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   )
   
-  CALL :End  
+  CALL :End
+  
+  IF "%varBackupSynchronization%"=="NO" ( CALL :PerformSystemConfigPostconditionals )
+  
   REM :End is called before sync'ing to be able to copy the entire logFile to external storage.
   IF "%varBackupSynchronization%"=="YES" IF EXIST "%varSyncFolderLocation%" IF DEFINED varExistingDate (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_DISABLED"
+    CALL :PerformSystemConfigPostconditionals
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varExistingDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varExistingDate%"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varExistingDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varExistingDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
@@ -556,17 +575,24 @@ IF "%varMode%"=="a" (
 
   IF "%varBackupSynchronization%"=="YES_PURGE_DST" IF EXIST "%varSyncFolderLocation%" IF DEFINED varExistingDate (
     CALL ..\fileSystem :synchronizeFolder "%varBackupLocation%" "%varSyncFolderLocation%" "PURGE_ENABLED"
+    CALL :PerformSystemConfigPostconditionals
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varExistingDate%" "%varTargetLogFileName%" "%varSyncFolderLocation%\%varExistingDate%"
     CALL ..\fileSystem :copyFile "%varBackupLocation%\%varExistingDate%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%\%varExistingDate%"
     CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
   )
-
-  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES"           ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )
-  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES_PURGE_DST" ( CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" "" )  
-
+  
+  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" ""
+    CALL :PerformSystemConfigPostconditionals
+  )
+  IF NOT EXIST "%varSyncFolderLocation%" IF "%varBackupSynchronization%"=="YES_PURGE_DST" (
+    CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Synchronization to external storage skipped. Destination not found." "OUTPUT_TO_STDOUT" ""
+    CALL :PerformSystemConfigPostconditionals
+  )
 ) ELSE IF "%varMode%"=="t" (
   CALL :TestBackupArchiveIntegrity
   CALL :End
+  CALL :PerformSystemConfigPostconditionals
 ) ELSE IF "%varMode%"=="e" (
   IF "%varIntegrityTest%"=="YES" (
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
@@ -584,6 +610,7 @@ IF "%varMode%"=="a" (
   
   CALL :ExtractBackupArchive
   CALL :End
+  CALL :PerformSystemConfigPostconditionals
 ) ELSE IF "%varMode%"=="x" (
   IF "%varIntegrityTest%"=="YES" (
     CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
@@ -601,22 +628,27 @@ IF "%varMode%"=="a" (
   
   CALL :ExtractBackupArchive
   CALL :End
+  CALL :PerformSystemConfigPostconditionals
 ) ELSE IF "%varMode%"=="v" (
   CALL :VerifyChecksum
   CALL :End
+  CALL :PerformSystemConfigPostconditionals
 ) ELSE IF "%varMode%"=="s1" (
   CALL :SyncBackupFolder
   CALL :End
+  CALL :PerformSystemConfigPostconditionals
   CALL ..\fileSystem :copyFile "%varBackupLocation%" "%varTargetLogFileName%" "%varSyncFolderLocation%"
   CALL ..\fileSystem :copyFile "%varBackupLocation%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%"
   CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
 ) ELSE IF "%varMode%"=="s2" (
   CALL :SyncBackupFolder
   CALL :End
+  CALL :PerformSystemConfigPostconditionals
   CALL ..\fileSystem :copyFile "%varBackupLocation%" "%varTargetLogFileName%" "%varSyncFolderLocation%"
   CALL ..\fileSystem :copyFile "%varBackupLocation%" "%varTargetRoboCopyLogFileName%" "%varSyncFolderLocation%"
   CALL ..\logging :Append_To_Screen "Copying SimpleBackup logfile to external storage done." "OUTPUT_TO_STDOUT" ""
 ) ELSE (
+  CALL :PerformSystemConfigPostconditionals
   CALL ..\utility_functions :Exception_End "%varTargetLogFile%" "Error in varMode. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0

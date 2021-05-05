@@ -128,6 +128,80 @@ REM VisualSVN Background Job Service
 sc stop %~1
 EXIT /B 0
 
+REM Param_1: Config mode. (NO (Default) | SleepOff | HibernationOff | SleepAndHibernationOff)
+:windows_powercfg_DisablePowerDown
+IF [%1]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_DisablePowerDown - Param_1: No config mode supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_DisablePowerDown - Param_1: Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+IF "%~1"=="NO" (
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+) ELSE IF "%~1"=="SleepOff" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Sleep Mode. Setting -standby-timeout-ac to 0 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -standby-timeout-ac 0
+) ELSE IF "%~1"=="HibernationOff" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to 0 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -hibernate-timeout-ac 0
+) ELSE IF "%~1"=="SleepAndHibernationOff" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Sleep Mode. Setting -standby-timeout-ac to 0 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -standby-timeout-ac 0
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to 0 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -hibernate-timeout-ac 0
+) ELSE (
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_DisablePowerDown - Unsupported value detected. Value: %~1. Exit" "OUTPUT_TO_STDOUT" ""
+)
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+EXIT /B 0
+
+REM Param_1: Config mode. (NO (Default) | SleepOff | HibernationOff | SleepAndHibernationOff)
+REM Param_2: varSleepTimeout. Sleep timeout in minutes.
+REM Param_3: varHibernationTimeout. Hibernation timeout in minutes.
+:windows_powercfg_EnablePowerDown
+IF [%1]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - No config mode supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_2: No Sleep timeout supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_2: Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_3: No Hibernation timeout supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_3: Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+IF "%~1"=="NO" (
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+) ELSE IF "%~1"=="SleepOff" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Sleep Mode. Setting -standby-timeout-ac to %~2 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -standby-timeout-ac %~2
+) ELSE IF "%~1"=="HibernationOff" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to %~3 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -hibernate-timeout-ac %~3
+) ELSE IF "%~1"=="SleepAndHibernationOff" (
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Sleep Mode. Setting -standby-timeout-ac to %~2 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -standby-timeout-ac %~2
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to %~3 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -hibernate-timeout-ac %~3
+) ELSE (
+  CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Unsupported value detected. Value: %~1. Exit" "OUTPUT_TO_STDOUT" ""
+)
+CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
+EXIT /B 0
+
 REM Param_1: Path to logFile.
 REM Param_2: Name of the command to start.
 :logTimeStampB4CommandStart
@@ -423,6 +497,9 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   ) ELSE IF "%%i"=="varShutdownDeviceWhenDone" (
     CALL ..\ParameterValidation.cmd :validateParameter_ShutdownDeviceWhenDone "%~1" "%%j" "%%i"
     SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varTemporarilyDisablePowerDown" (
+    CALL ..\ParameterValidation.cmd :validateParameter_TemporarilyDisablePowerDown "%~1" "%%j" "%%i"
+    SET "%%i=%%j"
   ) ELSE IF "%%i"=="varFileList" (
     REM Only requirement for this variable is (currently) to NOT be empty.
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
@@ -466,12 +543,20 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varFileNameLength" (
     REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
-    SET "%%i=%%j"  
+    SET "%%i=%%j"
   ) ELSE IF "%%i"=="varFolderLength" (
     REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varPathLength" (
     REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSleepTimeout" (
+    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
+    CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varHibernationTimeout" (
+    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
+    CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE (
     SET /a "varUnvalidatedParametersCounter+=1"
