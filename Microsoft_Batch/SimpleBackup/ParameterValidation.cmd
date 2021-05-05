@@ -102,8 +102,8 @@ SET "itemList_varShutdownDeviceWhenDone[7]=Hybrid_F"
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validateParameter_YES-NO
 IF NOT DEFINED itemList_YES-NO[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_YES-NO - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -113,13 +113,13 @@ IF "%~2"=="YES" (
 ) ELSE IF "%~2"=="NO" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_YES-NO - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_YES-NO - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validate_YES_PURGE_DST-YES-NO
 IF NOT DEFINED itemList_YES_PURGE_DST-YES-NO[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validate_YES_PURGE_DST-YES-NO - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -131,13 +131,13 @@ IF "%~2"=="YES_PURGE_DST" (
 ) ELSE IF "%~2"=="NO" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validate_YES_PURGE_DST-YES-NO - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validate_YES_PURGE_DST-YES-NO - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validateParameter_WriteMode
 IF NOT DEFINED itemList_WriteMode[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_WriteMode - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -152,13 +152,13 @@ IF "%~2"=="OVERWRITE_EXISTING_FILES" (
 ) ELSE IF "%~2"=="AUTO_RENAME_EXISTING_FILE" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_WriteMode - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_WriteMode - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validateParameter_SplitVolumesize
 IF NOT DEFINED itemList_SplitVolumesize[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_SplitVolumesize - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -184,13 +184,13 @@ IF "%~2"=="-v1m" (
 ) ELSE IF "%~2"=="-v100g" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_SplitVolumesize - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_SplitVolumesize - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validateParameter_SplitCompressionLvl
 IF NOT DEFINED itemList_SplitCompressionLvl[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_SplitCompressionLvl - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -208,13 +208,13 @@ IF "%~2"=="-mx0" (
 ) ELSE IF "%~2"=="-mx9" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_SplitCompressionLvl - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_SplitCompressionLvl - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validateParameter_Format
 IF NOT DEFINED itemList_varFormat[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":verifyParameter_varFormat - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -224,13 +224,13 @@ IF "%~2"=="zip" (
 ) ELSE IF "%~2"=="7z" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":verifyParameter_varFormat - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":verifyParameter_varFormat - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validateParameter_COPY_FLAGS
 IF NOT DEFINED itemList_COPY_FLAGS[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_COPY_FLAGS - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -249,13 +249,13 @@ IF "%~2"=="D" (
 ) ELSE IF "%~2"=="DATSOU" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_COPY_FLAGS - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_COPY_FLAGS - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validateParameter_ChecksumBitlength
 IF NOT DEFINED itemList_varChecksumBitlength[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_ChecksumBitlength - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -276,13 +276,13 @@ IF "%~2"=="MD2" (
 ) ELSE IF "%~2"=="SHA512" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_ChecksumBitlength - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_ChecksumBitlength - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.
-REM Param_2: Variable name
-REM Param_3: Variable value
+REM Param_2: Variable value
+REM Param_3: Variable name
 :validateParameter_ShutdownDeviceWhenDone
 IF NOT DEFINED itemList_varShutdownDeviceWhenDone[0] (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_ShutdownDeviceWhenDone - Validation list is not defined. :initParameterListValues might be incorrect. Exit" "OUTPUT_TO_STDOUT" ""
@@ -305,8 +305,23 @@ IF "%~2"=="NO" (
 ) ELSE IF "%~2"=="Hybrid_F" (
   CALL :incrementValidationCounters "%~1"
 ) ELSE (
-  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_ShutdownDeviceWhenDone - Value in ini-file parameter %~2 is not OK. Value: %~3. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_ShutdownDeviceWhenDone - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
+EXIT /B 0
+
+REM Param_1: Path to settingsfile.
+REM Param_2: Variable value
+REM Param_3: Variable name
+:validateParameter_IsNumeric
+REM Checking if the value is a numeric.
+SET "varNumericValuePattern=[0-9]*$"
+SET "varDateFolderStringPatternMatchPathResult="
+CALL ..\filesystem :ValidateNumeric_RegEx "%~2" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (  
+  SET "varDateFolderStringPatternMatchPathResult="
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_IsNumeric - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
+)
+SET "varDateFolderStringPatternMatchPathResult="
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.

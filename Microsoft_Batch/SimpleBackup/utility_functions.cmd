@@ -193,14 +193,17 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   REM Only requirement for these variables is (currently) to NOT be empty.
   REM An improvement would be to validate the value as a digit number.
   IF "%%i"=="varFileNameLength" (
+    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   )
   IF "%%i"=="varFolderLength" (
+    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   )
   IF "%%i"=="varPathLength" (
+    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   )

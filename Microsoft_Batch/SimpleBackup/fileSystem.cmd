@@ -550,6 +550,53 @@ IF "%ERRORLEVEL%"=="0" (
 )
 EXIT /B 0
 
+REM Param_1: SrcString. The number that requires to be validated.
+REM Param_2: SearchPattern. This is the regular expression used as the string filter. Must be a CUSTOM findStr regular expression without the beginning-line ^-char.
+REM          Otherwise the check would not work. Adding the ^-char resulted in 4 ^-chars in the function parameter in function::ValidateNumeric_RegEx
+REM          Example: c:\    -    SET "varFilePathSearchString=c:\\.*$". Then use findstr /i /r /c:"^%2"
+REM Param_3: Ignore case sensitivity? (IGNORE_CASE_SENSITIVITY_YES | IGNORE_CASE_SENSITIVITY_NO). Default is IGNORE_CASE_SENSITIVITY_YES.
+REM Param_4: Returnvalue. Does the srcString match the searchPattern in Param_2. (YES | NO).
+:ValidateNumeric_RegEx
+IF [%1]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - No srcString supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - No searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - Empty searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - No ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - Empty ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[""] (
+  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%~3"=="IGNORE_CASE_SENSITIVITY_NO" (
+  SET "varIgnoreCaseSensitivity= "
+) ELSE (
+  SET "varIgnoreCaseSensitivity=/i"
+)
+
+REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
+echo %~1|findstr %varIgnoreCaseSensitivity% /r /c:"^%2">nul
+IF "%ERRORLEVEL%"=="0" (
+  SET "%~4=YES"
+) ELSE (
+  SET "%~4=NO"
+)
+EXIT /B 0
+
 REM Param_1: Path and fileName to the file to create on the filesystem.
 REM Param_2: If file exists. "USE_EXISTING_FILE" OR "OVERWRITE_EXISTING_FILE"
 REM Param_3: Verbose_Mode - "V"
