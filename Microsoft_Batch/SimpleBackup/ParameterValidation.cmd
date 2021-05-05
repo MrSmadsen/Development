@@ -16,7 +16,8 @@ REM Param_1: Function_To_Be_Called
 REM Param_2: Function_Param_1
 REM Param_3: Function_Param_2
 REM Param_4: Function_Param_3
-CALL %1 %2 %3 %4
+REM Param_5: Function_Param_4
+CALL %1 %2 %3 %4 %5
 EXIT /B 0
 
 :initParameterListValues
@@ -351,6 +352,57 @@ IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_IsNumeric - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SET "varDateFolderStringPatternMatchPathResult="
+EXIT /B 0
+
+REM Param_1: Path to settingsfile.
+REM Param_2: Variable value
+REM Param_3: Variable name
+REM Param_4: Variable range. A string storing the range in the format: "LowLimitNumeric-HighLimitNumeric"
+:validateParameter_NumericRange
+SET "varLowLimit=NO_VALUE"
+SET "varHighLimit=NO_VALUE"
+
+FOR /F "tokens=1,2 delims=-" %%A IN ("%~4") DO (
+  SET "varLowLimit=%%A"
+  SET "varHighLimit=%%B"
+)
+
+IF "%varLowLimit%"=="NO_VALUE" (
+  ECHO Param_4 Value: %4. Param_4 correct usage: "LowLimitNumeric-HighLimitNumeric"
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - Param_4 Variable range is not correct. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF "%varHighLimit%"=="NO_VALUE" (
+  ECHO Param_4 Value: %4. Param_4 correct usage: "LowLimitNumeric-HighLimitNumeric"
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - Param_4 Variable range is not correct. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+REM Checking if the value, lowLimit and highLimit values are a numerics.
+SET "varNumericValuePattern=[0-9]*$"
+SET "varDateFolderStringPatternMatchPathResult="
+CALL ..\filesystem :ValidateNumeric_RegEx "%~2" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
+  SET "varDateFolderStringPatternMatchPathResult="
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - Param_2 is not a numeric. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
+)
+SET "varDateFolderStringPatternMatchPathResult="
+CALL ..\filesystem :ValidateNumeric_RegEx "%varLowLimit%" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
+  SET "varDateFolderStringPatternMatchPathResult="
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - Low limit parameter is not a numeric. Value: %varLowLimit%. Exit" "OUTPUT_TO_STDOUT" ""
+)
+SET "varDateFolderStringPatternMatchPathResult="
+CALL ..\filesystem :ValidateNumeric_RegEx "%varHighLimit%" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
+  SET "varDateFolderStringPatternMatchPathResult="
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - High limit parameter is not a numeric. Value: %varHighLimit%. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF %~2 LSS %varLowLimit% (
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - Value in ini-file parameter %~1\%~3 is out of bounds. Value: %~2 is lower than LowLimit: %varLowLimit%. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF %~2 GTR %varHighLimit% (
+  CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - Value in ini-file parameter %~1\%~3 is out of bounds. Value: %~2 is higher than HighLimit: %varHighLimit%. Exit" "OUTPUT_TO_STDOUT" ""
+)
 EXIT /B 0
 
 REM Param_1: Path to settingsfile.

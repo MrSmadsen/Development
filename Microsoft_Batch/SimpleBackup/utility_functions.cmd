@@ -267,17 +267,18 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   REM Only requirement for these variables is (currently) to NOT be empty.
   REM An improvement would be to validate the value as a digit number.
   IF "%%i"=="varFileNameLength" (
-    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "1-255"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   )
   IF "%%i"=="varFolderLength" (
-    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "1-255"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   )
   IF "%%i"=="varPathLength" (
-    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
+    REM https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/ffb795f3-027d-4a3c-997d-3085f2332f6f
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "3-32760"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   )
@@ -537,8 +538,7 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varCodePage" (
-    REM Only requirement for this variable is (currently) to NOT be empty.
-    REM An improvement would be to validate the value as a digit number.
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "1-99999"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varFileNameLength" (
@@ -551,11 +551,11 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     REM This variable is already handled and counterIncremented in function: :readBackupSettingsFile_Limits
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varSleepTimeout" (
-    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "0-300"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varHibernationTimeout" (
-    CALL ..\ParameterValidation.cmd :validateParameter_IsNumeric "%~1" "%%j" "%%i"
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "0-300"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE (
@@ -595,15 +595,15 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   REM Increment counters.
   SET /a "varVersionParametersCounter+=1"
   IF "%%i"=="varMayorVersion" (
-    REM Only requirement for this variable is (currently) to NOT be empty.
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "1-9999"
     CALL ..\ParameterValidation.cmd :incrementVersionInfoCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varMinorVersion" (
-    REM Only requirement for this variable is (currently) to NOT be empty.
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "1-12"
     CALL ..\ParameterValidation.cmd :incrementVersionInfoCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varRevisionNumber" (
-    REM Only requirement for this variable is (currently) to NOT be empty.
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "1-2147483647"
     CALL ..\ParameterValidation.cmd :incrementVersionInfoCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varReleaseVersion" (
