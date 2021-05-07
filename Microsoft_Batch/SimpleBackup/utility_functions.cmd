@@ -230,16 +230,16 @@ REM Param_1: Path to logFile.
 REM Param_2: Name of the command to start.
 :logTimeStampB4CommandStart
 IF [%1]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":logTimeStampBeforeCommandStart - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%1]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":logTimeStampBeforeCommandStart - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":logTimeStampBeforeCommandStart - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 REM ECHO param_1 %~1
@@ -256,16 +256,16 @@ REM Param_1: Path to logFile.
 REM Param_2: Name of the command to start.
 :logTimeStamp_CommandFinished
 IF [%1]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":logTimeStampWhenCommandIsFinished - No path supplied to the logfile. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%1]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":logTimeStampWhenCommandIsFinished - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":logTimeStampWhenCommandIsFinished - Parameter 2 command/function name missing. Only double quotes found. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 SET "varDate=%DATE:~-4%-%DATE:~3,2%-%DATE:~0,2%_%TIME:~0,2%-%TIME:~3,2%"
@@ -597,7 +597,7 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   )
   
   IF %varUnvalidatedParametersCounter% GTR 0 (
-   CALL :Exception_End "NO_FILE_HANDLE" ":readBackupSettingsFile - No of unvalidated parameters is %varUnvalidatedParametersCounter%. Exit" "OUTPUT_TO_STDOUT" ""
+   CALL :Exception_End "%varTargetLogFile%" ":readBackupSettingsFile - No of unvalidated parameters is %varUnvalidatedParametersCounter%. Exit" "OUTPUT_TO_STDOUT" ""
   )
 
   IF "%varEnableDebugLoggingOutput%"=="YES" (
@@ -653,7 +653,7 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
   )
   
   IF %varUnvalidatedVersionParametersCounter% GTR 0 (
-   CALL :Exception_End "NO_FILE_HANDLE" ":readVersionInfo - No of unvalidated parameters is %varUnvalidatedParametersCounter%. Exit" "OUTPUT_TO_STDOUT" ""
+   CALL :Exception_End "%varTargetLogFile%" ":readVersionInfo - No of unvalidated parameters is %varUnvalidatedParametersCounter%. Exit" "OUTPUT_TO_STDOUT" ""
   )
 
   IF "%varEnableDebugLoggingOutput%"=="YES" (
@@ -671,24 +671,24 @@ REM Param_3 Exception on error.
 REM Param_4: Verbose_Mode - "V"
 :strLength
 IF [%1]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_1 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_1 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%1]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_1 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_1 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF [%2]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_2 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_2 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_2 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_2 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF [%3]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_3 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_3 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%3]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_3 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_3 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 Setlocal EnableDelayedExpansion
@@ -729,24 +729,24 @@ REM Param_3 Length Limitation
 REM Param_4: Verbose_Mode - "V"
 :strLengthConditionalCheck
 IF [%1]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_1 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_1 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%1]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_1 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_1 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF [%2]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_2 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_2 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%2]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_2 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_2 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 IF [%3]==[] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_3 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_3 No value supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 IF [%3]==[""] (
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLength - Param_3 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":strLength - Param_3 Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
 
 Setlocal EnableDelayedExpansion
@@ -776,7 +776,7 @@ IF !len! %~2 %~3 (
     ECHO !len! %~2 %~3 evaluated to: NOT OK.
   )
   
-  CALL :Exception_End "NO_FILE_HANDLE" ":strLengthConditionalCheck - Calculated length !len! exceeds Max_Length of %~2. Exit." "OUTPUT_TO_STDOUT" ""      
+  CALL :Exception_End "%varTargetLogFile%" ":strLengthConditionalCheck - Calculated length !len! exceeds Max_Length of %~2. Exit." "OUTPUT_TO_STDOUT" ""
 )
 
 Setlocal DisableDelayedExpansion
@@ -919,7 +919,7 @@ IF "%varShutdownDeviceWhenDone%"=="PowerOff" (
 ) ELSE IF "%varShutdownDeviceWhenDone%"=="Hybrid_F" (
   shutdown.exe /s /hybrid /f %varShutdownDeviceTimeout% /c "%varshutdownDeviceMessage%"
 ) ELSE (
-  CALL :Exception_End "NO_FILE_HANDLE" ":shutdownDevice - Unsupported option chosen. Exit" "OUTPUT_TO_STDOUT" ""
+  CALL :Exception_End "%varTargetLogFile%" ":shutdownDevice - Unsupported option chosen. Exit" "OUTPUT_TO_STDOUT" ""
 )
 EXIT /B 0
 
@@ -947,6 +947,105 @@ CALL ..\logging :Append_To_LogFile "%~1" "Exitting." "OUTPUT_TO_STDOUT" "%~4"
 CALL ..\logging :Append_NewLine_To_LogFile "%~1" "%~3" "%~4"
 PAUSE
 EXIT
+
+REM Param_1: SrcString. The string that requires to be validated.
+REM Param_2: SearchPattern. This is the regular expression used as the string filter. Must be a valid findStr regular expression
+REM          WITHOUT beginning char (^) and END char (&). This function will add those chars.
+REM          Example: c:\    -    SET "varFilePathSearchString=c:\\.*". Then use findstr /i /r /c:"^%2$"
+REM Param_3: Ignore case sensitivity? (IGNORE_CASE_SENSITIVITY_YES | IGNORE_CASE_SENSITIVITY_NO). Default is IGNORE_CASE_SENSITIVITY_YES.
+REM Param_4: Returnvalue. Does the srcString match the searchPattern in Param_2. (YES | NO).
+:ValidateString_RegEx
+IF [%1]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateString_RegEx - No srcString supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateString_RegEx - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateString_RegEx - No searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateString_RegEx - Empty searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateString_RegEx - No ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateString_RegEx - Empty ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateString_RegEx - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateString_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%~3"=="IGNORE_CASE_SENSITIVITY_NO" (
+  SET "varIgnoreCaseSensitivity= "
+) ELSE (
+  SET "varIgnoreCaseSensitivity=/i"
+)
+
+REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
+echo %~1|findstr %varIgnoreCaseSensitivity% /r /c:"^%~2$">nul
+IF "%ERRORLEVEL%"=="0" (
+  SET "%~4=YES"
+) ELSE (
+  SET "%~4=NO"
+)
+EXIT /B 0
+
+REM Param_1: SrcString. The string that requires to be validated.
+REM Param_2: SearchPattern. This is the regular expression used as the string filter. Must be a valid findStr regular expression
+REM          WITHOUT beginning char (^) and END char (&). This function will add those chars.
+REM          Example: c:\    -    SET "varFilePathSearchString=c:\\.*". Then use findstr /i /r /c:"^%2$"
+REM Param_3: Ignore case sensitivity? (IGNORE_CASE_SENSITIVITY_YES | IGNORE_CASE_SENSITIVITY_NO). Default is IGNORE_CASE_SENSITIVITY_YES.
+REM Param_4: Returnvalue. Does the srcString match the searchPattern in Param_2. (YES | NO).
+:ValidateNumeric_RegEx
+IF [%1]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateNumeric_RegEx - No srcString supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%1]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateNumeric_RegEx - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateNumeric_RegEx - No searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%2]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateNumeric_RegEx - Empty searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateNumeric_RegEx - No ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%3]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateNumeric_RegEx - Empty ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateNumeric_RegEx - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":ValidateNumeric_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+
+IF "%~3"=="IGNORE_CASE_SENSITIVITY_NO" (
+  SET "varIgnoreCaseSensitivity= "
+) ELSE (
+  SET "varIgnoreCaseSensitivity=/i"
+)
+
+REM ECHO "%2"
+REM ECHO "^%~2$"
+REM ECHO "^^%~2$"
+REM PAUSE
+
+REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
+echo %~1|findstr %varIgnoreCaseSensitivity% /r /c:"^%~2$">nul
+IF "%ERRORLEVEL%"=="0" (
+  SET "%~4=YES"
+) ELSE (
+  SET "%~4=NO"
+)
+EXIT /B 0
 
 REM PARAM_1 Enable the cleanup function. Values: "CLEANUP_ENABLED", "CLEANUP_DISABLED" or "CLEANUP_ASK"
 :Cleanup

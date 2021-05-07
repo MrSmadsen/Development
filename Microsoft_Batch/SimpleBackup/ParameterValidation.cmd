@@ -345,9 +345,9 @@ REM Param_2: Variable value
 REM Param_3: Variable name
 :validateParameter_IsNumeric
 REM Checking if the value is a numeric.
-SET "varNumericValuePattern=[0-9]*$"
+SET "varNumericValuePattern=[0-9]*"
 SET "varDateFolderStringPatternMatchPathResult="
-CALL ..\filesystem :ValidateNumeric_RegEx "%~2" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+CALL ..\utility_functions :ValidateNumeric_RegEx "%~2" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (  
   SET "varDateFolderStringPatternMatchPathResult="
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_IsNumeric - Value in ini-file parameter %~1\%~3 is not OK. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
@@ -378,21 +378,21 @@ IF "%varHighLimit%"=="NO_VALUE" (
 )
 
 REM Checking if the value, lowLimit and highLimit values are a numerics.
-SET "varNumericValuePattern=[0-9]*$"
+SET "varNumericValuePattern=[0-9]*"
 SET "varDateFolderStringPatternMatchPathResult="
-CALL ..\filesystem :ValidateNumeric_RegEx "%~2" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+CALL ..\utility_functions :ValidateNumeric_RegEx "%~2" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
   SET "varDateFolderStringPatternMatchPathResult="
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - Param_2 is not a numeric. Value: %~2. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SET "varDateFolderStringPatternMatchPathResult="
-CALL ..\filesystem :ValidateNumeric_RegEx "%varLowLimit%" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+CALL ..\utility_functions :ValidateNumeric_RegEx "%varLowLimit%" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
   SET "varDateFolderStringPatternMatchPathResult="
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - Low limit parameter is not a numeric. Value: %varLowLimit%. Exit" "OUTPUT_TO_STDOUT" ""
 )
 SET "varDateFolderStringPatternMatchPathResult="
-CALL ..\filesystem :ValidateNumeric_RegEx "%varHighLimit%" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+CALL ..\utility_functions :ValidateNumeric_RegEx "%varHighLimit%" "%varNumericValuePattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
   SET "varDateFolderStringPatternMatchPathResult="
   CALL ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":validateParameter_NumericRange - High limit parameter is not a numeric. Value: %varHighLimit%. Exit" "OUTPUT_TO_STDOUT" ""

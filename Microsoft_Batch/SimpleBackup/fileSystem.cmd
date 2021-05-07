@@ -92,9 +92,9 @@ IF "%varResultStrLength2%"=="NOT_DEFINED" (
 )
 
 REM Checking if the folder to check matches the expected format of the dateTime timestamp used for folderNaming.
-SET "varDateFolderPattern=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]$"
+SET "varDateFolderPattern=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]"
 SET "varDateFolderStringPatternMatchPathResult="
-CALL :ValidateString_RegEx "%~2" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~2" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
   REM Folder does not match the expected string pattern.
   SET "varDateFolderStringPatternMatchPathResult="
@@ -112,31 +112,31 @@ SET "varIsValidFolder=NOT_DEFINED"
 REM Deprecated the generic archive file check. If a backup configuration changes it's backup format
 REM it should still be able to delete old backups. It cannot if a general solution is used.
 REM 2021-03-17_15-20-backup.FORMAT.001
-REM SET "varSrcStr1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.%varFormat%.*$"
+REM SET "varSrcStr1=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.%varFormat%.*"
 
 REM Adding all supported file types here. It is hardcoded, meaning support for new file types requires manually updating this function.
 REM 2021-03-17_15-20-backup.zip.001
-SET "varSrcStr1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.zip.*$"
+SET "varSrcStr1=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.zip.*"
 REM 2021-03-17_15-20-backup.7z.001
-SET "varSrcStr1_1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.7z.*$"
+SET "varSrcStr1_1=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.7z.*"
 REM 2021-03-17_15-20-Checksum-SHA512.txt
-SET "varSrcStr2=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-Checksum-.*\.txt$"
+SET "varSrcStr2=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-Checksum-.*\.txt"
 REM 2021-03-17_15-20-logfile.txt
-SET "varSrcStr3=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-logfile\.txt$"
+SET "varSrcStr3=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-logfile\.txt"
 REM 2021-03-17_15-20-RoboCopyLogfile.txt"
-SET "varSrcStr4=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-RoboCopyLogfile\.txt$"
+SET "varSrcStr4=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-RoboCopyLogfile\.txt"
 REM 2021-03-17_15-20-UpdateArchive-logfile.txt"
-SET "varSrcStr5=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-UpdateArchive-logfile\.txt$"
+SET "varSrcStr5=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-UpdateArchive-logfile\.txt"
 REM 2021-03-17_15-20-ExtractToFolder-logfile.txt"
-SET "varSrcStr6=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractToFolder-logfile\.txt$"
+SET "varSrcStr6=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractToFolder-logfile\.txt"
 REM 2021-03-17_15-20-ExtractFullPath-logfile.txt"
-SET "varSrcStr7=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractFullPath-logfile\.txt$"
+SET "varSrcStr7=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractFullPath-logfile\.txt"
 REM 2021-03-17_15-20-IntegrityTest-logfile.txt"
-SET "varSrcStr8=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-IntegrityTest-logfile\.txt$"
+SET "varSrcStr8=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-IntegrityTest-logfile\.txt"
 REM 2021-03-17_15-20-VerifyChecksum-logfile.txt"
-SET "varSrcStr9=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-VerifyChecksum-logfile\.txt$"
+SET "varSrcStr9=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-VerifyChecksum-logfile\.txt"
 REM 2021-03-17_15-20-backup.exe"
-SET "varSrcStr10=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.exe$"
+SET "varSrcStr10=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.exe"
 
 SET /A "varNoOfFilesInTotal=0"
 SET /A "varNoOfExpectedFilesInTotal=0"
@@ -358,15 +358,15 @@ SET "varUrlSearchResult=NOT_DEFINED"
 SET "varAcceptUrl=%~2"
 REM https://en.wikipedia.org/wiki/URL
 REM Since I haven't figured out how to add optional string content to regEx patterns this algorithm accepts http(s)://EVERYTHING.
-SET "varUrlSearchString_1=^http://.*$"
-SET "varUrlSearchString_2=^https://.*$"
+SET "varUrlSearchString_1=http://.*"
+SET "varUrlSearchString_2=https://.*"
 
-CALL :ValidateString_RegEx "%~1" "%varUrlSearchString_1%" "IGNORE_CASE_SENSITIVITY_YES" "varUrlSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varUrlSearchString_1%" "IGNORE_CASE_SENSITIVITY_YES" "varUrlSearchResult"
 IF "%varUrlSearchResult%"=="YES" (
   SET "varIsUrl=YES"
 )
 SET "varUrlSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varUrlSearchString_2%" "IGNORE_CASE_SENSITIVITY_YES" "varUrlSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varUrlSearchString_2%" "IGNORE_CASE_SENSITIVITY_YES" "varUrlSearchResult"
 IF "%varUrlSearchResult%"=="YES" (
   SET "varIsUrl=YES"
 )
@@ -423,84 +423,84 @@ SET "varAcceptUrl=%~2"
 REM https://en.wikipedia.org/wiki/URL
 REM Since I haven't figured out how to add optional string content to regEx patterns this algorithm accepts <driveLetter>:\EVERYTHING.
 REM The mkdir command will handle errors regarding incorrect folder names elsewhere in the script.
-REM SET "varFilePathSearchString_1=^[abcdefghijklmnopqrstuvwxyz]:\\[a-z0-9\\]*$" - Folder name check: Did not test OK.
-SET "varFilePathSearchString_1=^[abcdefghijklmnopqrstuvwxyz]:\\.*$"
-REM SET "varFilePathSearchString_2=^[\.\\]*.*$"                                  -  Did not test OK.
-REM SET "varFilePathSearchString_3=^[\.\.\\]*.*$"                                -  Did not test OK.
+REM SET "varFilePathSearchString_1=[abcdefghijklmnopqrstuvwxyz]:\\[a-z0-9\\]*" - Folder name check: Did not test OK.
+SET "varFilePathSearchString_1=[abcdefghijklmnopqrstuvwxyz]:\\.*"
+REM SET "varFilePathSearchString_2=[\.\\]*.*"                                  -  Did not test OK.
+REM SET "varFilePathSearchString_3=[\.\.\\]*.*"                                -  Did not test OK.
 
 REM Support for relative paths are added in this primitive and relatively absolute way hehe.
 REM BackNavagation paths larger than 10 steps back will fail to validate.
 REM The Generic solution above in the comments did not test ok.
-SET "varFilePathSearchString_2=^\.\\.*$"
-SET "varFilePathSearchString_3=^\.\.\\*.*$"
-SET "varFilePathSearchString_4=^\.\.\\\.\.\\*.*$"
-SET "varFilePathSearchString_5=^\.\.\\\.\.\\\.\.\\*.*$"
-SET "varFilePathSearchString_6=^\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
-SET "varFilePathSearchString_7=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
-SET "varFilePathSearchString_8=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
-SET "varFilePathSearchString_9=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
-SET "varFilePathSearchString_10=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
-SET "varFilePathSearchString_11=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
-SET "varFilePathSearchString_12=^\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*$"
+SET "varFilePathSearchString_2=\.\\.*"
+SET "varFilePathSearchString_3=\.\.\\*.*"
+SET "varFilePathSearchString_4=\.\.\\\.\.\\*.*"
+SET "varFilePathSearchString_5=\.\.\\\.\.\\\.\.\\*.*"
+SET "varFilePathSearchString_6=\.\.\\\.\.\\\.\.\\\.\.\\*.*"
+SET "varFilePathSearchString_7=\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*"
+SET "varFilePathSearchString_8=\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*"
+SET "varFilePathSearchString_9=\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*"
+SET "varFilePathSearchString_10=\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*"
+SET "varFilePathSearchString_11=\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*"
+SET "varFilePathSearchString_12=\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\\.\.\\*.*"
 
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_1%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
-IF "%varFileSystemPathSearchResult%"=="YES" (
-  SET "varIsFileSystemPath=YES"  
-)
-SET "varFileSystemPathSearchResult=NOT_DEFINED"
-
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_2%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_1%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
 
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_3%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_2%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_4%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_3%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_5%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_4%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_6%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_5%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_7%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_6%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_8%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_7%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_9%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_8%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_10%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_9%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_11%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_10%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
 SET "varFileSystemPathSearchResult=NOT_DEFINED"
-CALL :ValidateString_RegEx "%~1" "%varFilePathSearchString_12%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_11%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
+IF "%varFileSystemPathSearchResult%"=="YES" (
+  SET "varIsFileSystemPath=YES"  
+)
+SET "varFileSystemPathSearchResult=NOT_DEFINED"
+CALL ..\utility_functions :ValidateString_RegEx "%~1" "%varFilePathSearchString_12%" "IGNORE_CASE_SENSITIVITY_YES" "varFileSystemPathSearchResult"
 IF "%varFileSystemPathSearchResult%"=="YES" (
   SET "varIsFileSystemPath=YES"  
 )
@@ -518,99 +518,6 @@ IF "%varIsFileSystemPath%"=="NO" IF "%~4"=="EXCEPTION_ON_ERR_YES" (
 )
 
 SET "%~3=%varIsFileSystemPath%"
-EXIT /B 0
-
-REM Param_1: SrcString. The string that requires to be validated.
-REM Param_2: SearchPattern. This is the regular expression used as the string filter. Must be a valid findStr regular expression.
-REM          Example: c:\    -    SET "varFilePathSearchString=^c:\\.*$". Then use findstr /i /r /c:"%2"
-REM Param_3: Ignore case sensitivity? (IGNORE_CASE_SENSITIVITY_YES | IGNORE_CASE_SENSITIVITY_NO). Default is IGNORE_CASE_SENSITIVITY_YES.
-REM Param_4: Returnvalue. Does the srcString match the searchPattern in Param_2. (YES | NO).
-:ValidateString_RegEx
-IF [%1]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - No srcString supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%1]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%2]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - No searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%2]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%3]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - No ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%3]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%4]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%4]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateString_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-
-IF "%~3"=="IGNORE_CASE_SENSITIVITY_NO" (
-  SET "varIgnoreCaseSensitivity= "
-) ELSE (
-  SET "varIgnoreCaseSensitivity=/i"
-)
-
-REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
-echo %~1|findstr %varIgnoreCaseSensitivity% /r /c:"%2">nul
-IF "%ERRORLEVEL%"=="0" (
-  SET "%~4=YES"
-) ELSE (
-  SET "%~4=NO"
-)
-EXIT /B 0
-
-REM Param_1: SrcString. The number that requires to be validated.
-REM Param_2: SearchPattern. This is the regular expression used as the string filter. Must be a CUSTOM findStr regular expression without the beginning-line ^-char.
-REM          Otherwise the check would not work. Adding the ^-char resulted in 4 ^-chars in the function parameter in function::ValidateNumeric_RegEx
-REM          Example: c:\    -    SET "varFilePathSearchString=c:\\.*$". Then use findstr /i /r /c:"^%2"
-REM Param_3: Ignore case sensitivity? (IGNORE_CASE_SENSITIVITY_YES | IGNORE_CASE_SENSITIVITY_NO). Default is IGNORE_CASE_SENSITIVITY_YES.
-REM Param_4: Returnvalue. Does the srcString match the searchPattern in Param_2. (YES | NO).
-:ValidateNumeric_RegEx
-IF [%1]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - No srcString supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%1]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%2]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - No searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%2]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - Empty searchPattern supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%3]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - No ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%3]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - Empty ignore case variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%4]==[] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - No returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-IF [%4]==[""] (
-  CALL  ..\utility_functions :Exception_End "NO_FILE_HANDLE" ":ValidateNumeric_RegEx - Empty returnValue variable name supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
-)
-
-IF "%~3"=="IGNORE_CASE_SENSITIVITY_NO" (
-  SET "varIgnoreCaseSensitivity= "
-) ELSE (
-  SET "varIgnoreCaseSensitivity=/i"
-)
-
-REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
-echo %~1|findstr %varIgnoreCaseSensitivity% /r /c:"^%2">nul
-IF "%ERRORLEVEL%"=="0" (
-  SET "%~4=YES"
-) ELSE (
-  SET "%~4=NO"
-)
 EXIT /B 0
 
 REM Param_1: Path and fileName to the file to create on the filesystem.
@@ -1019,8 +926,8 @@ REM This function will throw an exception if a slash is not found.
 CALL :LookForSlashChar "%varTmpNormalizedPathValue%" "%index%"
 
 SET "varDateFolderFromPath=%varTmpNormalizedPathValue:~-16%"
-SET "varDateFolderPattern=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]$"
-CALL :ValidateString_RegEx "%varDateFolderFromPath%" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
+SET "varDateFolderPattern=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]"
+CALL ..\utility_functions :ValidateString_RegEx "%varDateFolderFromPath%" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="YES" (
   SET "%~2=%varDateFolderFromPath%"
 ) ELSE (
