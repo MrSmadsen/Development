@@ -17,7 +17,8 @@ REM Param_2: Function_Param_1
 REM Param_3: Function_Param_2
 REM Param_4: Function_Param_3
 REM Param_5: Function_Param_4
-CALL %1 %2 %3 %4 %5
+REM Param_6: Function_Param_5
+CALL %1 %2 %3 %4 %5 %6
 EXIT /B 0
 
 REM Just a dummy function that does nothing.
@@ -141,16 +142,20 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 IF "%~1"=="NO" (
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 ) ELSE IF "%~1"=="SleepOff" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Sleep Mode. Setting -standby-timeout-ac to 0 minutes" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Sleep Mode. Setting timeouts -standby-timeout-ac and -standby-timeout-dc to 0 minutes" "OUTPUT_TO_STDOUT" ""
   powercfg -change -standby-timeout-ac 0
+  powercfg -change -standby-timeout-dc 0
 ) ELSE IF "%~1"=="HibernationOff" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to 0 minutes" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Hibernation Mode. Setting timeouts -hibernate-timeout-ac and -hibernate-timeout-dc to 0 minutes" "OUTPUT_TO_STDOUT" ""
   powercfg -change -hibernate-timeout-ac 0
+  powercfg -change -hibernate-timeout-dc 0
 ) ELSE IF "%~1"=="SleepAndHibernationOff" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Sleep Mode. Setting -standby-timeout-ac to 0 minutes" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Sleep Mode. Setting timeouts -standby-timeout-ac and -standby-timeout-dc to 0 minutes" "OUTPUT_TO_STDOUT" ""
   powercfg -change -standby-timeout-ac 0
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to 0 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -standby-timeout-dc 0
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Disabling Windows Hibernation Mode. Setting timeouts -hibernate-timeout-ac and -hibernate-timeout-dc to 0 minutes" "OUTPUT_TO_STDOUT" ""
   powercfg -change -hibernate-timeout-ac 0
+  powercfg -change -hibernate-timeout-dc 0
 ) ELSE (
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_DisablePowerDown - Unsupported value detected. Value: %~1. Exit" "OUTPUT_TO_STDOUT" ""
@@ -159,8 +164,11 @@ CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOU
 EXIT /B 0
 
 REM Param_1: Config mode. (NO (Default) | SleepOff | HibernationOff | SleepAndHibernationOff)
-REM Param_2: varSleepTimeout. Sleep timeout in minutes.
-REM Param_3: varHibernationTimeout. Hibernation timeout in minutes.
+REM https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/powercfg-command-line-options
+REM Param_2: varSleepTimeout. Sleep timeout in minutes. 0 = Turned off.
+REM Param_3: varHibernationTimeout. Hibernation timeout in minutes. 0 = Turned off.
+REM Param_4: varSleepTimeoutBattery. Sleep timeout in minutes on battery. 0 = Turned off.
+REM Param_5: varHibernationTimeoutBattery. Hibernation timeout in minutes on battery. 0 = Turned off.
 :windows_powercfg_EnablePowerDown
 IF [%1]==[] (
   CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - No config mode supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
@@ -180,21 +188,37 @@ IF [%3]==[] (
 IF [%3]==[""] (
   CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_3: Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
 )
+IF [%4]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_4: No Sleep timeout (battery) supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%4]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_4: Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%5]==[] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_5: No Hibernation timeout (battery) supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
+IF [%5]==[""] (
+  CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Param_5: Empty double qoutes supplied to the function. Exit" "OUTPUT_TO_STDOUT" ""
+)
 
 CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 IF "%~1"=="NO" (
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
 ) ELSE IF "%~1"=="SleepOff" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Sleep Mode. Setting -standby-timeout-ac to %~2 minutes" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Sleep Mode. Setting -standby-timeout-ac to %~2 minutes and -standby-timeout-dc to %~4 minutes" "OUTPUT_TO_STDOUT" ""
   powercfg -change -standby-timeout-ac %~2
+  powercfg -change -standby-timeout-dc %~4
 ) ELSE IF "%~1"=="HibernationOff" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to %~3 minutes" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to %~3 minutes and -hibernate-timeout-dc to %~5 minutes" "OUTPUT_TO_STDOUT" ""
   powercfg -change -hibernate-timeout-ac %~3
+  powercfg -change -hibernate-timeout-dc %~5
 ) ELSE IF "%~1"=="SleepAndHibernationOff" (
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Sleep Mode. Setting -standby-timeout-ac to %~2 minutes" "OUTPUT_TO_STDOUT" ""
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Sleep Mode. Setting -standby-timeout-ac to %~2 minutes and -standby-timeout-dc to %~4 minutes" "OUTPUT_TO_STDOUT" ""
   powercfg -change -standby-timeout-ac %~2
-  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to %~3 minutes" "OUTPUT_TO_STDOUT" ""
+  powercfg -change -standby-timeout-dc %~4
+  CALL ..\logging :Append_To_LogFile "%varTargetLogFile%" "Enabling Windows Hibernation Mode. Setting -hibernate-timeout-ac to %~3 minutes and -hibernate-timeout-dc to %~5 minutes" "OUTPUT_TO_STDOUT" ""
   powercfg -change -hibernate-timeout-ac %~3
+  powercfg -change -hibernate-timeout-dc %~5
 ) ELSE (
   CALL ..\logging :Append_NewLine_To_LogFile "%varTargetLogFile%" "OUTPUT_TO_STDOUT" ""
   CALL :Exception_End "%varTargetLogFile%" ":windows_powercfg_EnablePowerDown - Unsupported value detected. Value: %~1. Exit" "OUTPUT_TO_STDOUT" ""
@@ -555,6 +579,14 @@ FOR /f "eol=# tokens=1,2 delims==" %%i in (%~1) do (
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"
   ) ELSE IF "%%i"=="varHibernationTimeout" (
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "0-300"
+    CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varSleepTimeoutBattery" (
+    CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "0-300"
+    CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
+    SET "%%i=%%j"
+  ) ELSE IF "%%i"=="varHibernationTimeoutBattery" (
     CALL ..\ParameterValidation.cmd :validateParameter_NumericRange "%~1" "%%j" "%%i" "0-300"
     CALL ..\ParameterValidation.cmd :incrementValidationCounters "%~1"
     SET "%%i=%%j"

@@ -65,6 +65,7 @@ REM (zip | 7z) List
 REM varCompressionLvl
 SET "itemList_varFormat[0]=zip"
 SET "itemList_varFormat[1]=7z"
+REM IMPORTANT! If a new format is added also update Reg_Ex pattern validation functionality in function: ..\fileSystem deleteFolderIfItIsAnOldBackup
 
 REM (D | DA | DAT | DATS | DATSO | DATSOU) List
 REM varSyncFolder_DCOPY_FLAGS

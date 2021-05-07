@@ -73,7 +73,7 @@ IF "%varElevatedAdminPriviligies%"=="NO" (
 EXIT /B 0
 
 :PerformSystemConfigPostconditionals
-CALL ..\utility_functions :windows_powercfg_EnablePowerDown "%varTemporarilyDisablePowerDown%" "%varSleepTimeout%" "%varHibernationTimeout%"
+CALL ..\utility_functions :windows_powercfg_EnablePowerDown "%varTemporarilyDisablePowerDown%" "%varSleepTimeout%" "%varHibernationTimeout%" "%varSleepTimeoutBattery%" "%varHibernationTimeoutBattery%"
 EXIT /B 0
 
 :SetupApplicationMode

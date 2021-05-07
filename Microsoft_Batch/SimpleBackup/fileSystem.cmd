@@ -109,8 +109,16 @@ FOR /f "tokens=*" %%a in ('DIR "%~1\%~2" /a:d /b') DO (
 )
 
 SET "varIsValidFolder=NOT_DEFINED"
+REM Deprecated the generic archive file check. If a backup configuration changes it's backup format
+REM it should still be able to delete old backups. It cannot if a general solution is used.
+REM 2021-03-17_15-20-backup.FORMAT.001
+REM SET "varSrcStr1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.%varFormat%.*$"
+
+REM Adding all supported file types here. It is hardcoded, meaning support for new file types requires manually updating this function.
 REM 2021-03-17_15-20-backup.zip.001
-SET "varSrcStr1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.%varFormat%.*$"
+SET "varSrcStr1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.zip.*$"
+REM 2021-03-17_15-20-backup.7z.001
+SET "varSrcStr1_1=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.7z.*$"
 REM 2021-03-17_15-20-Checksum-SHA512.txt
 SET "varSrcStr2=^[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-Checksum-.*\.txt$"
 REM 2021-03-17_15-20-logfile.txt
@@ -138,7 +146,15 @@ for /f "delims=" %%F in ('dir "%~1\%~2" /b /a-d') do (
   
   
   REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
-  echo %%F|findstr /r /c:"!varSrcStr1!">nul
+  REM Ignore case: /i. "zip/ZIP"
+  echo %%F|findstr /i /r /c:"!varSrcStr1!">nul
+  IF "!ERRORLEVEL!"=="0" (
+    SET /A "varNoOfExpectedFilesInTotal+=1"
+  )
+  
+  REM /R /C:"Search string" - This will perform a Regex match, but will also accept spaces in the search string. (https://ss64.com/nt/findstr.html)
+  REM Ignore case: /i. "7z/7Z"
+  echo %%F|findstr /i /r /c:"!varSrcStr1_1!">nul
   IF "!ERRORLEVEL!"=="0" (
     SET /A "varNoOfExpectedFilesInTotal+=1"
   )
