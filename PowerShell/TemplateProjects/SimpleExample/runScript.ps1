@@ -1,4 +1,4 @@
-#------------------------------ Below here! Excample: using statement. ------------------------------
+#------------------------------ Below here! Example: using statement. ------------------------------
 # If debugging and verbose output should be disabled: Usage: .\runScript.ps1
 # If debugging output should be enabled:              Usage:  .\runScript.ps1 -enableDebug
 # If debugging and verbose output should be enabled:  Usage:  .\runScript.ps1 -enableDebug -enableVerbose
@@ -18,7 +18,7 @@ $objSimpleExampleOfAClass = New-Object -TypeName SimpleExampleOfAClass -Argument
 # String: Single quoted strings are not expandable - The string is parsed "as it is" to the callee.
 $objSimpleExampleOfAClass.printStringValue('SimpleExample')
 
-#------------------------------ Below here! Function export. ------------------------------
+#------------------------------ Below here! Example: function export. ------------------------------
 #Importing module:
 # For running when working:
 
