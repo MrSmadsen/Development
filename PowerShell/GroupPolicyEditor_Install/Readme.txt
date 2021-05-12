@@ -11,7 +11,7 @@ DISM /Online /NoRestart /Add-Package:"%F"
 
 
 
-REM Commands to be add to a bat-file and then run in a command prompt:
+REM Commands to add to a bat-file and then run in a command prompt:
 FOR %%F IN ("%SystemRoot%\servicing\Packages\Microsoft-Windows-GroupPolicy-ClientTools-Package~*.mum") DO (
 DISM /Online /NoRestart /Add-Package:"%F"
 )
