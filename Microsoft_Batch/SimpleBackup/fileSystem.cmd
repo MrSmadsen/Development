@@ -92,7 +92,7 @@ IF "%varResultStrLength2%"=="NOT_DEFINED" (
 )
 
 REM Checking if the folder to check matches the expected format of the dateTime timestamp used for folderNaming.
-SET "varDateFolderPattern=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]"
+SET "varDateFolderPattern=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]"
 SET "varDateFolderStringPatternMatchPathResult="
 CALL ..\utility_functions :ValidateString_RegEx "%~2" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="NO" (
@@ -112,31 +112,31 @@ SET "varIsValidFolder=NOT_DEFINED"
 REM Deprecated the generic archive file check. If a backup configuration changes it's backup format
 REM it should still be able to delete old backups. It cannot if a general solution is used.
 REM 2021-03-17_15-20-backup.FORMAT.001
-REM SET "varSrcStr1=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.%varFormat%.*"
+REM SET "varSrcStr1=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.%varFormat%.*"
 
 REM Adding all supported file types here. It is hardcoded, meaning support for new file types requires manually updating this function.
 REM 2021-03-17_15-20-backup.zip.001
-SET "varSrcStr1=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.zip.*"
+SET "varSrcStr1=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.zip.*"
 REM 2021-03-17_15-20-backup.7z.001
-SET "varSrcStr1_1=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.7z.*"
+SET "varSrcStr1_1=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.7z.*"
 REM 2021-03-17_15-20-Checksum-SHA512.txt
-SET "varSrcStr2=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-Checksum-.*\.txt"
+SET "varSrcStr2=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-Checksum-.*\.txt"
 REM 2021-03-17_15-20-logfile.txt
-SET "varSrcStr3=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-logfile\.txt"
+SET "varSrcStr3=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-logfile\.txt"
 REM 2021-03-17_15-20-RoboCopyLogfile.txt"
-SET "varSrcStr4=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-RoboCopyLogfile\.txt"
+SET "varSrcStr4=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-RoboCopyLogfile\.txt"
 REM 2021-03-17_15-20-UpdateArchive-logfile.txt"
-SET "varSrcStr5=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-UpdateArchive-logfile\.txt"
+SET "varSrcStr5=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-UpdateArchive-logfile\.txt"
 REM 2021-03-17_15-20-ExtractToFolder-logfile.txt"
-SET "varSrcStr6=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractToFolder-logfile\.txt"
+SET "varSrcStr6=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractToFolder-logfile\.txt"
 REM 2021-03-17_15-20-ExtractFullPath-logfile.txt"
-SET "varSrcStr7=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractFullPath-logfile\.txt"
+SET "varSrcStr7=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-ExtractFullPath-logfile\.txt"
 REM 2021-03-17_15-20-IntegrityTest-logfile.txt"
-SET "varSrcStr8=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-IntegrityTest-logfile\.txt"
+SET "varSrcStr8=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-IntegrityTest-logfile\.txt"
 REM 2021-03-17_15-20-VerifyChecksum-logfile.txt"
-SET "varSrcStr9=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-VerifyChecksum-logfile\.txt"
+SET "varSrcStr9=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-VerifyChecksum-logfile\.txt"
 REM 2021-03-17_15-20-backup.exe"
-SET "varSrcStr10=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.exe"
+SET "varSrcStr10=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-backup\.exe"
 
 SET /A "varNoOfFilesInTotal=0"
 SET /A "varNoOfExpectedFilesInTotal=0"
@@ -926,7 +926,7 @@ REM This function will throw an exception if a slash is not found.
 CALL :LookForSlashChar "%varTmpNormalizedPathValue%" "%index%"
 
 SET "varDateFolderFromPath=%varTmpNormalizedPathValue:~-16%"
-SET "varDateFolderPattern=[0-9][0-9][0-9][0-9]-[0-9][1-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]"
+SET "varDateFolderPattern=[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]"
 CALL ..\utility_functions :ValidateString_RegEx "%varDateFolderFromPath%" "%varDateFolderPattern%" "IGNORE_CASE_SENSITIVITY_NO" "varDateFolderStringPatternMatchPathResult"
 IF "%varDateFolderStringPatternMatchPathResult%"=="YES" (
   SET "%~2=%varDateFolderFromPath%"
