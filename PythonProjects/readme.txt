@@ -1,0 +1,1 @@
+This folder contains a User library called UserPackages and python projects.
